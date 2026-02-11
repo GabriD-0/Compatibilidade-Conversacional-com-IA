@@ -1,3 +1,4 @@
+![Capa](images/instituicao_logo.png)
 ## Capa
 
 - **Título do Projeto**: Compatibilidade Conversacional com IA
