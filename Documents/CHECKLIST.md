@@ -221,7 +221,7 @@ Checklist completo baseado no documento do projeto. Use `[ ]` para pendente e `[
 #### Linguagens
 
 - [x] Python (backend, motor de IA, pré-processamento, métricas)
-- [x] JavaScript (frontend)
+- [x] TypeScript (frontend)
 
 #### Frameworks e Bibliotecas
 
@@ -359,7 +359,7 @@ Seção dedicada às tarefas de implementação do backend (Flask) e do frontend
 
 #### Projeto e ambiente
 
-- [x] Stack definida: Vue.js (JavaScript ou TypeScript)
+- [x] Stack definida: Vue.js
 - [ ] Projeto Vue criado (Vite ou Vue CLI) com estrutura de pastas
 - [ ] Configuração para consumir a API do backend (URL base, ambiente dev/prod)
 - [ ] Gerenciamento de estado (Pinia ou Vuex) se necessário para chat/dashboard
