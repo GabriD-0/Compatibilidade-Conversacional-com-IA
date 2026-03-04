@@ -31,13 +31,6 @@ Checklist completo baseado no documento do projeto. Use `[ ]` para pendente e `[
 - [ ] Noção de compatibilidade conversacional explicada
 - [ ] Oportunidades (pareamento, redução de atritos, decisões) mencionadas
 
-### Justificativa
-
-- [ ] Crítica a perfis estáticos/questionários extensos
-- [ ] Diálogos reais como fonte de dados justificada
-- [ ] Explicabilidade e transparência citadas
-- [ ] Boas práticas de IA responsável mencionadas
-
 ### Objetivos
 
 - [ ] **Objetivo Geral**: sistema de IA para score de compatibilidade conversacional
@@ -64,13 +57,6 @@ Checklist completo baseado no documento do projeto. Use `[ ]` para pendente e `[
 - [ ] Visualizar métricas e insights (dashboard, distribuições, comparações)
 - [ ] Integrar via API (sistemas externos)
 - [ ] Problema de pareamento/avaliação objetiva descrito
-
-### Público-Alvo
-
-- [ ] Gestores de equipes e líderes de projetos
-- [ ] Plataformas de atendimento ao cliente e contact centers
-- [ ] Plataformas de relacionamento e mentoria
-- [ ] Pesquisadores e analistas de comunicação
 
 ### Problemas a Resolver
 
@@ -187,20 +173,6 @@ Checklist completo baseado no documento do projeto. Use `[ ]` para pendente e `[
 - [x] Arquitetura em camadas (apresentação, negócio, dados)
 - [x] API-first no backend
 - [x] Vue.js no frontend (componentes, composables, separação de responsabilidades)
-
-#### Modelos C4
-
-- [ ] C4 Nível 1 – Diagrama de Contexto do Sistema (c4_nivel1_contexto.png)
-- [ ] C4 Nível 2 – Diagrama de Contêineres (c4_nivel2_conteineres.png)
-- [ ] C4 Nível 3 – Diagrama de Componentes (c4_nivel3_componentes.png)
-- [ ] C4 Nível 4 – Diagrama de Código (c4_nivel4_codigo.png)
-
-#### Mockups
-
-- [ ] Tela de Chat (Figma ou similar)
-- [ ] Dashboard de Métricas (gráficos, top-N, explicabilidade por par)
-- [ ] Tela de Configurações/Administrativo (quando aplicável)
-- [ ] Validação de acessibilidade (WCAG) nos mockups
 
 #### Decisões e Alternativas
 
@@ -508,25 +480,5 @@ Seção dedicada às tarefas de implementação do backend (Flask) e do frontend
 
 ---
 
-## 7. Avaliações de Professores
-
-- [ ] Considerações Professor/a 1
-- [ ] Considerações Professor/a 2
-- [ ] Considerações Professor/a 3
-
----
-
-## Artefatos e Imagens
-
-- [ ] `images/instituicao_logo.png`
-- [ ] `images/diagrama_casos_uso.png`
-- [ ] `images/diagrama_fluso_lgpd.png`
-- [ ] `images/c4_nivel1_contexto.png`
-- [ ] `images/c4_nivel2_conteineres.png`
-- [ ] `images/c4_nivel3_componentes.png`
-- [ ] `images/c4_nivel4_codigo.png`
-
----
-
 *Checklist gerado a partir do documento "Compatibilidade Conversacional com IA".*
-*Última atualização: conforme documento de referência.*
+*Última atualização: 04/03/2026*

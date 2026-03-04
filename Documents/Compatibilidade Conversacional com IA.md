@@ -208,7 +208,7 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
 - **Frameworks e Bibliotecas**
   - **Flask** para a API REST;
   - Bibliotecas de **processamento de linguagem natural** em português (bibliotecas específicas a serem definidas durante o desenvolvimento). Bibliotecas de machine learning poderão ser consideradas para evolução futura, caso seja implementado um modelo supervisionado;
-  - Framework de frontend (**React**) para construção da interface de chat e dashboard;
+  - Framework de frontend (**Vue.js**) para construção da interface de chat e dashboard;
   - Bibliotecas de visualização para gráficos no dashboard;
   - **SQLAlchemy** para mapeamento objeto-relacional (ORM) com PostgreSQL.
 
