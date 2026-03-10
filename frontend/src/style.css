@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #5adb94;    /* verde - cor principal */
+  --color-secondary: #0ba18c;  /* teal */
+  --color-tertiary: #368986;   /* teal escuro */
+  --color-accent: #8a034d;     /* magenta - destaque */
+  --color-dark: #2e0331;       /* roxo escuro */
+
+  /* Tokens semânticos (variam com tema claro/escuro) */
+  --color-page: var(--token-bg-page);
+  --color-surface: var(--token-bg-surface);
+  --color-body: var(--token-text);
+  --color-muted: var(--token-text-muted);
+  --color-border-default: var(--token-border);
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --token-bg-page: #2e0331;
+  --token-bg-surface: #242424;
+  --token-text: rgba(255, 255, 255, 0.87);
+  --token-text-muted: rgba(255, 255, 255, 0.7);
+  --token-border: #368986;
+  color: var(--token-text);
+  background-color: var(--token-bg-page);
+}
+
+/* Modo claro */
+@media (prefers-color-scheme: light) {
+  :root {
+    --token-bg-page: #368986;
+    --token-bg-surface: #ffffff;
+    --token-text: #213547;
+    --token-text-muted: #64748b;
+    --token-border: #0ba18c;
+    color: var(--token-text);
+    background-color: var(--token-bg-page);
+  }
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Componentes base */
+@layer components {
+  /* Botão primário */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #2e0331;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-secondary);
+    color: #fff;
+  }
+
+  /* Input padrão */
+  .input {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--token-text);
+    background-color: var(--token-bg-surface);
+    border: 1px solid var(--token-border);
+    border-radius: 0.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input::placeholder {
+    color: var(--token-text-muted);
+    opacity: 0.8;
+  }
+  .input:focus {
+    border-color: var(--color-secondary);
+  }
+
+  /* Card / superfície elevada */
+  .card {
+    padding: 2rem;
+    background-color: var(--token-bg-surface);
+    border: 1px solid var(--token-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  @layer components {
+    .card {
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
