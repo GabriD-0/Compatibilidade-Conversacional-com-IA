@@ -15,7 +15,6 @@
   --color-border-default: var(--token-border);
 }
 
-/* ========== Modo escuro (padrão) ========== */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -35,7 +34,7 @@
   background-color: var(--token-bg-page);
 }
 
-/* ========== Modo claro ========== */
+/* Modo claro */
 @media (prefers-color-scheme: light) {
   :root {
     --token-bg-page: #368986;
@@ -54,7 +53,7 @@ body {
   min-height: 100vh;
 }
 
-/* ========== Componentes base (design system) ========== */
+/* Componentes base */
 @layer components {
   /* Botão primário */
   .btn-primary {
