@@ -1,10 +1,22 @@
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: var(--token-bg-page);
 }
 
-.app-layout__sidebar {
+.app-layout__main {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 2rem;
+  min-width: 0;
+  min-width: 0;
+  min-width: 0;
+}
+
+/* Sidebar - largura fixa (trava), não acompanha o conteúdo interno */
+.sidebar {
+  position: relative;
   width: 280px;
   flex-shrink: 0;
   background-color: var(--token-bg-surface);
@@ -12,74 +24,130 @@
   display: flex;
   flex-direction: column;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+  transition: width 0.25s ease, box-shadow 0.25s ease;
+  overflow: visible;
 }
 
-.app-layout__main {
+.sidebar__inner {
   flex: 1;
-  overflow: auto;
-  padding: 2rem;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar--collapsed {
+  width: 72px;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.06);
 }
 
 .sidebar__header {
-  padding: 1.5rem 1.25rem;
+  padding: 1.25rem 1rem;
   border-bottom: 1px solid var(--token-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 80px;
+  flex-shrink: 0;
+}
+
+.sidebar--collapsed .sidebar__header {
+  padding: 1rem;
+  justify-content: center;
 }
 
 .sidebar__logo {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   border-radius: 12px;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.35rem;
   box-shadow: 0 4px 14px rgba(90, 219, 148, 0.3);
 }
 
+.sidebar__brand {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar--collapsed .sidebar__brand {
+  opacity: 0;
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+}
+
 .sidebar__title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--token-text);
   margin: 0;
   line-height: 1.3;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .sidebar__subtitle {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--token-text-muted);
-  margin: 0.25rem 0 0;
+  margin: 0.2rem 0 0;
+  white-space: nowrap;
 }
 
 .sidebar__nav {
-  padding: 1.25rem 0.75rem;
+  padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
+  flex: 1;
 }
 
 .sidebar__nav-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--token-text-muted);
   padding: 0 0.75rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar--collapsed .sidebar__nav-label {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
 .sidebar__link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.7rem 1rem;
   font-size: 0.95rem;
   color: var(--token-text-muted);
   text-decoration: none;
   border-radius: 0.5rem;
   transition: color 0.2s, background-color 0.2s;
+  position: relative;
+}
+
+.sidebar--collapsed .sidebar__link {
+  justify-content: center;
+  padding: 0.75rem;
 }
 
 .sidebar__link:hover {
@@ -91,7 +159,26 @@
   flex-shrink: 0;
   width: 1.25rem;
   height: 1.25rem;
-  opacity: 0.85;
+  opacity: 0.9;
+}
+
+.sidebar--collapsed .sidebar__link-icon {
+  margin: 0;
+}
+
+.sidebar__link-text {
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar--collapsed .sidebar__link-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  position: absolute;
+  pointer-events: none;
 }
 
 .sidebar__link.router-link-active {
@@ -103,12 +190,97 @@
   padding-left: calc(1rem - 3px);
 }
 
+.sidebar--collapsed .sidebar__link.router-link-active {
+  padding-left: 0.75rem;
+  border-left: none;
+  border-radius: 0.5rem;
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+
 .sidebar__link.router-link-active .sidebar__link-icon {
   opacity: 1;
 }
 
+.sidebar__footer {
+  padding: 0.75rem;
+  border-top: 1px solid var(--token-border);
+  flex-shrink: 0;
+}
+
+.sidebar__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--token-bg-surface);
+  border: 1px solid var(--token-border);
+  border-radius: 50%;
+  color: var(--color-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.sidebar__toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-secondary);
+  box-shadow: 0 2px 12px rgba(90, 219, 148, 0.25);
+}
+
+.sidebar__toggle-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.sidebar--collapsed .sidebar__toggle {
+  width: 26px;
+  height: 26px;
+}
+
+.sidebar__logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  margin-top: 0.5rem;
+  background: transparent;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--token-text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.sidebar__logout-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.sidebar__logout:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--color-accent);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.sidebar--collapsed .sidebar__logout-text {
+  display: none;
+}
+
+.sidebar--collapsed .sidebar__logout {
+  padding: 0.6rem;
+}
+
 @media (prefers-color-scheme: light) {
-  .app-layout__sidebar {
+  .sidebar {
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.04);
   }
   .sidebar__link:hover {
@@ -116,5 +288,14 @@
   }
   .sidebar__link.router-link-active {
     background-color: rgba(11, 161, 140, 0.1);
+  }
+  .sidebar__toggle {
+    background: rgba(11, 161, 140, 0.08);
+    border-color: rgba(11, 161, 140, 0.2);
+    color: var(--color-secondary);
+  }
+  .sidebar__toggle:hover {
+    background: rgba(11, 161, 140, 0.15);
+    border-color: rgba(11, 161, 140, 0.35);
   }
 }

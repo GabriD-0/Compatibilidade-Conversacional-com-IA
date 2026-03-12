@@ -15,7 +15,7 @@ const router = useRouter()
     </header>
 
     <section class="home-page__cards">
-      <article class="home-card card" @click="router.push('/home/chat')">
+      <article class="home-card card" @click="router.push('/chat')">
         <span class="home-card__icon">💬</span>
         <h2 class="home-card__title">Chat</h2>
         <p class="home-card__text">
@@ -23,7 +23,7 @@ const router = useRouter()
         </p>
         <span class="home-card__action">Acessar Chat →</span>
       </article>
-      <article class="home-card card" @click="router.push('/home/dashboard')">
+      <article class="home-card card" @click="router.push('/dashboard')">
         <span class="home-card__icon">📊</span>
         <h2 class="home-card__title">Dashboard</h2>
         <p class="home-card__text">
