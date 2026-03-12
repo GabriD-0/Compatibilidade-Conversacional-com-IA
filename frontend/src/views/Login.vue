@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { OhVueIcon, addIcons } from 'oh-vue-icons'
+import { BiEye, BiEyeSlash } from 'oh-vue-icons/icons/bi'
+
+addIcons(BiEye, BiEyeSlash)
+
+const router = useRouter()
+const showPassword = ref(false)
+
+function handleSubmit() {
+  router.push('/home')
+}
 </script>
 
 <template>
@@ -12,7 +25,7 @@
         Entre na sua conta para continuar
       </p>
 
-      <form class="flex flex-col gap-5" @submit.prevent>
+      <form class="flex flex-col gap-5" @submit.prevent="handleSubmit">
         <div class="flex flex-col gap-1.5">
           <label for="email" class="text-sm font-medium text-body">E-mail</label>
           <input
@@ -26,15 +39,25 @@
         <div class="flex flex-col gap-1.5">
           <div class="flex items-center justify-between">
             <label for="password" class="text-sm font-medium text-body">Senha</label>
-            <a href="#" class="login-link">Esqueceu a senha?</a>
+            <RouterLink to="/forget-password" class="login-link">Esqueceu a senha?</RouterLink>
           </div>
-          <input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            autocomplete="current-password"
-            class="input"
-          />
+          <div class="password-input-wrapper">
+            <input
+              id="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              class="input input-with-icon"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              :aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+              @click="showPassword = !showPassword"
+            >
+              <OhVueIcon :name="showPassword ? 'bi-eye-slash' : 'bi-eye'" />
+            </button>
+          </div>
         </div>
         <button type="submit" class="btn-primary mt-1">
           Entrar
@@ -43,7 +66,7 @@
 
       <p class="mt-6 text-center text-sm text-muted">
         Não tem conta?
-        <a href="#" class="login-link ml-1">Criar conta</a>
+        <RouterLink to="/signup" class="login-link ml-1">Criar conta</RouterLink>
       </p>
     </div>
   </div>
