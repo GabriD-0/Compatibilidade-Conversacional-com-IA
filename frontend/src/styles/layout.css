@@ -6,12 +6,7 @@
 
 .app-layout__main {
   flex: 1;
-  min-width: 0;
   overflow: auto;
-  padding: 2rem;
-  min-width: 0;
-  min-width: 0;
-  min-width: 0;
 }
 
 /* Sidebar - largura fixa (trava), não acompanha o conteúdo interno */

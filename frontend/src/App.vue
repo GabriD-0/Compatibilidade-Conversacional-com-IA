@@ -5,7 +5,10 @@ import { RouterView } from 'vue-router'
 <template>
   <RouterView v-slot="{ Component, route }">
     <Transition name="page-fade" mode="out-in">
-      <component :is="Component" :key="route.path" />
+      <component
+        :is="Component"
+        :key="route.matched.length > 1 ? (route.matched[0]?.path ?? route.path) : route.path"
+      />
     </Transition>
   </RouterView>
 </template>
