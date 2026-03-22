@@ -80,73 +80,77 @@ function goToChat() {
 
       <Divider />
 
-      <section id="demo" class="home__grid">
+      <section id="demo">
         <div class="home__section-head">
           <p class="home-kicker">DEMO</p>
-          <h2>Análise de compatibilidade em tempo real.</h2>
+          <h2 class="home__section-title">Análise de compatibilidade em tempo real.</h2>
         </div>
 
-        <Card class="home__grid-main">
-          <template #title>
-            <div class="home-card-title">
-              <i class="pi pi-comment home-card-title__icon"></i>
-              <span>Análise em Tempo Real</span>
-            </div>
-          </template>
-          <template #content>
-            <span class="home-card-dot"></span>
-            <ChatPreview />
-          </template>
-        </Card>
+        <div class="home__grid">
+          <Card class="home__grid-main">
+            <template #title>
+              <div class="home-card-title">
+                <i class="pi pi-comment home-card-title__icon"></i>
+                <span>Análise em Tempo Real</span>
+              </div>
+            </template>
+            <template #content>
+              <span class="home-card-dot"></span>
+              <ChatPreview />
+            </template>
+          </Card>
 
-        <Card>
-          <template #title>
-            <div class="home-card-title">
-              <i class="pi pi-bolt home-card-title__icon"></i>
-              <span>Arquitetura de IA</span>
-            </div>
-          </template>
-          <template #content>
-            <NetworkGraph />
-            <small class="home__muted">3 dimensões -> 1 score unificado</small>
-          </template>
-        </Card>
+          <Card>
+            <template #title>
+              <div class="home-card-title">
+                <i class="pi pi-bolt home-card-title__icon"></i>
+                <span>Arquitetura de IA</span>
+              </div>
+            </template>
+            <template #content>
+              <NetworkGraph />
+              <small class="home__muted">3 dimensões -> 1 score unificado</small>
+            </template>
+          </Card>
+        </div>
       </section>
 
       <Divider />
 
-      <section id="metrics" class="home__grid">
+      <section id="metrics">
         <div class="home__section-head">
           <p class="home-kicker">MÉTRICAS</p>
-          <h2>Dimensões de análise e explicabilidade.</h2>
+          <h2 class="home__section-title">Dimensões de análise e explicabilidade.</h2>
         </div>
 
-        <Card>
-          <template #title>
-            <div class="home-card-title">
-              <i class="pi pi-chart-bar home-card-title__icon"></i>
-              <span>Dimensões de Análise</span>
-            </div>
-          </template>
-          <template #content>
-            <MetricsBar />
-          </template>
-        </Card>
+        <div class="home__grid home__grid--cols-2">
+          <Card class="">
+            <template #title>
+              <div class="home-card-title">
+                <i class="pi pi-chart-bar home-card-title__icon"></i>
+                <span>Dimensões de Análise</span>
+              </div>
+            </template>
+            <template #content>
+              <MetricsBar />
+            </template>
+          </Card>
 
-        <Card class="home__accent-card">
-          <template #content>
-            <span class="home-pill">EXPLICABILIDADE</span>
-            <h3>Transparência total nos resultados.</h3>
-            <p class="home__muted">
-              Cada score vem acompanhado de sumários explicáveis, destacando os fatores que mais
-              influenciaram a compatibilidade. Conformidade com LGPD.
-            </p>
-            <small class="home__muted home__lgpd">
-              <i class="pi pi-shield"></i>
-              <span>lgpd.compliant = true</span>
-            </small>
-          </template>
-        </Card>
+          <Card class="home__accent-card">
+            <template #content>
+              <span class="home-pill">EXPLICABILIDADE</span>
+              <h3>Transparência total nos resultados.</h3>
+              <p class="home__muted">
+                Cada score vem acompanhado de sumários explicáveis, destacando os fatores que mais
+                influenciaram a compatibilidade. Conformidade com LGPD.
+              </p>
+              <small class="home__muted home__lgpd">
+                <i class="pi pi-shield"></i>
+                <span>lgpd.compliant = true</span>
+              </small>
+            </template>
+          </Card>
+        </div>
       </section>
 
       <Divider />
@@ -154,7 +158,7 @@ function goToChat() {
       <section id="features">
         <div class="home__section-head">
           <p class="home-kicker">FUNCIONALIDADES</p>
-          <h2>Três pilares, um score.</h2>
+          <h2 class="home__section-title">Três pilares, um score.</h2>
         </div>
         <div class="home__features">
           <Card v-for="feature in features" :key="feature.tag">
@@ -242,6 +246,16 @@ function goToChat() {
   background: color-mix(in srgb, var(--token-bg-surface) 30%, #25143177) !important;
   backdrop-filter: blur(8px);
   box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 5%, transparent);
+}
+
+.home-container :deep(.p-card.home__accent-card) {
+  border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 16%, rgba(14, 4, 18, 0.88)) !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-accent) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 20%, transparent),
+    0 8px 36px color-mix(in srgb, var(--color-accent) 32%, transparent);
+  backdrop-filter: blur(12px);
 }
 
 .home-nav {
@@ -332,6 +346,12 @@ function goToChat() {
   color: var(--color-primary);
 }
 
+.home__section-head h2.home__section-title {
+  font-size: 45px;
+  line-height: 1.12;
+  font-weight: 600;
+}
+
 .home-subtitle {
   margin-top: 1.35rem;
   max-width: 38rem;
@@ -379,6 +399,7 @@ function goToChat() {
 
 .home-score-card {
   border-radius: 1.45rem;
+  max-width:350px;
 }
 
 .home-score {
@@ -407,6 +428,11 @@ function goToChat() {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Duas colunas (ex.: Métricas); evita 3ª coluna vazia do grid 3×1. */
+.home__grid--cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .home__grid-main {
@@ -451,6 +477,11 @@ function goToChat() {
   font-size: 0.78rem;
   letter-spacing: 0.12em;
   font-weight: 700;
+}
+
+.home__accent-card .home-pill {
+  border-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 28%, transparent);
 }
 
 .home__lgpd {

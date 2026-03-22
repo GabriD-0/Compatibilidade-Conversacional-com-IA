@@ -17,7 +17,7 @@ const gradId = `ring-grad-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
 const strokeW = 8
 const radius = computed(() => (props.size - strokeW - 12) / 2)
 
-/** Offset normalizado (pathLength=100): 0 = anel cheio, 100 = vazio */
+/* Offset normalizado (pathLength=100): 0 = anel cheio, 100 = vazio */
 const targetOffset = computed(() => {
   const clamped = Math.min(100, Math.max(0, props.score))
   return 100 - clamped
@@ -37,29 +37,31 @@ watch(targetOffset, (next) => {
 </script>
 
 <template>
-  <div class="ring" :style="{ width: `${size}px`, height: `${size}px` }">
-    <svg :width="size" :height="size" class="ring__svg" :aria-label="`Score ${score} por cento`">
+  <div class="compat-ring" :style="{ width: `${size}px`, height: `${size}px` }">
+    <svg :width="size" :height="size" class="compat-ring__svg" :aria-label="`Score ${score} por cento`">
       <defs>
         <linearGradient :id="gradId" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#5df2a5" />
           <stop offset="100%" stop-color="#5adb94" />
         </linearGradient>
       </defs>
+
       <circle
         :cx="size / 2"
         :cy="size / 2"
         :r="radius"
         fill="none"
-        class="ring__track"
+        class="compat-ring__track"
         :stroke-width="strokeW"
       />
+
       <circle
         :cx="size / 2"
         :cy="size / 2"
         :r="radius"
         fill="none"
         pathLength="100"
-        class="ring__progress"
+        class="compat-ring__progress"
         :stroke-width="strokeW"
         :stroke="`url(#${gradId})`"
         stroke-dasharray="100"
@@ -67,33 +69,34 @@ watch(targetOffset, (next) => {
       />
     </svg>
 
-    <div class="ring__label">
+    <div class="compat-ring__label">
       <strong>{{ score }}</strong>
-      <span class="ring__score-word">score</span>
+      <span class="compat-ring__score-word">score</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.ring {
+.compat-ring {
   position: relative;
 }
 
-.ring__svg {
+.compat-ring__svg {
+  display: block;
   transform: rotate(-90deg);
 }
 
-.ring__track {
+.compat-ring__track {
   stroke: color-mix(in srgb, var(--color-tertiary) 28%, #1a1520);
   opacity: 0.9;
 }
 
-.ring__progress {
+.compat-ring__progress {
   stroke-linecap: round;
   transition: stroke-dashoffset 1.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.ring__label {
+.compat-ring__label {
   position: absolute;
   inset: 0;
   display: flex;
@@ -105,7 +108,7 @@ watch(targetOffset, (next) => {
   pointer-events: none;
 }
 
-.ring__label strong {
+.compat-ring__label strong {
   display: block;
   line-height: 1;
   font-size: clamp(2.1rem, 5.5vw, 2.65rem);
@@ -114,7 +117,7 @@ watch(targetOffset, (next) => {
   letter-spacing: -0.03em;
 }
 
-.ring__score-word {
+.compat-ring__score-word {
   font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
