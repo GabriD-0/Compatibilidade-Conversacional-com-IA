@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useId } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -11,36 +12,64 @@ const props = withDefaults(
   },
 )
 
-const radius = computed(() => (props.size - 16) / 2)
-const circumference = computed(() => 2 * Math.PI * radius.value)
-const targetOffset = computed(() => circumference.value - (props.score / 100) * circumference.value)
-const animatedOffset = ref(circumference.value)
+const gradId = `ring-grad-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
+
+const strokeW = 8
+const radius = computed(() => (props.size - strokeW - 12) / 2)
+
+/** Offset normalizado (pathLength=100): 0 = anel cheio, 100 = vazio */
+const targetOffset = computed(() => {
+  const clamped = Math.min(100, Math.max(0, props.score))
+  return 100 - clamped
+})
+
+const animatedOffset = ref(100)
 
 onMounted(() => {
   requestAnimationFrame(() => {
     animatedOffset.value = targetOffset.value
   })
 })
+
+watch(targetOffset, (next) => {
+  animatedOffset.value = next
+})
 </script>
 
 <template>
   <div class="ring" :style="{ width: `${size}px`, height: `${size}px` }">
-    <svg :width="size" :height="size" class="ring__svg">
-      <circle :cx="size / 2" :cy="size / 2" :r="radius" fill="none" class="ring__track" />
+    <svg :width="size" :height="size" class="ring__svg" :aria-label="`Score ${score} por cento`">
+      <defs>
+        <linearGradient :id="gradId" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5df2a5" />
+          <stop offset="100%" stop-color="#5adb94" />
+        </linearGradient>
+      </defs>
       <circle
         :cx="size / 2"
         :cy="size / 2"
         :r="radius"
         fill="none"
+        class="ring__track"
+        :stroke-width="strokeW"
+      />
+      <circle
+        :cx="size / 2"
+        :cy="size / 2"
+        :r="radius"
+        fill="none"
+        pathLength="100"
         class="ring__progress"
-        :stroke-dasharray="circumference"
+        :stroke-width="strokeW"
+        :stroke="`url(#${gradId})`"
+        stroke-dasharray="100"
         :stroke-dashoffset="animatedOffset"
       />
     </svg>
 
     <div class="ring__label">
       <strong>{{ score }}</strong>
-      <small>score</small>
+      <span class="ring__score-word">score</span>
     </div>
   </div>
 </template>
@@ -55,35 +84,41 @@ onMounted(() => {
 }
 
 .ring__track {
-  stroke: color-mix(in srgb, var(--color-tertiary) 35%, transparent);
-  stroke-width: 6;
+  stroke: color-mix(in srgb, var(--color-tertiary) 28%, #1a1520);
+  opacity: 0.9;
 }
 
 .ring__progress {
-  stroke: var(--color-primary);
-  stroke-width: 6;
   stroke-linecap: round;
-  transition: stroke-dashoffset 1.5s ease;
+  transition: stroke-dashoffset 1.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .ring__label {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
   text-align: center;
+  pointer-events: none;
 }
 
 .ring__label strong {
   display: block;
   line-height: 1;
-  font-size: clamp(2rem, 6vw, 2.5rem);
-  color: var(--color-primary);
+  font-size: clamp(2.1rem, 5.5vw, 2.65rem);
+  font-weight: 800;
+  color: var(--token-text);
+  letter-spacing: -0.03em;
 }
 
-.ring__label small {
+.ring__score-word {
+  font-size: 0.68rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--token-text-muted);
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--token-text) 82%, transparent);
 }
 </style>

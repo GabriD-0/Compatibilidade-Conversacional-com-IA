@@ -47,49 +47,47 @@ function goToChat() {
           <span class="home-brand__dot"></span>
           <span class="home-brand__name">ConversaIA</span>
         </div>
-        <div class="home-nav__links">
-          <a href="#features">Funcionalidades</a>
-          <a href="#demo">Demo</a>
-          <a href="#metrics">Métricas</a>
-        </div>
-        <Button label="Começar" class="home-btn home-btn--pill" @click="goToChat" />
       </nav>
 
       <section class="home-hero">
         <div>
           <p class="home-kicker">COMPATIBILIDADE CONVERSACIONAL</p>
           <h1 class="home-title">
-            Descubra a
-            <span>sintonia</span>
-            por trás do diálogo.
+            Descubra a <span>sintonia</span> por trás do diálogo.
           </h1>
           <p class="home-subtitle">
-            IA que analisa conversas textuais e revela o grau de compatibilidade entre pessoas —
-            estilo, emoção e dinâmica.
+            IA que analisa conversas textuais e revela o grau de compatibilidade entre pessoas — estilo, emoção e dinâmica.
           </p>
+
           <div class="home-actions">
             <Button
               label="Analisar Conversa"
               icon="pi pi-arrow-right"
               icon-pos="right"
-              class="home-btn home-btn--pill"
+              class="btn-primary"
               @click="goToChat"
             />
-            <Button label="Ver Demo" outlined class="home-btn home-btn--ghost" />
           </div>
         </div>
 
         <Card class="home-score-card">
           <template #content>
             <div class="home-score">
-              <CompatibilityRing :score="87" :size="210" />
-              <small>compatibilidade.alta</small>
+              <CompatibilityRing :score="87" :size="220" />
+              <small class="home-score__tag">compatibilidade.alta</small>
             </div>
           </template>
         </Card>
       </section>
 
+      <Divider />
+
       <section id="demo" class="home__grid">
+        <div class="home__section-head">
+          <p class="home-kicker">DEMO</p>
+          <h2>Análise de compatibilidade em tempo real.</h2>
+        </div>
+
         <Card class="home__grid-main">
           <template #title>
             <div class="home-card-title">
@@ -115,8 +113,17 @@ function goToChat() {
             <small class="home__muted">3 dimensões -> 1 score unificado</small>
           </template>
         </Card>
+      </section>
 
-        <Card id="metrics">
+      <Divider />
+
+      <section id="metrics" class="home__grid">
+        <div class="home__section-head">
+          <p class="home-kicker">MÉTRICAS</p>
+          <h2>Dimensões de análise e explicabilidade.</h2>
+        </div>
+
+        <Card>
           <template #title>
             <div class="home-card-title">
               <i class="pi pi-chart-bar home-card-title__icon"></i>
@@ -168,7 +175,7 @@ function goToChat() {
           <p class="home__muted">
             Envie uma conversa e receba o score de compatibilidade conversacional em segundos.
           </p>
-          <Button label="Iniciar Análise" icon="pi pi-send" class="home-btn home-btn--pill" @click="goToChat" />
+          <Button label="Iniciar Análise" icon="pi pi-send" class="btn-primary" @click="goToChat" />
         </template>
       </Card>
 
@@ -185,6 +192,7 @@ function goToChat() {
   position: relative;
   overflow: hidden;
   padding-bottom: 2rem;
+  background: radial-gradient(ellipse 125% 95% at 50% 22%, #2a1034 0%, #1c0522 48%, #120618 100%);
 }
 
 .home-bg {
@@ -243,8 +251,28 @@ function goToChat() {
 .home-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
+}
+
+.home-nav__links {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 2.35rem);
+}
+
+.home-nav__links a {
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--token-text) 78%, transparent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.home-nav__links a:hover {
+  color: color-mix(in srgb, var(--color-primary) 55%, var(--token-text));
 }
 
 .home-brand {
@@ -253,48 +281,32 @@ function goToChat() {
   gap: 0.65rem;
 }
 
+.home-brand__mark {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--token-bg-surface) 72%, #0a050c);
+  border: 1px solid color-mix(in srgb, var(--token-border) 32%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 7%, transparent),
+    0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
 .home-brand__dot {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 0.78rem;
+  height: 0.78rem;
   border-radius: 999px;
-  background: var(--color-primary);
-  box-shadow: 0 0 0 0.35rem color-mix(in srgb, var(--color-primary) 25%, transparent);
+  background: linear-gradient(160deg, #5df2a5, var(--color-primary));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--color-primary) 42%, transparent);
 }
 
 .home-brand__name {
   font-weight: 700;
   font-size: 1.35rem;
-}
-
-.home-nav__links {
-  display: flex;
-  gap: 1.8rem;
-}
-
-.home-nav__links a {
-  color: var(--token-text-muted);
-  text-decoration: none;
-}
-
-.home-nav__links a:hover {
-  color: var(--color-primary);
-}
-
-.home-btn {
-  border-radius: 999px;
-}
-
-.home-btn--pill :deep(.p-button) {
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  border: none;
-  color: #102015;
-  font-weight: 700;
-  box-shadow: 0 0 30px color-mix(in srgb, var(--color-primary) 30%, transparent);
-}
-
-.home-btn--ghost :deep(.p-button) {
-  border-radius: 999px;
 }
 
 .home-hero {
@@ -326,7 +338,8 @@ function goToChat() {
 .home-subtitle {
   margin-top: 1.35rem;
   max-width: 38rem;
-  color: var(--token-text-muted);
+  color: color-mix(in srgb, var(--token-text) 94%, #ffffff);
+  line-height: 1.65;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
 }
 
@@ -339,16 +352,27 @@ function goToChat() {
 
 .home-score-card {
   border-radius: 1.45rem;
+  background: color-mix(in srgb, var(--token-bg-surface) 88%, #1a0f22) !important;
 }
 
 .home-score {
-  min-height: 22rem;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
+  padding: 1.5rem 1rem 1.65rem;
   text-align: center;
 }
 
-.home-score small,
+.home-score__tag {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--token-text) 88%, transparent);
+  letter-spacing: 0.02em;
+}
+
 .home__muted {
   color: var(--token-text-muted);
 }
@@ -472,6 +496,10 @@ function goToChat() {
 @media (max-width: 1100px) {
   .home-nav__links {
     display: none;
+  }
+
+  .home-nav {
+    justify-content: space-between;
   }
 
   .home-hero {
