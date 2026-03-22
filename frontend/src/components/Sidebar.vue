@@ -29,7 +29,7 @@ function handleLogout() {
       <div class="sidebar__header">
       <div class="sidebar__logo">💬</div>
       <div class="sidebar__brand">
-        <h2 class="sidebar__title" title="Compatibilidade Conversacional com IA">CCcIA</h2>
+        <h2 class="sidebar__title" title="Compatibilidade Conversacional com IA">ConversaIA</h2>
       </div>
     </div>
 

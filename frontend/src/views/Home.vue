@@ -62,8 +62,6 @@ function goToChat() {
           <div class="home-actions">
             <Button
               label="Analisar Conversa"
-              icon="pi pi-arrow-right"
-              icon-pos="right"
               class="btn-primary"
               @click="goToChat"
             />
@@ -191,8 +189,8 @@ function goToChat() {
 .home-page {
   position: relative;
   overflow: hidden;
-  padding-bottom: 2rem;
-  background: radial-gradient(ellipse 125% 95% at 50% 22%, #2a1034 0%, #1c0522 48%, #120618 100%);
+  padding-bottom: 0rem;
+  background: radial-gradient(ellipse 125% 95% at 50% 22%, #2a1034 0%, #280830 48%, #120618 100%);
 }
 
 .home-bg {
@@ -234,16 +232,14 @@ function goToChat() {
 .home-container {
   position: relative;
   z-index: 2;
-  max-width: 1300px;
   margin: 0 auto;
   display: grid;
-  gap: 2.2rem;
   padding: 2rem;
 }
 
 .home-container :deep(.p-card) {
   border: 1px solid color-mix(in srgb, var(--token-border) 45%, transparent);
-  background: color-mix(in srgb, var(--token-bg-surface) 80%, transparent);
+  background: color-mix(in srgb, var(--token-bg-surface) 30%, #25143177) !important;
   backdrop-filter: blur(8px);
   box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 5%, transparent);
 }
@@ -314,7 +310,7 @@ function goToChat() {
   grid-template-columns: 1.25fr 0.9fr;
   align-items: center;
   gap: 2.2rem;
-  min-height: 67vh;
+  min-height: 55vh;
 }
 
 .home-kicker {
@@ -325,8 +321,9 @@ function goToChat() {
 }
 
 .home-title {
-  font-size: clamp(2.8rem, 6.4vw, 5.2rem);
+  font-size: clamp(2.8rem, 6.4vw, 4rem);
   line-height: 0.96;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -350,9 +347,38 @@ function goToChat() {
   gap: 0.9rem;
 }
 
+.home-page :deep(.p-button.btn-primary) {
+  border-radius: 999px;
+  padding-block: 0.85rem;
+  padding-inline: clamp(1.35rem, 4vw, 2rem);
+  box-shadow: 0 4px 14px rgba(90, 219, 148, 0.25);
+  transform-origin: center;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.home-page :deep(.p-button.btn-primary:not(:disabled):hover) {
+  transform: scale(1.1);
+  box-shadow: 0 10px 28px rgba(11, 161, 140, 0.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page :deep(.p-button.btn-primary),
+  .home-page :deep(.p-button.btn-primary:not(:disabled):hover) {
+    transition-duration: 0.01ms;
+  }
+
+  .home-page :deep(.p-button.btn-primary:not(:disabled):hover) {
+    transform: none;
+  }
+}
+
 .home-score-card {
   border-radius: 1.45rem;
-  background: color-mix(in srgb, var(--token-bg-surface) 88%, #1a0f22) !important;
 }
 
 .home-score {
