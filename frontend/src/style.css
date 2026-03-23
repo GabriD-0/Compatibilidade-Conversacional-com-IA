@@ -11,6 +11,7 @@
   --color-page: var(--token-bg-page);
   --color-surface: var(--token-bg-surface);
   --color-body: var(--token-text);
+  --color-foreground: var(--token-text);
   --color-muted: var(--token-text-muted);
   --color-border-default: var(--token-border);
 }
