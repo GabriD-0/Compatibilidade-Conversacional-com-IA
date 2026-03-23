@@ -219,6 +219,7 @@ function onAnalyze() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--cv-border);
@@ -297,6 +298,7 @@ function onAnalyze() {
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .chat-view__score-ico {
@@ -347,6 +349,7 @@ function onAnalyze() {
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .chat-view__row--right {
@@ -368,6 +371,7 @@ function onAnalyze() {
 
 .chat-view__bubble {
   max-width: 78%;
+  min-width: 0;
   border-radius: 1.35rem;
   padding: 0.65rem 0.95rem 0.5rem;
   background: var(--cv-bubble-left);
@@ -384,6 +388,8 @@ function onAnalyze() {
   font-size: 0.9rem;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.92);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .chat-view__bubble small {
@@ -463,10 +469,12 @@ function onAnalyze() {
   align-items: center;
   gap: 0.65rem;
   margin-top: 0.75rem;
+  min-width: 0;
 }
 
 .chat-view__input {
   flex: 1;
+  min-width: 0;
   border-radius: 1.5rem !important;
   background: var(--cv-input-bg) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
