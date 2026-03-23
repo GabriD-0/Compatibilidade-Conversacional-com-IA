@@ -8,10 +8,10 @@ const router = createRouter({
     { path: '/signup', name: 'Signup', component: () => import('../views/Signup.vue'), meta: { title: 'Criar conta' } },
     { path: '/forget-password', name: 'ForgetPassword', component: () => import('../views/ForgetPassword.vue'), meta: { title: 'Esqueceu a senha' } },
     {
-      path: '/home',
+      path: '/',
       component: () => import('../views/AppLayout.vue'),
       children: [
-        { path: '', name: 'Home', component: () => import('../views/Home.vue'), meta: { title: 'Início' } },
+        { path: 'home', name: 'Home', component: () => import('../views/Home.vue'), meta: { title: 'Início' } },
         { path: 'chat', name: 'Chat', component: () => import('../views/Chat.vue'), meta: { title: 'Chat' } },
         { path: 'dashboard', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: 'Dashboard' } },
       ],
