@@ -197,22 +197,35 @@ function onChatBack() {
   --chat-muted: rgba(255, 255, 255, 0.55);
   --chat-input-bg: #150a1c;
 
-  flex: 1;
-  min-height: 0;
+  /* Altura própria: não depende do main ser flex (evita alterar layout global). */
+  width: 100%;
+  min-width: 0;
+  height: 100vh;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 1rem 1.25rem 1.25rem;
   box-sizing: border-box;
   background: var(--chat-deep);
+  overflow: hidden;
+}
+
+@supports (height: 100dvh) {
+  .chat-page {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
 }
 
 .chat-page__grid {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(17rem, 28%) 1fr;
+  grid-template-rows: minmax(0, 1fr);
   gap: 1rem;
   align-items: stretch;
+  max-width: 100%;
 }
 
 .chat-page__sidebar {
@@ -220,6 +233,8 @@ function onChatBack() {
   flex-direction: column;
   gap: 0.85rem;
   min-height: 0;
+  height: 100%;
+  max-height: 100%;
   padding: 1rem 0.85rem;
   background: var(--chat-panel);
   border: 1px solid var(--chat-border);
@@ -410,6 +425,8 @@ function onChatBack() {
 .chat-page__content {
   min-width: 0;
   min-height: 0;
+  height: 100%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -445,21 +462,18 @@ function onChatBack() {
 }
 
 @media (max-width: 980px) {
+  .chat-page {
+    padding: 0.75rem 0.65rem 0.85rem;
+  }
+
   .chat-page__grid {
     grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .chat-page__sidebar--hidden,
   .chat-page__content--hidden {
     display: none;
-  }
-
-  .chat-page__sidebar:not(.chat-page__sidebar--hidden) {
-    min-height: min(52vh, 30rem);
-  }
-
-  .chat-page__content:not(.chat-page__content--hidden) {
-    min-height: min(72vh, 38rem);
   }
 }
 

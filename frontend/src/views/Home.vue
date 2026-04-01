@@ -160,6 +160,7 @@ function goToChat() {
           <p class="home-kicker">FUNCIONALIDADES</p>
           <h2 class="home__section-title">Três pilares, um score.</h2>
         </div>
+
         <div class="home__features">
           <Card v-for="feature in features" :key="feature.tag">
             <template #content>
@@ -249,12 +250,8 @@ function goToChat() {
 }
 
 .home-container :deep(.p-card.home__accent-card) {
-  border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent);
-  background: color-mix(in srgb, var(--color-accent) 16%, rgba(14, 4, 18, 0.88)) !important;
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--color-accent) 22%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--color-accent) 20%, transparent),
-    0 8px 36px color-mix(in srgb, var(--color-accent) 32%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 32%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 11%, rgba(76, 5, 61, 0.168)) !important;
   backdrop-filter: blur(12px);
 }
 
@@ -463,24 +460,22 @@ function goToChat() {
 
 .home__accent-card h3 {
   margin: 1rem 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.05;
+  font-size: clamp(2rem, 2vw, 2rem);
+  font-weight: 700;
 }
 
 .home-pill {
   display: inline-flex;
-  align-items: center;
   border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-  color: color-mix(in srgb, var(--color-accent) 45%, var(--token-text));
-  border-radius: 999px;
+  color: color-mix(in srgb, var(--color-accent) 85%, var(--token-text));
+  border-radius: 1rem;
   padding: 0.34rem 0.78rem;
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   letter-spacing: 0.12em;
-  font-weight: 700;
 }
 
 .home__accent-card .home-pill {
-  border-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
   box-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 28%, transparent);
 }
 
@@ -511,21 +506,26 @@ function goToChat() {
 
 .home__features h3 {
   margin: 0.85rem 0;
-  font-size: 2rem;
-  line-height: 1.08;
+  font-size: 1.3rem;
+  line-height: 1.05;
+  font-weight: 600;
 }
 
 .home-feature-tag {
   display: inline-block;
   color: color-mix(in srgb, var(--color-primary) 70%, var(--token-text));
-  font-size: 0.85rem;
+  font-size: 0.65rem;
   letter-spacing: 0.25em;
-  text-transform: uppercase;
 }
 
 .home__cta {
+  justify-self: center;
+  width: 90%;
+  margin-top: 2.4rem;
+  margin-bottom: 1rem;
   text-align: center;
-  padding: 2.4rem 0;
+  font-weight: 600;
+  padding: 2rem 0;
 }
 
 .home__cta p {
@@ -564,6 +564,10 @@ function goToChat() {
     min-height: auto;
   }
 
+  .home-score-card {
+    justify-self: center;
+  }
+
   .home__grid {
     grid-template-columns: 1fr;
   }
@@ -572,12 +576,11 @@ function goToChat() {
     grid-column: auto;
   }
 
+}
+
+@media (max-width: 640px) {
   .home__features {
     grid-template-columns: 1fr;
-  }
-
-  .home__features h3 {
-    font-size: 1.55rem;
   }
 }
 </style>

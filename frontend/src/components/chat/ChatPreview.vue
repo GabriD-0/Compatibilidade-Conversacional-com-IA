@@ -18,12 +18,15 @@ const messages: PreviewMessage[] = [
     <div
       v-for="(message, index) in messages"
       :key="`${message.sender}-${index}`"
-      class="preview__row"
-      :class="{ 'preview__row--right': message.sender === 'B' }"
+      class="preview__row flex"
+      :class="message.sender === 'B' ? 'justify-end' : 'justify-start'"
     >
-      <div class="preview__bubble" :class="{ 'preview__bubble--b': message.sender === 'B' }">
-        <p>{{ message.text }}</p>
-        <small>{{ message.time }}</small>
+      <div
+        class="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm text-foreground bg-muted/20 shadow-sm"
+        :class="message.sender === 'B' ? 'rounded-br-sm preview__bubble--right' : 'rounded-bl-sm preview__bubble'"
+      >
+        <p class="m-0 leading-snug">{{ message.text }}</p>
+        <small class="mt-1 block text-right text-xs text-muted">{{ message.time }}</small>
       </div>
     </div>
   </div>
@@ -32,40 +35,15 @@ const messages: PreviewMessage[] = [
 <style scoped>
 .preview {
   display: grid;
-  gap: 1.1rem;
-  margin-top: 0.6rem;
-}
-
-.preview__row {
-  display: flex;
-}
-
-.preview__row--right {
-  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
 }
 
 .preview__bubble {
-  max-width: 84%;
-  min-width: 36%;
-  padding: 0.78rem 0.92rem;
-  border-radius: 0.9rem;
-  background: color-mix(in srgb, #3e495f 80%, transparent);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.preview__bubble--b {
-  background: color-mix(in srgb, #444c60 84%, transparent);
-}
-
-.preview__bubble p {
-  margin: 0;
-  font-size: 0.98rem;
-}
-
-.preview__bubble small {
-  display: block;
-  margin-top: 0.25rem;
-  text-align: right;
-  color: color-mix(in srgb, var(--token-text) 56%, transparent);
-  font-size: 0.76rem;
+.preview__bubble--right {
+  background: rgba(11, 161, 140, 0.18);
 }
 </style>
