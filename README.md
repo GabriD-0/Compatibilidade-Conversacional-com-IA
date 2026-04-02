@@ -167,8 +167,8 @@ Este projeto está licenciado sob a **MIT License**. Consulte o arquivo `LICENSE
 
 ## 👤 Autor
 
-**Gabriel de Oliveira**  
-Curso: Engenharia de Software  
+**Gabriel de Oliveira**
+Curso: Engenharia de Software
 Data de Entrega: 02/12/2025
 
 ## 📚 Referências

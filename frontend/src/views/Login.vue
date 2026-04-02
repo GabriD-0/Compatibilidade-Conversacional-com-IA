@@ -27,12 +27,12 @@ function handleSubmit() {
 
       <form class="flex flex-col gap-5" @submit.prevent="handleSubmit">
         <div class="flex flex-col gap-1.5">
-          <label for="email" class="text-sm font-medium text-body">E-mail</label>
+          <label for="account" class="text-sm font-medium text-body">Conta</label>
           <input
-            id="email"
+            id="account"
             type="text"
-            placeholder="seu@email.com"
-            autocomplete="email"
+            placeholder="Sua conta"
+            autocomplete="account"
             class="input"
           />
         </div>

@@ -32,11 +32,21 @@ const showConfirmPassword = ref(false)
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="account" class="text-sm font-medium text-body">Conta</label>
-          <input  
+          <input
             id="account"
             type="text"
             placeholder="Crie a sua conta"
             autocomplete="account"
+            class="input"
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="email" class="text-sm font-medium text-body">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
             class="input"
           />
         </div>
