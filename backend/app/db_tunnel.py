@@ -8,12 +8,8 @@ log = logging.getLogger(__name__)
 
 _tunnel = None
 
-
+# Abre túnel SSH para o PostgreSQL remoto. Retorna a porta local efetiva ou None se o túnel não foi usado.
 def start_ssh_tunnel(config) -> Optional[int]:
-    """
-    Abre túnel SSH para o PostgreSQL remoto. Retorna a porta local efetiva
-    ou None se o túnel não foi usado.
-    """
     global _tunnel
 
     if not getattr(config, "DB_USE_SSH_TUNNEL", False):
@@ -22,18 +18,17 @@ def start_ssh_tunnel(config) -> Optional[int]:
     if not config.SSH_HOST or not config.SSH_USERNAME:
         raise RuntimeError("DB_USE_SSH_TUNNEL exige SSH_HOST e SSH_USERNAME definidos.")
 
-
-    ssh_pkey = None
+    ssh_pass_key = None
     if config.SSH_KEY_PATH:
         path = config.SSH_KEY_PATH
 
         for key_cls in (Ed25519Key, RSAKey, ECDSAKey):
             try:
-                ssh_pkey = key_cls.from_private_key_file(path)
+                ssh_pass_key = key_cls.from_private_key_file(path)
                 break
             except Exception:
                 continue
-        if ssh_pkey is None:
+        if ssh_pass_key is None:
             raise RuntimeError(f"Não foi possível carregar a chave SSH: {path}")
 
     kwargs = {
@@ -43,8 +38,8 @@ def start_ssh_tunnel(config) -> Optional[int]:
         "local_bind_address": ("127.0.0.1", config.SSH_LOCAL_BIND_PORT),
     }
 
-    if ssh_pkey is not None:
-        kwargs["ssh_pkey"] = ssh_pkey
+    if ssh_pass_key is not None:
+        kwargs["ssh_pkey"] = ssh_pass_key
     elif config.SSH_PASSWORD:
         kwargs["ssh_password"] = config.SSH_PASSWORD
     else:
@@ -54,7 +49,7 @@ def start_ssh_tunnel(config) -> Optional[int]:
     tunnel.start()
     _tunnel = tunnel
     local_port = tunnel.local_bind_port
-    log.info("Túnel SSH ativo em 127.0.0.1:%s -> %s:%s", local_port, config.SSH_REMOTE_BIND_ADDRESS, config.SSH_REMOTE_BIND_PORT)
+    log.info("Túnel SSH ativo em 127.0.0.1:%s", local_port)
     atexit.register(stop_ssh_tunnel)
     return local_port
 

@@ -7,9 +7,9 @@ _PASSWORD_MAX = 128
 
 
 def parse_email_identifier(data: dict) -> str:
-    raw = (data.get("email") or data.get("account") or "").strip()
+    raw = (data.get("email") or "").strip()
     if not raw:
-        raise ApiError("Informe e-mail ou conta.", code="missing_identifier")
+        raise ApiError("Informe e-mail.", code="missing_identifier")
     try:
         normalized = validate_email(raw, check_deliverability=False).normalized
     except EmailNotValidError:
@@ -36,7 +36,7 @@ def require_password(password: str | None) -> str:
 
 def peek_email_identifier(data: dict) -> str | None:
     """Para fluxos que não devem vazar validação (ex.: esqueci a senha)."""
-    raw = (data.get("email") or data.get("account") or "").strip()
+    raw = (data.get("email") or "").strip()
     if not raw:
         return None
     try:
