@@ -3,11 +3,11 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 from app.extensions import limiter
 from app.models import Login
 from app.services.auth_service import authenticate, register_user
+
 bp = Blueprint("auth", __name__)
 
 def _auth_rate_limit() -> str:
-    return current_app.config.get("RATE_LIMIT_AUTH", "20 per minute")
-
+    return current_app.config.get("RATE_LIMIT_AUTH")
 
 def _user_payload(user: Login) -> dict:
     return {"id": user.id, "email": user.email, "name": user.name}

@@ -1,12 +1,11 @@
-# Backend (Flask)
+# Backend
 
-API REST com autenticação (cadastro, login, refresh JWT, recuperação de senha) e PostgreSQL. O ambiente pode usar conexão **direta** ao banco ou **túnel SSH** (útil quando o Postgres só é acessível pelo servidor remoto).
+API REST.
 
 ## Pré-requisitos
 
 - Python 3.11+ recomendado
-- PostgreSQL acessível (local, na rede ou via túnel SSH)
-- Variáveis de ambiente para banco e segredos (veja abaixo)
+- Variáveis de ambiente para banco de dados
 
 ## Configuração rápida
 
@@ -54,7 +53,12 @@ cd backend
    flask db upgrade
    ```
 
-   Na **primeira vez** no repositório, se a pasta `migrations` ainda não existir, use antes `flask db init` (já commitada neste projeto em geral não é necessário).
+   > **Nota sobre a Primeira Execução:**
+   > Se for a sua primeira vez rodando o projeto ou se a pasta `migrations` não existir, você precisará inicializar as migrações e criar o histórico inicial antes do comando de `upgrade` e criação do banco:
+   > 
+   > 1. `flask db init` (Gera a pasta de migrações)
+   > 2. `flask db migrate -m "Migração inicial"` (Lê os seus modelos como `Login` e cria o histórico das tabelas)
+   > 3. `flask db upgrade` (Aplica as mudanças de fato no seu Banco PostgreSQL)
 
 4. Suba o servidor de desenvolvimento:
 
@@ -64,40 +68,6 @@ cd backend
 
    Por padrão a API fica em `http://127.0.0.1:5000`.
 
-- **Saúde:** `GET http://127.0.0.1:5000/health`
-- **Auth (prefixo):** `http://127.0.0.1:5000/api/auth/` (`register`, `login`, `refresh`, `forgot-password`, `reset-password`)
-
 ## Variáveis de ambiente importantes
 
-Crie um arquivo `.env` na pasta `backend` (o `python-dotenv` carrega automaticamente) ou exporte no shell.
-
-| Variável | Descrição |
-|----------|-----------|
-| `FLASK_ENV` | `development` (padrão em `run.py`), `production` ou `prod` (equivale a produção) |
-| `SECRET_KEY` | Chave secreta da aplicação (obrigatória em produção) |
-| `JWT_SECRET_KEY` | Chave dos JWT (opcional; usa `SECRET_KEY` se omitida) |
-| `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Credenciais PostgreSQL |
-| `DB_HOST`, `DB_PORT` | Host e porta do Postgres (ex.: `127.0.0.1` e `5432`) |
-| `CORS_ORIGINS` | Origens permitidas, separadas por vírgula (ex.: `http://localhost:5173`) |
-
-### Túnel SSH (opcional)
-
-| Variável | Descrição |
-|----------|-----------|
-| `DB_USE_SSH_TUNNEL` | `true` / `1` para ativar |
-| `SSH_HOST`, `SSH_PORT`, `SSH_USERNAME` | Servidor e usuário SSH |
-| `SSH_KEY_PATH` | Caminho da chave privada (preferível) **ou** |
-| `SSH_PASSWORD` | Senha SSH (menos seguro) |
-| `SSH_REMOTE_BIND_ADDRESS` | Onde o Postgres escuta no servidor (geralmente `127.0.0.1`) |
-| `SSH_REMOTE_BIND_PORT` | Porta do Postgres no servidor (geralmente `5432`) |
-| `SSH_LOCAL_BIND_PORT` | Porta local; `0` deixa o SO escolher |
-
-Com o túnel ativo, a URI interna aponta para `127.0.0.1` na porta local encaminhada; `DB_HOST`/`DB_PORT` da conexão direta não são usados para o Postgres nesse modo.
-
-### E-mail (recuperação de senha)
-
-Configure `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_DEFAULT_SENDER` e `PASSWORD_RESET_FRONTEND_URL`. Em desenvolvimento, sem SMTP, o link pode ser registrado no log se `LOG_RESET_TOKEN_IN_DEV=true`.
-
-## Produção
-
-Use `FLASK_ENV=production` (ou `prod`), chaves fortes, SMTP configurado e `flask db upgrade` no deploy. Para servir com um WSGI (ex.: Gunicorn), importe `app` de `run:app` conforme a documentação do servidor escolhido.
+Crie um arquivo `.env` na pasta `backend` ou exporte no shell.

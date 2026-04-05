@@ -1,6 +1,7 @@
 import atexit
 import logging
 from typing import Optional
+import paramiko
 from sshtunnel import SSHTunnelForwarder
 from paramiko import RSAKey, Ed25519Key, ECDSAKey
 
@@ -8,19 +9,21 @@ log = logging.getLogger(__name__)
 
 _tunnel = None
 
+paramiko.DSSKey = None
+
 # Abre túnel SSH para o PostgreSQL remoto. Retorna a porta local efetiva ou None se o túnel não foi usado.
 def start_ssh_tunnel(config) -> Optional[int]:
     global _tunnel
 
-    if not getattr(config, "DB_USE_SSH_TUNNEL", False):
+    if not config.get("DB_USE_SSH_TUNNEL", False):
         return None
 
-    if not config.SSH_HOST or not config.SSH_USERNAME:
+    if not config.get("SSH_HOST") or not config.get("SSH_USERNAME"):
         raise RuntimeError("DB_USE_SSH_TUNNEL exige SSH_HOST e SSH_USERNAME definidos.")
 
     ssh_pass_key = None
-    if config.SSH_KEY_PATH:
-        path = config.SSH_KEY_PATH
+    if config.get("SSH_KEY_PATH"):
+        path = config.get("SSH_KEY_PATH")
 
         for key_cls in (Ed25519Key, RSAKey, ECDSAKey):
             try:
@@ -31,17 +34,25 @@ def start_ssh_tunnel(config) -> Optional[int]:
         if ssh_pass_key is None:
             raise RuntimeError(f"Não foi possível carregar a chave SSH: {path}")
 
+    ssh_host = config.get("SSH_HOST", "").strip('"')
+    ssh_port = int(config.get("SSH_PORT", 22))
+    
+    remote_bind_address = config.get("SSH_REMOTE_BIND_ADDRESS", "127.0.0.1").strip('"').strip()
+    remote_bind_port = int(config.get("SSH_REMOTE_BIND_PORT", 5432))
+    
+    local_bind_port = int(config.get("SSH_LOCAL_BIND_PORT", 0))
+
     kwargs = {
-        "ssh_address_or_host": (config.SSH_HOST, config.SSH_PORT),
-        "ssh_username": config.SSH_USERNAME,
-        "remote_bind_address": (config.SSH_REMOTE_BIND_ADDRESS, config.SSH_REMOTE_BIND_PORT),
-        "local_bind_address": ("127.0.0.1", config.SSH_LOCAL_BIND_PORT),
+        "ssh_address_or_host": (ssh_host, ssh_port),
+        "ssh_username": config.get("SSH_USERNAME"),
+        "remote_bind_address": (remote_bind_address, remote_bind_port),
+        "local_bind_address": ("127.0.0.1", local_bind_port),
     }
 
     if ssh_pass_key is not None:
         kwargs["ssh_pkey"] = ssh_pass_key
-    elif config.SSH_PASSWORD:
-        kwargs["ssh_password"] = config.SSH_PASSWORD
+    elif config.get("SSH_PASSWORD"):
+        kwargs["ssh_password"] = config.get("SSH_PASSWORD")
     else:
         raise RuntimeError("Defina SSH_KEY_PATH ou SSH_PASSWORD para o túnel SSH.")
 
@@ -49,7 +60,7 @@ def start_ssh_tunnel(config) -> Optional[int]:
     tunnel.start()
     _tunnel = tunnel
     local_port = tunnel.local_bind_port
-    log.info("Túnel SSH ativo em 127.0.0.1:%s", local_port)
+    log.info("Túnel SSH ativo em %s:%s", remote_bind_address, local_port)
     atexit.register(stop_ssh_tunnel)
     return local_port
 

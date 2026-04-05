@@ -12,7 +12,9 @@ def register_user(data: dict) -> Login:
     email = parse_email_identifier(data)
     password = require_password(data.get("password"))
 
-    #TODO: Verificar se o e-mail é null se for null não lançar erro
+    if email is None:
+        raise ApiError("E-mail é obrigatório.", code="missing_email")
+
     if Login.query.filter_by(email=email).first():
         raise ApiError("Este e-mail já está cadastrado.", code="email_taken", status_code=409)
 
@@ -38,4 +40,5 @@ def authenticate(data: dict) -> Login:
 
     if login is None or not check_password_hash(login.password_hash, password):
         raise ApiError("E-mail ou senha incorretos.", code="invalid_credentials", status_code=401)
+
     return login
