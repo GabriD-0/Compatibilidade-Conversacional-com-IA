@@ -30,7 +30,7 @@ function handleSubmit() {
           <label for="email" class="text-sm font-medium text-body">E-mail</label>
           <input
             id="email"
-            type="text"
+            type="email"
             placeholder="seu@email.com"
             autocomplete="email"
             class="input"
@@ -39,7 +39,7 @@ function handleSubmit() {
         <div class="flex flex-col gap-1.5">
           <div class="flex items-center justify-between">
             <label for="password" class="text-sm font-medium text-body">Senha</label>
-            <RouterLink to="/forget-password" class="login-link">Esqueceu a senha?</RouterLink>
+            <!-- <RouterLink to="/forget-password" class="login-link">Esqueceu a senha?</RouterLink> -->
           </div>
           <div class="password-input-wrapper">
             <input
