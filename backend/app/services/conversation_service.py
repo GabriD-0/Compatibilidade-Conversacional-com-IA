@@ -1,8 +1,6 @@
 import logging
 from datetime import datetime, timezone
-
 from sqlalchemy import and_, or_, update
-
 from app.errors import ApiError
 from app.extensions import db
 from app.models import Conversation, Login, Message
@@ -14,18 +12,15 @@ _MAX_CONTENT = 4096
 _MAX_LIMIT = 200
 _MAX_PER_PAGE = 100
 
-
 def create_conversation(login_id: int, data: dict) -> Conversation:
     email = parse_email_identifier({"email": data.get("participant_email", "")})
 
     other = Login.query.filter_by(email=email).first()
     if other is None:
         raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
+
     if other.id == login_id:
-        raise ApiError(
-            "Não é possível criar uma conversa consigo mesmo.",
-            code="self_conversation",
-        )
+        raise ApiError("Não é possível criar uma conversa consigo mesmo.", code="self_conversation")
 
     existing = Conversation.query.filter(
         or_(
@@ -41,12 +36,7 @@ def create_conversation(login_id: int, data: dict) -> Conversation:
     ).first()
 
     if existing:
-        raise ApiError(
-            "Conversa já existe entre esses usuários.",
-            code="conversation_exists",
-            status_code=409,
-            details={"id": existing.id},
-        )
+        raise ApiError("Conversa já existe entre esses usuários.", code="conversation_exists", status_code=409, details={"id": existing.id})
 
     conv = Conversation(participant_a_id=login_id, participant_b_id=other.id)
     db.session.add(conv)
@@ -73,19 +63,14 @@ def list_conversations(login_id: int, page: int = 1, per_page: int = 20):
 
 def get_conversation(login_id: int, conversation_id: int) -> Conversation:
     conv = db.session.get(Conversation, conversation_id)
-    if conv is None or (
-        conv.participant_a_id != login_id and conv.participant_b_id != login_id
-    ):
+
+    if conv is None or (conv.participant_a_id != login_id and conv.participant_b_id != login_id):
         raise ApiError("Conversa não encontrada.", code="not_found", status_code=404)
+
     return conv
 
 
-def get_messages(
-    login_id: int,
-    conversation_id: int,
-    after_position: int = 0,
-    limit: int = 50,
-) -> list:
+def get_messages(login_id: int, conversation_id: int, after_position: int = 0, limit: int = 50) -> list:
     conv = get_conversation(login_id, conversation_id)
     limit = min(max(limit, 1), _MAX_LIMIT)
 
@@ -110,10 +95,9 @@ def persist_message(conversation_id: int, sender_id: int, content: str) -> Messa
     """Insere uma mensagem atomicamente e atualiza o cabeçalho da conversa."""
     if not content or not content.strip():
         raise ApiError("Mensagem não pode estar vazia.", code="empty_content")
+
     if len(content) > _MAX_CONTENT:
-        raise ApiError(
-            f"Mensagem excede {_MAX_CONTENT} caracteres.", code="content_too_long"
-        )
+        raise ApiError(f"Mensagem excede {_MAX_CONTENT} caracteres.", code="content_too_long")
 
     now = datetime.now(timezone.utc)
 

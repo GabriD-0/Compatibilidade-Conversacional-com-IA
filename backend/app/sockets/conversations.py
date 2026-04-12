@@ -1,31 +1,25 @@
 import logging
 import time
-
 from flask import request, session
 from flask_jwt_extended import decode_token
 from flask_socketio import emit, join_room, leave_room
-
 from app.errors import ApiError
-from app.services.conversation_service import (
-    get_conversation,
-    mark_read,
-    persist_message,
-)
+from app.services.conversation_service import get_conversation, get_conversation, mark_read, persist_message
 
 log = logging.getLogger(__name__)
 
-# Mínimo de segundos entre mensagens por conexão (rate limit WebSocket)
 _MSG_INTERVAL = 1.0
 _last_msg_time: dict[str, float] = {}  # sid -> monotonic timestamp
 
 
 def register_handlers(socketio) -> None:
-
     @socketio.on("connect")
     def on_connect(auth):
         token = None
+
         if isinstance(auth, dict):
             token = auth.get("token")
+
         if not token:
             token = request.args.get("token", "")
 
@@ -41,6 +35,7 @@ def register_handlers(socketio) -> None:
                 session["user_id"],
                 request.sid,
             )
+
         except Exception as exc:
             log.warning(
                 "WebSocket rejeitado: token inválido sid=%s erro=%s",
@@ -66,6 +61,7 @@ def register_handlers(socketio) -> None:
 
         try:
             get_conversation(user_id, conversation_id)
+
         except ApiError:
             return {"error": "not_found"}
 
@@ -84,6 +80,7 @@ def register_handlers(socketio) -> None:
     @socketio.on("send_message")
     def on_send_message(data):
         user_id = session.get("user_id")
+
         if not user_id:
             return {"error": "unauthorized"}
 
@@ -101,11 +98,13 @@ def register_handlers(socketio) -> None:
 
         try:
             get_conversation(user_id, conversation_id)
+
         except ApiError:
             return {"error": "not_found"}
 
         try:
             msg = persist_message(conversation_id, user_id, content)
+
         except ApiError as exc:
             return {"error": exc.code, "message": exc.message}
 
@@ -150,6 +149,7 @@ def register_handlers(socketio) -> None:
 
         try:
             get_conversation(user_id, conversation_id)
+
         except ApiError:
             return {"error": "not_found"}
 

@@ -1,8 +1,6 @@
-import importlib
 import logging
-
+import importlib
 from flask import Flask
-
 from app.config import build_sqlalchemy_uri, config_by_name
 from app.db_tunnel import start_ssh_tunnel
 from app.errors.handlers import register_error_handlers, register_jwt_handlers
@@ -10,9 +8,9 @@ from app.extensions import cors, db, jwt, limiter, migrate, socketio
 from app.routes.auth import bp as auth_bp
 from app.routes.conversations import bp as conversations_bp
 from app.routes.health import bp as health_bp
+from app.sockets import register_handlers
 
 log = logging.getLogger(__name__)
-
 
 def create_app(config_name: str) -> Flask:
     flask_app = Flask(__name__)
@@ -41,8 +39,8 @@ def create_app(config_name: str) -> Flask:
     jwt.init_app(flask_app)
     register_jwt_handlers(jwt)
     limiter.init_app(flask_app)
-
     origins = flask_app.config["CORS_ORIGINS"]
+
     cors.init_app(
         flask_app,
         resources={
@@ -68,7 +66,6 @@ def create_app(config_name: str) -> Flask:
 
     importlib.import_module("app.models")
 
-    from app.sockets import register_handlers
     register_handlers(socketio)
 
     return flask_app
