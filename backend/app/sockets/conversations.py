@@ -9,7 +9,7 @@ from app.services.conversation_service import get_conversation, get_conversation
 log = logging.getLogger(__name__)
 
 _MSG_INTERVAL = 1.0
-_last_msg_time: dict[str, float] = {}  # sid -> monotonic timestamp
+_last_msg_time: dict[str, float] = {}
 
 
 def register_handlers(socketio) -> None:

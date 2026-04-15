@@ -40,4 +40,4 @@ class Message(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
-    __table_args__ = (db.Index("ix_message_conversation_position", "conversation_id", "position"))
+    __table_args__ = (db.Index("ix_message_conversation_position", "conversation_id", "position"),)
