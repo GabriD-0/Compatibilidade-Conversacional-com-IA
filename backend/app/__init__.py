@@ -4,9 +4,11 @@ from flask import Flask
 from app.config import build_sqlalchemy_uri, config_by_name
 from app.db_tunnel import start_ssh_tunnel
 from app.errors.handlers import register_error_handlers, register_jwt_handlers
-from app.extensions import cors, db, jwt, limiter, migrate
+from app.extensions import cors, db, jwt, limiter, migrate, socketio
 from app.routes.auth import bp as auth_bp
+from app.routes.conversations import bp as conversations_bp
 from app.routes.health import bp as health_bp
+from app.sockets import register_handlers
 
 log = logging.getLogger(__name__)
 
@@ -48,11 +50,22 @@ def create_app(config_name: str) -> Flask:
         supports_credentials=True,
     )
 
+    socketio.init_app(
+        flask_app,
+        cors_allowed_origins=origins,
+        async_mode="threading",
+        logger=False,
+        engineio_logger=False,
+    )
+
     register_error_handlers(flask_app)
 
     flask_app.register_blueprint(health_bp)
     flask_app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    flask_app.register_blueprint(conversations_bp, url_prefix="/api/conversations")
 
     importlib.import_module("app.models")
+
+    register_handlers(socketio)
 
     return flask_app
