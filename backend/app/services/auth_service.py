@@ -21,7 +21,7 @@ def register_user(data: dict) -> Login:
     login = Login(
         email=email,
         name=name,
-        password_hash=generate_password_hash(password),
+        password=generate_password_hash(password),
     )
 
     db.session.add(login)
@@ -38,7 +38,7 @@ def authenticate(data: dict) -> Login:
 
     login = Login.query.filter_by(email=email).first()
 
-    if login is None or not check_password_hash(login.password_hash, password):
+    if login is None or not check_password_hash(login.password, password):
         raise ApiError("E-mail ou senha incorretos.", code="invalid_credentials", status_code=401)
 
     return login

@@ -4,7 +4,6 @@ from sqlalchemy import and_, or_, update
 from app.errors import ApiError
 from app.extensions import db
 from app.models import Conversation, Login, Message
-from app.services.validation import parse_email_identifier
 
 log = logging.getLogger(__name__)
 
@@ -13,9 +12,11 @@ _MAX_LIMIT = 200
 _MAX_PER_PAGE = 100
 
 def create_conversation(login_id: int, data: dict) -> Conversation:
-    email = parse_email_identifier({"email": data.get("participant_email", "")})
+    participant_id = data.get("participant_id")
+    if not participant_id or not isinstance(participant_id, int):
+        raise ApiError("participant_id é obrigatório.", code="missing_participant_id")
 
-    other = Login.query.filter_by(email=email).first()
+    other = db.session.get(Login, participant_id)
     if other is None:
         raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
 
