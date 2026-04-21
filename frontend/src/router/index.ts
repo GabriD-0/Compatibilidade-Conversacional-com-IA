@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,17 +12,22 @@ const router = createRouter({
       path: '/',
       component: () => import('../views/AppLayout.vue'),
       children: [
-        { path: 'home', name: 'Home', component: () => import('../views/Home.vue'), meta: { title: 'Início' } },
-        { path: 'chat', name: 'Chat', component: () => import('../views/Chat.vue'), meta: { title: 'Chat' } },
-        { path: 'dashboard', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: 'Dashboard' } },
+        { path: 'home', name: 'Home', component: () => import('../views/Home.vue'), meta: { title: 'Início', requiresAuth: true } },
+        { path: 'chat', name: 'Chat', component: () => import('../views/Chat.vue'), meta: { title: 'Chat', requiresAuth: true } },
+        { path: 'dashboard', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: 'Dashboard', requiresAuth: true } },
       ],
     },
   ],
 })
 
-// TODO: Revisar o titulo da pagina
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) return { name: 'Login' }
+  if ((to.name === 'Login' || to.name === 'Signup') && authStore.isAuthenticated) return { name: 'Home' }
+})
+
 router.afterEach((to) => {
-  const title = (to.meta?.title as string) || 'Compatibilidade Conversacional'
+  const title = (to.meta?.title as string) || 'CompatIA'
   document.title = `${title}`
 })
 

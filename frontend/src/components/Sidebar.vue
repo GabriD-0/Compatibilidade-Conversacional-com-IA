@@ -4,17 +4,20 @@ import { useRouter } from 'vue-router'
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import { BiHouse, BiChat, BiChevronLeft, BiChevronRight, BiBoxArrowLeft } from 'oh-vue-icons/icons/bi'
 import { MdDashboard } from 'oh-vue-icons/icons/md'
+import { useAuthStore } from '../stores/auth'
 
 addIcons(BiHouse, BiChat, BiChevronLeft, BiChevronRight, BiBoxArrowLeft, MdDashboard)
 
 const isCollapsed = ref(false)
 const router = useRouter()
+const authStore = useAuthStore()
 
 function toggleSidebar() {
   isCollapsed.value = !isCollapsed.value
 }
 
 function handleLogout() {
+  authStore.logout()
   router.push('/login')
 }
 </script>
@@ -29,7 +32,7 @@ function handleLogout() {
       <div class="sidebar__header">
       <div class="sidebar__logo">💬</div>
       <div class="sidebar__brand">
-        <h2 class="sidebar__title" title="Compatibilidade Conversacional com IA">ConversaIA</h2>
+        <h2 class="sidebar__title" title="Compatibilidade Conversacional com IA">CompatIA</h2>
       </div>
     </div>
 
