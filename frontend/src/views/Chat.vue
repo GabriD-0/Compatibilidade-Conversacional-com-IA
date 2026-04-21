@@ -108,7 +108,7 @@ const filteredConversations = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   if (!q) return conversations.value
   return conversations.value.filter((c) => {
-    const hay = `${c.participantA} ${c.participantB} ${lastPreview(c)}`.toLowerCase()
+    const hay = `${c.participantB} ${lastPreview(c)}`.toLowerCase()
     return hay.includes(q)
   })
 })
@@ -154,13 +154,10 @@ function onChatBack() {
               :class="{ 'chat-page__conv--active': activeId === c.id }"
               @click="activeId = c.id"
             >
-              <div class="chat-page__stack" aria-hidden="true">
-                <span :class="['chat-page__mini-av', c.avatarColorA]">{{ c.participantA.charAt(0) }}</span>
-                <span :class="['chat-page__mini-av', c.avatarColorB]">{{ c.participantB.charAt(0) }}</span>
-              </div>
+              <span :class="['chat-page__mini-av', c.avatarColorB]" aria-hidden="true">{{ c.participantB.charAt(0) }}</span>
               <div class="chat-page__conv-body">
                 <div class="chat-page__conv-row1">
-                  <span class="chat-page__conv-name">{{ c.participantA }} &amp; {{ c.participantB }}</span>
+                  <span class="chat-page__conv-name">{{ c.participantB }}</span>
                   <span class="chat-page__conv-time">{{ c.activityLabel }}</span>
                 </div>
                 <p class="chat-page__conv-preview">{{ lastPreview(c) }}</p>
@@ -196,8 +193,6 @@ function onChatBack() {
   --chat-accent: #5adb94;
   --chat-muted: rgba(255, 255, 255, 0.55);
   --chat-input-bg: #150a1c;
-
-  /* Altura própria: não depende do main ser flex (evita alterar layout global). */
   width: 100%;
   min-width: 0;
   height: 100vh;
@@ -331,41 +326,16 @@ function onChatBack() {
   background: var(--chat-row-active);
 }
 
-.chat-page__stack {
-  position: relative;
-  width: 2.6rem;
-  height: 2rem;
-  flex-shrink: 0;
-}
-
 .chat-page__mini-av {
-  position: absolute;
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #fff;
-  border: 2px solid var(--chat-panel);
-  box-sizing: border-box;
-}
-
-.chat-page__mini-av:first-child {
-  left: 0;
-  top: 0;
-  z-index: 1;
-}
-
-.chat-page__mini-av:last-child {
-  left: 0.85rem;
-  top: 0.15rem;
-  z-index: 2;
-}
-
-.chat-page__conv--active .chat-page__mini-av {
-  border-color: var(--chat-row-active);
+  flex-shrink: 0;
 }
 
 .chat-page__conv-body {
@@ -403,9 +373,6 @@ function onChatBack() {
   font-size: 0.78rem;
   color: var(--chat-muted);
   line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -474,39 +441,6 @@ function onChatBack() {
   .chat-page__sidebar--hidden,
   .chat-page__content--hidden {
     display: none;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .chat-page {
-    --chat-deep: #f1f0f5;
-    --chat-panel: #ffffff;
-    --chat-panel-hover: #ede9f4;
-    --chat-row-active: #e8e0f2;
-    --chat-border: rgba(11, 161, 140, 0.2);
-    --chat-muted: rgba(33, 53, 71, 0.62);
-    --chat-input-bg: #f6f4fa;
-  }
-
-  .chat-page__sidebar-title,
-  .chat-page__conv-name {
-    color: #1e1530;
-  }
-
-  .chat-page__search {
-    color: #1e1530 !important;
-  }
-
-  .chat-page__mini-av {
-    border-color: var(--chat-panel);
-  }
-
-  .chat-page__conv--active .chat-page__mini-av {
-    border-color: var(--chat-row-active);
-  }
-
-  .chat-page__empty {
-    color: var(--chat-muted);
   }
 }
 </style>

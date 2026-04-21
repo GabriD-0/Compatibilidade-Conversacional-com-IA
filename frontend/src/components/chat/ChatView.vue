@@ -33,7 +33,6 @@ const emit = defineEmits<{
 
 const messages = ref<Message[]>([...props.conversation.messages])
 const input = ref('')
-const activeSender = ref<Sender>('A')
 const scrollRef = ref<HTMLDivElement | null>(null)
 
 function scrollToEnd() {
@@ -49,7 +48,6 @@ watch(
   () => {
     messages.value = [...props.conversation.messages]
     input.value = ''
-    activeSender.value = 'A'
     scrollToEnd()
   },
   { immediate: true },
@@ -61,10 +59,6 @@ watch(
     scrollToEnd()
   },
 )
-
-function getCurrentName(sender: Sender): string {
-  return sender === 'A' ? props.conversation.participantA : props.conversation.participantB
-}
 
 function getAvatarClass(sender: Sender): string {
   return sender === 'A' ? props.conversation.avatarColorA : props.conversation.avatarColorB
@@ -81,7 +75,7 @@ function handleSend() {
 
   messages.value.push({
     id: `${props.conversation.id}-${Date.now()}`,
-    sender: activeSender.value,
+    sender: 'A',
     text,
     time: formatNow(),
   })
@@ -105,16 +99,11 @@ function onAnalyze() {
           aria-label="Voltar"
           @click="emit('back')"
         />
-        <div class="chat-view__stack" aria-hidden="true">
-          <span :class="['chat-view__head-av', conversation.avatarColorA]">
-            {{ conversation.participantA.charAt(0) }}
-          </span>
-          <span :class="['chat-view__head-av', conversation.avatarColorB]">
-            {{ conversation.participantB.charAt(0) }}
-          </span>
-        </div>
+        <span :class="['chat-view__head-av', conversation.avatarColorB]" aria-hidden="true">
+          {{ conversation.participantB.charAt(0) }}
+        </span>
         <div class="chat-view__participants">
-          <strong>{{ conversation.participantA }} &amp; {{ conversation.participantB }}</strong>
+          <strong>{{ conversation.participantB }}</strong>
           <small>{{ messages.length }} mensagens</small>
         </div>
       </div>
@@ -129,56 +118,32 @@ function onAnalyze() {
     </header>
 
     <div ref="scrollRef" class="chat-view__messages">
-      <div
-        v-for="message in messages"
-        :key="message.id"
-        class="chat-view__row"
-        :class="{ 'chat-view__row--right': message.sender === 'B' }"
-      >
-        <div class="chat-view__avatar" :class="getAvatarClass(message.sender)">
-          {{ getCurrentName(message.sender).charAt(0) }}
-        </div>
-        <div class="chat-view__bubble" :class="{ 'chat-view__bubble--right': message.sender === 'B' }">
-          <p>{{ message.text }}</p>
-          <small>{{ message.time }}</small>
+      <div class="chat-view__messages-body">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="chat-view__row"
+          :class="{ 'chat-view__row--right': message.sender === 'A' }"
+        >
+          <div v-if="message.sender === 'B'" class="chat-view__avatar" :class="getAvatarClass(message.sender)">
+            {{ conversation.participantB.charAt(0) }}
+          </div>
+
+          <div class="chat-view__bubble" :class="{ 'chat-view__bubble--right': message.sender === 'A' }">
+            <p>{{ message.text }}</p>
+            <small>{{ message.time }}</small>
+          </div>
         </div>
       </div>
     </div>
 
     <footer class="chat-view__footer">
-      <div class="chat-view__sender">
-        <span class="chat-view__sender-label">Enviando como:</span>
-        <div class="chat-view__sender-actions">
-          <button
-            type="button"
-            class="chat-view__pill"
-            :class="{ 'chat-view__pill--on': activeSender === 'A' }"
-            @click="activeSender = 'A'"
-          >
-            <span :class="['chat-view__pill-av', conversation.avatarColorA]">
-              {{ conversation.participantA.charAt(0) }}
-            </span>
-            {{ conversation.participantA }}
-          </button>
-          <button
-            type="button"
-            class="chat-view__pill"
-            :class="{ 'chat-view__pill--on': activeSender === 'B' }"
-            @click="activeSender = 'B'"
-          >
-            <span :class="['chat-view__pill-av', conversation.avatarColorB]">
-              {{ conversation.participantB.charAt(0) }}
-            </span>
-            {{ conversation.participantB }}
-          </button>
-        </div>
-      </div>
-
+      <div class="chat-view__footer-body">
       <div class="chat-view__input-row">
         <InputText
           v-model="input"
           class="chat-view__input"
-          :placeholder="`Escrever como ${getCurrentName(activeSender)}...`"
+          placeholder="Escrever uma mensagem..."
           @keydown.enter="handleSend"
         />
         <Button
@@ -189,6 +154,7 @@ function onAnalyze() {
           :disabled="!input.trim()"
           @click="handleSend"
         />
+      </div>
       </div>
     </footer>
   </div>
@@ -238,37 +204,16 @@ function onAnalyze() {
   flex-shrink: 0;
 }
 
-.chat-view__stack {
-  position: relative;
-  width: 2.85rem;
-  height: 2.1rem;
-  flex-shrink: 0;
-}
-
 .chat-view__head-av {
-  position: absolute;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #fff;
-  border: 2px solid var(--cv-panel);
-  box-sizing: border-box;
-}
-
-.chat-view__head-av:first-child {
-  left: 0;
-  top: 0;
-  z-index: 1;
-}
-
-.chat-view__head-av:last-child {
-  left: 0.95rem;
-  top: 0.12rem;
-  z-index: 2;
+  flex-shrink: 0;
 }
 
 .chat-view__participants {
@@ -338,11 +283,16 @@ function onAnalyze() {
 .chat-view__messages {
   flex: 1;
   overflow-y: auto;
+  background: var(--cv-deep);
+  padding: 1rem 1.1rem;
+}
+
+.chat-view__messages-body {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  padding: 1rem 1.1rem;
-  background: var(--cv-deep);
+  margin: 1 auto;
+  width: 100%;
 }
 
 .chat-view__row {
@@ -353,7 +303,7 @@ function onAnalyze() {
 }
 
 .chat-view__row--right {
-  justify-content: flex-end;
+  justify-content: flex;
   flex-direction: row-reverse;
 }
 
@@ -401,74 +351,22 @@ function onAnalyze() {
 }
 
 .chat-view__footer {
-  padding: 0.9rem 1rem 1rem;
+  padding: 0.9rem 1.1rem 1rem;
   border-top: 1px solid var(--cv-border);
   background: var(--cv-panel);
   flex-shrink: 0;
 }
 
-.chat-view__sender-label {
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--cv-muted);
-  margin-bottom: 0.45rem;
-}
-
-.chat-view__sender-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.chat-view__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.65rem 0.35rem 0.4rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--cv-muted);
-  background: var(--cv-input-bg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.chat-view__pill:hover {
-  border-color: rgba(90, 219, 148, 0.35);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.chat-view__pill--on {
-  background: rgba(90, 219, 148, 0.18);
-  border-color: var(--cv-accent);
-  color: var(--cv-accent);
-}
-
-.chat-view__pill-av {
-  width: 1.45rem;
-  height: 1.45rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #fff;
+.chat-view__footer-body {
+  max-width: 48rem;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .chat-view__input-row {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  margin-top: 0.75rem;
   min-width: 0;
 }
 
@@ -510,10 +408,6 @@ function onAnalyze() {
     --cv-bubble-left: #ede9f4;
     --cv-bubble-right: rgba(11, 161, 140, 0.18);
     --cv-input-bg: #f6f4fa;
-  }
-
-  .chat-view__head-av {
-    border-color: var(--cv-panel);
   }
 
   .chat-view__participants strong {
