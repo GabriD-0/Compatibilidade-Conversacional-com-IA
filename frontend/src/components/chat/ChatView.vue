@@ -2,31 +2,20 @@
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { nextTick, ref, watch } from 'vue'
+import { useAuthStore } from '../../stores/auth'
+import { useDialogosStore, type UiConversation, type UiMessage } from '../../stores/dialogos'
 
-type Sender = 'A' | 'B'
-
-type Message = {
-  id: string
-  sender: Sender
-  text: string
-  time: string
-}
-
-type Conversation = {
-  id: string
-  participantA: string
-  participantB: string
-  avatarColorA: string
-  avatarColorB: string
-  score: number | null
-  messages: Message[]
-}
-
-const props = defineProps<{ conversation: Conversation }>()
+const props = defineProps<{
+  conversation: UiConversation
+  messages: UiMessage[]
+  typingVisible: boolean
+}>()
 
 const emit = defineEmits<{ back: []; analyze: [] }>()
 
-const messages = ref<Message[]>([...props.conversation.messages])
+const authStore = useAuthStore()
+const store = useDialogosStore()
+
 const input = ref('')
 const scrollRef = ref<HTMLDivElement | null>(null)
 
@@ -50,39 +39,43 @@ function scoreLabel(score: number | null): 'high' | 'mid' | 'low' | null {
   return 'low'
 }
 
+function isSent(msg: UiMessage): boolean {
+  return msg.senderId === authStore.user?.id
+}
+
+function formatTime(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 function scrollToEnd() {
   nextTick(() => {
     if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
   })
 }
 
-watch(
-  () => props.conversation.id,
-  () => {
-    messages.value = [...props.conversation.messages]
-    input.value = ''
-    scrollToEnd()
-  },
-  { immediate: true },
-)
+watch(() => props.conversation.id, () => {
+  input.value = ''
+  scrollToEnd()
+}, { immediate: true })
 
-watch(() => messages.value.length, scrollToEnd)
+watch(() => props.messages.length, scrollToEnd)
 
-function formatNow(): string {
-  const now = new Date()
-  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-}
+let typingDebounce: ReturnType<typeof setTimeout> | null = null
 
-function handleSend() {
+watch(input, (val) => {
+  if (!val.trim()) return
+  if (typingDebounce) clearTimeout(typingDebounce)
+  typingDebounce = setTimeout(() => {
+    store.emitTypingForActiveConversation()
+  }, 500)
+})
+
+async function handleSend() {
   const text = input.value.trim()
   if (!text) return
-  messages.value.push({
-    id: `${props.conversation.id}-${Date.now()}`,
-    sender: 'A',
-    text,
-    time: formatNow(),
-  })
   input.value = ''
+  await store.sendMessage(text)
 }
 </script>
 
@@ -102,13 +95,13 @@ function handleSend() {
         <div class="chat-view__av-wrap">
           <span
             class="chat-view__head-av"
-            :style="{ background: avatarGradient(conversation.participantB) }"
+            :style="{ background: avatarGradient(conversation.otherParticipant.name) }"
             aria-hidden="true"
-          >{{ conversation.participantB.charAt(0) }}</span>
+          >{{ conversation.otherParticipant.name.charAt(0) }}</span>
           <span class="chat-view__online-dot"></span>
         </div>
         <div class="chat-view__participants">
-          <strong>{{ conversation.participantB }}</strong>
+          <strong>{{ conversation.otherParticipant.name }}</strong>
           <small>{{ messages.length }} mensagens · online</small>
         </div>
       </div>
@@ -133,20 +126,33 @@ function handleSend() {
           v-for="message in messages"
           :key="message.id"
           class="chat-view__row"
-          :class="{ 'chat-view__row--right': message.sender === 'A' }"
+          :class="{ 'chat-view__row--right': isSent(message) }"
         >
           <div
-            v-if="message.sender === 'B'"
+            v-if="!isSent(message)"
             class="chat-view__avatar"
-            :style="{ background: avatarGradient(conversation.participantB) }"
-          >{{ conversation.participantB.charAt(0) }}</div>
+            :style="{ background: avatarGradient(conversation.otherParticipant.name) }"
+          >{{ conversation.otherParticipant.name.charAt(0) }}</div>
 
           <div
             class="chat-view__bubble"
-            :class="message.sender === 'A' ? 'chat-view__bubble--sent' : 'chat-view__bubble--recv'"
+            :class="isSent(message) ? 'chat-view__bubble--sent' : 'chat-view__bubble--recv'"
           >
-            <p>{{ message.text }}</p>
-            <small>{{ message.time }}</small>
+            <p>{{ message.content }}</p>
+            <small>{{ formatTime(message.sentAt) }}</small>
+          </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div v-if="typingVisible" class="chat-view__row chat-view__typing">
+          <div
+            class="chat-view__avatar"
+            :style="{ background: avatarGradient(conversation.otherParticipant.name) }"
+          >{{ conversation.otherParticipant.name.charAt(0) }}</div>
+          <div class="chat-view__bubble chat-view__bubble--recv chat-view__bubble--typing">
+            <span class="chat-view__typing-dot"></span>
+            <span class="chat-view__typing-dot"></span>
+            <span class="chat-view__typing-dot"></span>
           </div>
         </div>
       </div>
@@ -530,5 +536,30 @@ function handleSend() {
 .chat-view__send:disabled {
   opacity: 0.3 !important;
   box-shadow: none !important;
+}
+
+/* ── Typing indicator ── */
+.chat-view__bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.72rem 1.05rem;
+  min-width: 3rem;
+}
+
+.chat-view__typing-dot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: rgba(195, 178, 228, 0.55);
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.chat-view__typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.chat-view__typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-0.35rem); opacity: 1; }
 }
 </style>

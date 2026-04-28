@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '../services/api'
 import type { AuthUser, AuthResponse } from '../types/api'
+import { connectSocket, disconnectSocket } from '../services/socket'
 
 const ACCESS_KEY = 'access_token'
 const REFRESH_KEY = 'refresh_token'
@@ -25,6 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout(): void {
+    disconnectSocket()
     user.value = null
     accessToken.value = null
     refreshToken.value = null
@@ -40,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem(ACCESS_KEY, data.access_token)
     localStorage.setItem(REFRESH_KEY, data.refresh_token)
     localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+    connectSocket()
   }
 
   return { user, accessToken, refreshToken, isAuthenticated, login, register, logout }

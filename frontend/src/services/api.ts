@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { RefreshResponse } from '../types/api'
+import type { RefreshResponse, ConversationsPage, Conversation, MessagesPage } from '../types/api'
 
 const ACCESS_KEY = 'access_token'
 const REFRESH_KEY = 'refresh_token'
@@ -67,3 +67,39 @@ api.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+
+// ---- Conversation endpoints ----
+
+export const conversationsApi = {
+  list(page = 1, perPage = 20): Promise<ConversationsPage> {
+    return api.get('/api/conversations', { params: { page, per_page: perPage } }).then((r) => r.data)
+  },
+
+  create(): Promise<Conversation> {
+    return api.post('/api/conversations').then((r) => r.data)
+  },
+
+  get(id: number): Promise<Conversation> {
+    return api.get(`/api/conversations/${id}`).then((r) => r.data)
+  },
+
+  messages(conversationId: number, afterPosition = 0, limit = 50): Promise<MessagesPage> {
+    return api
+      .get(`/api/conversations/${conversationId}/messages`, {
+        params: { after_position: afterPosition, limit },
+      })
+      .then((r) => r.data)
+  },
+
+  delete(id: number): Promise<void> {
+    return api.delete(`/api/conversations/${id}`).then(() => undefined)
+  },
+}
+
+export function extractApiError(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const msg = err.response?.data?.error?.message
+    if (msg) return msg as string
+  }
+  return 'Ocorreu um erro inesperado. Tente novamente.'
+}

@@ -6,19 +6,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import ChatView from '../components/chat/ChatView.vue'
-
-type Sender = 'A' | 'B'
-type Message = { id: string; sender: Sender; text: string; time: string }
-type Conversation = {
-  id: string
-  participantA: string
-  participantB: string
-  avatarColorA: string
-  avatarColorB: string
-  score: number | null
-  activityLabel: string
-  messages: Message[]
-}
+import { useDialogosStore } from '../stores/dialogos'
 
 const NARROW_QUERY = '(max-width: 980px)'
 
@@ -42,50 +30,8 @@ function scoreLabel(score: number | null): 'high' | 'mid' | 'low' | null {
   return 'low'
 }
 
-const conversations = ref<Conversation[]>([
-  {
-    id: '1',
-    participantA: 'Ana',
-    participantB: 'Bruno',
-    avatarColorA: 'bg-primary',
-    avatarColorB: 'bg-secondary',
-    score: 87,
-    activityLabel: 'Agora',
-    messages: [
-      { id: '1-1', sender: 'A', text: 'Gostei da proposta para o TCC.', time: '14:28' },
-      { id: '1-2', sender: 'B', text: 'Também curti, achei bem alinhada.', time: '14:29' },
-      { id: '1-3', sender: 'A', text: 'Você acha que dá para entregar na semana 12?', time: '14:30' },
-      { id: '1-4', sender: 'B', text: 'Sim, se mantivermos o escopo atual.', time: '14:31' },
-      { id: '1-5', sender: 'A', text: 'Perfeito, monto o cronograma hoje.', time: '14:32' },
-      { id: '1-6', sender: 'B', text: 'Combinado. Te aviso se surgir bloqueio.', time: '14:33' },
-    ],
-  },
-  {
-    id: '2',
-    participantA: 'Carla',
-    participantB: 'Diego',
-    avatarColorA: 'bg-accent',
-    avatarColorB: 'bg-secondary',
-    score: 72,
-    activityLabel: '5 min',
-    messages: [
-      { id: '2-1', sender: 'A', text: 'Vamos revisar os requisitos?', time: '15:10' },
-      { id: '2-2', sender: 'B', text: 'Fechado, começo pelos fluxos.', time: '15:11' },
-    ],
-  },
-  {
-    id: '3',
-    participantA: 'Elena',
-    participantB: 'Felipe',
-    avatarColorA: 'bg-primary',
-    avatarColorB: 'bg-accent',
-    score: null,
-    activityLabel: '1 h',
-    messages: [{ id: '3-1', sender: 'A', text: 'Te mando o arquivo amanhã.', time: '09:00' }],
-  },
-])
+const store = useDialogosStore()
 
-const activeId = ref<string | null>('1')
 const isNarrow = ref(false)
 const mobileShowChat = ref(false)
 const searchQuery = ref('')
@@ -99,42 +45,51 @@ function refreshMq() {
   if (!mq.matches) mobileShowChat.value = false
 }
 
-onMounted(() => {
+onMounted(async () => {
   mq = window.matchMedia(NARROW_QUERY)
   refreshMq()
   mq.addEventListener('change', refreshMq)
+  store.init()
+  await store.loadConversations()
 })
 
 onUnmounted(() => {
   mq?.removeEventListener('change', refreshMq)
+  store.cleanup()
 })
 
-watch(activeId, (id) => {
-  if (id && isNarrow.value) mobileShowChat.value = true
-})
-
-const activeConversation = computed(
-  () => conversations.value.find((c) => c.id === activeId.value) ?? null,
+watch(
+  () => store.activeConversationId,
+  (id) => {
+    if (id !== null && isNarrow.value) mobileShowChat.value = true
+  },
 )
 
-function lastPreview(c: Conversation): string {
-  return c.messages[c.messages.length - 1]?.text ?? ''
-}
+const activeConversation = computed(() => store.activeConversation)
 
 const filteredConversations = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return conversations.value
-  return conversations.value.filter((c) =>
-    `${c.participantB} ${lastPreview(c)}`.toLowerCase().includes(q),
+  if (!q) return store.conversations
+  return store.conversations.filter((c) =>
+    `${c.otherParticipant.name} ${c.lastMessage}`.toLowerCase().includes(q),
   )
 })
+
+function selectConv(id: number) {
+  store.selectConversation(id)
+}
 
 function onChatBack() {
   if (isNarrow.value) {
     mobileShowChat.value = false
     return
   }
-  activeId.value = null
+  store.clearActiveConversation()
+}
+
+async function confirmNewConversation() {
+  await store.startConversation()
+  showNewConversationDialog.value = false
 }
 </script>
 
@@ -176,24 +131,24 @@ function onChatBack() {
             <button
               type="button"
               class="chat-page__conv"
-              :class="{ 'chat-page__conv--active': activeId === c.id }"
-              @click="activeId = c.id"
+              :class="{ 'chat-page__conv--active': store.activeConversationId === c.id }"
+              @click="selectConv(c.id)"
             >
               <div class="chat-page__av-wrap">
                 <span
                   class="chat-page__mini-av"
-                  :style="{ background: avatarGradient(c.participantB) }"
+                  :style="{ background: avatarGradient(c.otherParticipant.name) }"
                   aria-hidden="true"
-                >{{ c.participantB.charAt(0) }}</span>
+                >{{ c.otherParticipant.name.charAt(0) }}</span>
                 <span class="chat-page__online-dot" aria-hidden="true"></span>
               </div>
 
               <div class="chat-page__conv-body">
                 <div class="chat-page__conv-row1">
-                  <span class="chat-page__conv-name">{{ c.participantB }}</span>
+                  <span class="chat-page__conv-name">{{ c.otherParticipant.name }}</span>
                   <span class="chat-page__conv-time">{{ c.activityLabel }}</span>
                 </div>
-                <p class="chat-page__conv-preview">{{ lastPreview(c) }}</p>
+                <p class="chat-page__conv-preview">{{ c.lastMessage }}</p>
                 <div class="chat-page__conv-meta">
                   <span
                     v-if="c.score != null"
@@ -216,7 +171,13 @@ function onChatBack() {
         class="chat-page__content"
         :class="{ 'chat-page__content--hidden': isNarrow && !mobileShowChat }"
       >
-        <ChatView v-if="activeConversation" :conversation="activeConversation" @back="onChatBack" />
+        <ChatView
+          v-if="activeConversation"
+          :conversation="activeConversation"
+          :messages="store.messages"
+          :typing-visible="store.typingVisible"
+          @back="onChatBack"
+        />
         <div v-else class="chat-page__empty">
           <div class="chat-page__empty-icon-wrap">
             <i class="pi pi-comments chat-page__empty-icon" aria-hidden="true"></i>
@@ -229,30 +190,31 @@ function onChatBack() {
 
     <!-- Dialog nova conversa -->
     <Dialog
-    v-model:visible="showNewConversationDialog"
-    modal
-    header="Nova conversa"
-    class="new-conv-dialog"
-    :style="{ width: '22rem' }"
-  >
-    <p class="new-conv-dialog__text">
-      Deseja iniciar uma nova conversa com uma pessoa aleatória?
-    </p>
-    <template #footer>
-      <Button
-        label="Cancelar"
-        text
-        class="new-conv-dialog__cancel"
-        @click="showNewConversationDialog = false"
-      />
-      <Button
-        label="Confirmar"
-        class="new-conv-dialog__confirm"
-        @click="showNewConversationDialog = false"
-      />
-    </template>
-  </Dialog>
-</div>
+      v-model:visible="showNewConversationDialog"
+      modal
+      header="Nova conversa"
+      class="new-conv-dialog"
+      :style="{ width: '22rem' }"
+    >
+      <p class="new-conv-dialog__text">
+        Deseja iniciar uma nova conversa com uma pessoa aleatória?
+      </p>
+      <template #footer>
+        <Button
+          label="Cancelar"
+          text
+          class="new-conv-dialog__cancel"
+          @click="showNewConversationDialog = false"
+        />
+        <Button
+          label="Confirmar"
+          class="new-conv-dialog__confirm"
+          :loading="store.creatingConversation"
+          @click="confirmNewConversation"
+        />
+      </template>
+    </Dialog>
+  </div>
 </template>
 
 <style scoped>
