@@ -1,4 +1,5 @@
 import logging
+import random
 from datetime import datetime, timezone
 from sqlalchemy import and_, or_, update
 from app.errors import ApiError
@@ -11,14 +12,35 @@ _MAX_CONTENT = 4096
 _MAX_LIMIT = 200
 _MAX_PER_PAGE = 100
 
-def create_conversation(login_id: int, data: dict) -> Conversation:
-    participant_id = data.get("participant_id")
-    if not participant_id or not isinstance(participant_id, int):
-        raise ApiError("participant_id é obrigatório.", code="missing_participant_id")
+def _pick_random_partner(login_id: int) -> Login:
+    """Retorna um usuário aleatório que ainda não tem conversa com login_id."""
+    already_paired = db.session.query(Conversation.participant_a_id, Conversation.participant_b_id).filter(
+        or_(
+            Conversation.participant_a_id == login_id,
+            Conversation.participant_b_id == login_id,
+        )).all()
 
-    other = db.session.get(Login, participant_id)
-    if other is None:
-        raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
+    excluded_ids = {login_id}
+    for a, b in already_paired:
+        excluded_ids.add(a)
+        excluded_ids.add(b)
+
+    candidates = Login.query.filter(Login.id.notin_(excluded_ids)).all()
+    if not candidates:
+        raise ApiError("Nenhum usuário disponível para nova conversa.", code="no_candidates", status_code=404)
+
+    return random.choice(candidates)
+
+
+def create_conversation(login_id: int, data: dict) -> Conversation:
+    participant_id = data.get("participant_id") if data else None
+
+    if participant_id and isinstance(participant_id, int):
+        other = db.session.get(Login, participant_id)
+        if other is None:
+            raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
+    else:
+        other = _pick_random_partner(login_id)
 
     if other.id == login_id:
         raise ApiError("Não é possível criar uma conversa consigo mesmo.", code="self_conversation")
