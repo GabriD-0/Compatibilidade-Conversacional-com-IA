@@ -6,7 +6,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import ChatView from '../components/chat/ChatView.vue'
-import { useDialogosStore } from '../stores/dialogos'
+import { useConversationStore } from '../stores/conversation'
 
 const NARROW_QUERY = '(max-width: 980px)'
 
@@ -30,7 +30,7 @@ function scoreLabel(score: number | null): 'high' | 'mid' | 'low' | null {
   return 'low'
 }
 
-const store = useDialogosStore()
+const store = useConversationStore()
 
 const isNarrow = ref(false)
 const mobileShowChat = ref(false)

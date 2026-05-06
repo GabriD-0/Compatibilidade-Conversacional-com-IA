@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { RefreshResponse, ConversationsPage, Conversation, MessagesPage } from '../types/api'
+import type { RefreshResponse, ConversationsPage, Conversation, MessagesPage } from '../types/types'
 
 const ACCESS_KEY = 'access_token'
 const REFRESH_KEY = 'refresh_token'

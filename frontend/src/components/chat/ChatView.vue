@@ -3,7 +3,8 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { nextTick, ref, watch } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import { useDialogosStore, type UiConversation, type UiMessage } from '../../stores/dialogos'
+import { useConversationStore, type UiConversation, type UiMessage } from '../../stores/conversation'
+import { avatarGradient } from '../../utils/avatarGradient'
 
 const props = defineProps<{
   conversation: UiConversation
@@ -14,23 +15,9 @@ const props = defineProps<{
 const emit = defineEmits<{ back: []; analyze: [] }>()
 
 const authStore = useAuthStore()
-const store = useDialogosStore()
-
+const store = useConversationStore()
 const input = ref('')
 const scrollRef = ref<HTMLDivElement | null>(null)
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #5adb94, #0ba18c)',
-  'linear-gradient(135deg, #c0345e, #6d0080)',
-  'linear-gradient(135deg, #7c3aed, #4f46e5)',
-  'linear-gradient(135deg, #0ea5e9, #0891b2)',
-  'linear-gradient(135deg, #f59e0b, #ef4444)',
-  'linear-gradient(135deg, #ec4899, #8b5cf6)',
-]
-
-function avatarGradient(name: string): string {
-  return AVATAR_GRADIENTS[name.charCodeAt(0) % AVATAR_GRADIENTS.length]!
-}
 
 function scoreLabel(score: number | null): 'high' | 'mid' | 'low' | null {
   if (score === null) return null
@@ -44,8 +31,8 @@ function isSent(msg: UiMessage): boolean {
 }
 
 function formatTime(iso: string): string {
-  const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  const date = new Date(iso)
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
 function scrollToEnd() {

@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '../services/api'
-import type { AuthUser, AuthResponse } from '../types/api'
+import type { AuthUser, AuthResponse } from '../types/types'
 import { connectSocket, disconnectSocket } from '../services/socket'
 
 const ACCESS_KEY = 'access_token'

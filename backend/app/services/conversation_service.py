@@ -8,12 +8,12 @@ from app.models import Conversation, Login, Message
 
 log = logging.getLogger(__name__)
 
-_MAX_CONTENT = 4096
-_MAX_LIMIT = 200
-_MAX_PER_PAGE = 100
+_MAX_MESSAGE_LENGTH = 5000
+_MAX_MESSAGES_PER_QUERY = 150
+_MAX_CONVERSATIONS_PER_PAGE = 100
 
-def _pick_random_partner(login_id: int) -> Login:
-    """Retorna um usuário aleatório que ainda não tem conversa com login_id."""
+"""Retorna um usuário aleatório que ainda não tem conversa com login_id."""
+def pick_random_partner(login_id: int) -> Login:
     already_paired = db.session.query(Conversation.participant_a_id, Conversation.participant_b_id).filter(
         or_(
             Conversation.participant_a_id == login_id,
@@ -40,7 +40,7 @@ def create_conversation(login_id: int, data: dict) -> Conversation:
         if other is None:
             raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
     else:
-        other = _pick_random_partner(login_id)
+        other = pick_random_partner(login_id)
 
     if other.id == login_id:
         raise ApiError("Não é possível criar uma conversa consigo mesmo.", code="self_conversation")
@@ -68,7 +68,7 @@ def create_conversation(login_id: int, data: dict) -> Conversation:
 
 
 def list_conversations(login_id: int, page: int = 1, per_page: int = 20):
-    per_page = min(per_page, _MAX_PER_PAGE)
+    per_page = min(per_page, _MAX_CONVERSATIONS_PER_PAGE)
     page = max(page, 1)
 
     paginated = (
@@ -95,7 +95,7 @@ def get_conversation(login_id: int, conversation_id: int) -> Conversation:
 
 def get_messages(login_id: int, conversation_id: int, after_position: int = 0, limit: int = 50) -> list:
     conv = get_conversation(login_id, conversation_id)
-    limit = min(max(limit, 1), _MAX_LIMIT)
+    limit = min(max(limit, 1), _MAX_MESSAGES_PER_QUERY)
 
     return (
         Message.query.filter(
@@ -114,13 +114,13 @@ def delete_conversation(login_id: int, conversation_id: int) -> None:
     db.session.commit()
 
 
+"""Insere uma mensagem atomicamente e atualiza o cabeçalho da conversa."""
 def persist_message(conversation_id: int, sender_id: int, content: str) -> Message:
-    """Insere uma mensagem atomicamente e atualiza o cabeçalho da conversa."""
     if not content or not content.strip():
         raise ApiError("Mensagem não pode estar vazia.", code="empty_content")
 
-    if len(content) > _MAX_CONTENT:
-        raise ApiError(f"Mensagem excede {_MAX_CONTENT} caracteres.", code="content_too_long")
+    if len(content) > _MAX_MESSAGE_LENGTH:
+        raise ApiError(f"Mensagem excede {_MAX_MESSAGE_LENGTH} caracteres.", code="content_too_long")
 
     now = datetime.now(timezone.utc)
 
@@ -157,8 +157,8 @@ def persist_message(conversation_id: int, sender_id: int, content: str) -> Messa
     return msg
 
 
+"""Marca como lidas todas as mensagens do outro participante até a posição indicada."""
 def mark_read(conversation_id: int, reader_id: int, up_to_position: int) -> None:
-    """Marca como lidas todas as mensagens do outro participante até a posição indicada."""
     db.session.execute(
         update(Message)
         .where(

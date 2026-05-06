@@ -2,19 +2,8 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
 import { conversationsApi, extractApiError } from '../services/api'
-import {
-  connectSocket,
-  disconnectSocket,
-  joinConversation,
-  leaveConversation,
-  sendMessage as socketSendMessage,
-  emitTyping,
-  emitRead,
-  onNewMessage,
-  onUserTyping,
-  onMessageStatus,
-} from '../services/socket'
-import type { WsNewMessage, WsUserTyping, WsMessageStatus, MessageStatus } from '../types/api'
+import { connectSocket, disconnectSocket, joinConversation, leaveConversation, sendMessage as socketSendMessage, emitTyping, emitRead, onNewMessage, onUserTyping, onMessageStatus } from '../services/socket'
+import type { WsNewMessage, WsUserTyping, WsMessageStatus, MessageStatus } from '../types/types'
 
 export interface UiConversation {
   id: number
@@ -47,9 +36,8 @@ function formatRelative(iso: string | null): string {
   return `${Math.floor(hrs / 24)} d`
 }
 
-export const useDialogosStore = defineStore('dialogos', () => {
+export const useConversationStore = defineStore('conversation', () => {
   const authStore = useAuthStore()
-
   const conversations = ref<UiConversation[]>([])
   const activeConversationId = ref<number | null>(null)
   const messages = ref<UiMessage[]>([])
@@ -65,7 +53,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
   const myId = computed(() => authStore.user?.id ?? 0)
 
   const activeConversation = computed<UiConversation | null>(
-    () => conversations.value.find((c) => c.id === activeConversationId.value) ?? null,
+    () => conversations.value.find((conversation) => conversation.id === activeConversationId.value) ?? null,
   )
 
   function buildUiConversation(raw: {
@@ -111,7 +99,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
     error.value = null
     try {
       const page = await conversationsApi.list()
-      conversations.value = page.conversations.map(buildUiConversation)
+      conversations.value = page.conversations.map((conversation) => buildUiConversation(conversation))
     } catch (err) {
       error.value = extractApiError(err)
     } finally {
@@ -130,6 +118,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
       await joinConversation(id)
     } catch {
       // sala pode não existir ainda se conversa foi criada agora
+      console.error('Sala não existe ainda se conversa foi criada agora')
     }
   }
 
@@ -137,13 +126,13 @@ export const useDialogosStore = defineStore('dialogos', () => {
     loadingMessages.value = true
     try {
       const page = await conversationsApi.messages(id)
-      messages.value = page.messages.map((m) => ({
-        id: m.id,
-        senderId: m.sender_id,
-        content: m.content,
-        sentAt: m.sent_at,
-        position: m.position,
-        status: m.status,
+      messages.value = page.messages.map((message) => ({
+        id: message.id,
+        senderId: message.sender_id,
+        content: message.content,
+        sentAt: message.sent_at,
+        position: message.position,
+        status: message.status,
       }))
     } catch (err) {
       error.value = extractApiError(err)
@@ -171,7 +160,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
     try {
       await socketSendMessage(activeConversationId.value, trimmed)
     } catch {
-      messages.value = messages.value.filter((m) => m.id !== tempId)
+      messages.value = messages.value.filter((message) => message.id !== tempId)
       error.value = 'Falha ao enviar mensagem. Tente novamente.'
     }
   }
@@ -182,7 +171,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
     try {
       const conv = await conversationsApi.create()
       const uiConv = buildUiConversation(conv)
-      const existing = conversations.value.findIndex((c) => c.id === conv.id)
+      const existing = conversations.value.findIndex((conversation) => conversation.id === conv.id)
       if (existing === -1) conversations.value.unshift(uiConv)
       await selectConversation(conv.id)
     } catch (err) {
@@ -196,7 +185,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
   async function removeConversation(id: number) {
     try {
       await conversationsApi.delete(id)
-      conversations.value = conversations.value.filter((c) => c.id !== id)
+      conversations.value = conversations.value.filter((conversation) => conversation.id !== id)
       if (activeConversationId.value === id) {
         activeConversationId.value = null
         messages.value = []
@@ -210,13 +199,13 @@ export const useDialogosStore = defineStore('dialogos', () => {
     if (data.sender_id === myId.value) {
       // Remove mensagem otimista com mesmo conteúdo
       const optIdx = messages.value.findIndex(
-        (m) => m.optimistic && m.content === data.content && m.senderId === data.sender_id,
+        (message) => message.optimistic && message.content === data.content && message.senderId === data.sender_id,
       )
       if (optIdx !== -1) messages.value.splice(optIdx, 1)
     }
 
     // Evita duplicata
-    if (messages.value.some((m) => m.id === data.id)) return
+    if (messages.value.some((message) => message.id === data.id)) return
 
     messages.value.push({
       id: data.id,
@@ -228,7 +217,7 @@ export const useDialogosStore = defineStore('dialogos', () => {
     })
 
     // Atualiza sidebar
-    const conv = conversations.value.find((c) => c.id === activeConversationId.value)
+    const conv = conversations.value.find((conversation) => conversation.id === activeConversationId.value)
     if (conv) {
       conv.lastMessage = data.content
       conv.lastMessageAt = data.sent_at
@@ -252,13 +241,13 @@ export const useDialogosStore = defineStore('dialogos', () => {
   }
 
   function handleMessageStatusEvent(data: WsMessageStatus) {
-    messages.value.forEach((m) => {
+    messages.value.forEach((message) => {
       if (
-        typeof m.position === 'number' &&
-        m.position <= data.up_to_position &&
-        m.status !== 'read'
+        typeof message.position === 'number' &&
+        message.position <= data.up_to_position &&
+        message.status !== 'read'
       ) {
-        m.status = data.status
+        message.status = data.status
       }
     })
   }
