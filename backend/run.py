@@ -3,7 +3,7 @@ from app import create_app
 from app.extensions import socketio
 
 # Mudar para production quando for colocar em produção
-app = create_app(config_name=os.environ.get("FLASK_ENV", "development"))
+app = create_app(config_name=os.environ.get("FLASK_ENV"))
 
 if __name__ == "__main__":
     socketio.run(

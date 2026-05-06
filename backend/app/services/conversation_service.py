@@ -1,4 +1,5 @@
 import logging
+import random
 from datetime import datetime, timezone
 from sqlalchemy import and_, or_, update
 from app.errors import ApiError
@@ -7,18 +8,39 @@ from app.models import Conversation, Login, Message
 
 log = logging.getLogger(__name__)
 
-_MAX_CONTENT = 4096
-_MAX_LIMIT = 200
-_MAX_PER_PAGE = 100
+_MAX_MESSAGE_LENGTH = 5000
+_MAX_MESSAGES_PER_QUERY = 150
+_MAX_CONVERSATIONS_PER_PAGE = 100
+
+"""Retorna um usuário aleatório que ainda não tem conversa com login_id."""
+def pick_random_partner(login_id: int) -> Login:
+    already_paired = db.session.query(Conversation.participant_a_id, Conversation.participant_b_id).filter(
+        or_(
+            Conversation.participant_a_id == login_id,
+            Conversation.participant_b_id == login_id,
+        )).all()
+
+    excluded_ids = {login_id}
+    for a, b in already_paired:
+        excluded_ids.add(a)
+        excluded_ids.add(b)
+
+    candidates = Login.query.filter(Login.id.notin_(excluded_ids)).all()
+    if not candidates:
+        raise ApiError("Nenhum usuário disponível para nova conversa.", code="no_candidates", status_code=404)
+
+    return random.choice(candidates)
+
 
 def create_conversation(login_id: int, data: dict) -> Conversation:
-    participant_id = data.get("participant_id")
-    if not participant_id or not isinstance(participant_id, int):
-        raise ApiError("participant_id é obrigatório.", code="missing_participant_id")
+    participant_id = data.get("participant_id") if data else None
 
-    other = db.session.get(Login, participant_id)
-    if other is None:
-        raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
+    if participant_id and isinstance(participant_id, int):
+        other = db.session.get(Login, participant_id)
+        if other is None:
+            raise ApiError("Usuário não encontrado.", code="user_not_found", status_code=404)
+    else:
+        other = pick_random_partner(login_id)
 
     if other.id == login_id:
         raise ApiError("Não é possível criar uma conversa consigo mesmo.", code="self_conversation")
@@ -46,7 +68,7 @@ def create_conversation(login_id: int, data: dict) -> Conversation:
 
 
 def list_conversations(login_id: int, page: int = 1, per_page: int = 20):
-    per_page = min(per_page, _MAX_PER_PAGE)
+    per_page = min(per_page, _MAX_CONVERSATIONS_PER_PAGE)
     page = max(page, 1)
 
     paginated = (
@@ -73,7 +95,7 @@ def get_conversation(login_id: int, conversation_id: int) -> Conversation:
 
 def get_messages(login_id: int, conversation_id: int, after_position: int = 0, limit: int = 50) -> list:
     conv = get_conversation(login_id, conversation_id)
-    limit = min(max(limit, 1), _MAX_LIMIT)
+    limit = min(max(limit, 1), _MAX_MESSAGES_PER_QUERY)
 
     return (
         Message.query.filter(
@@ -92,13 +114,13 @@ def delete_conversation(login_id: int, conversation_id: int) -> None:
     db.session.commit()
 
 
+"""Insere uma mensagem atomicamente e atualiza o cabeçalho da conversa."""
 def persist_message(conversation_id: int, sender_id: int, content: str) -> Message:
-    """Insere uma mensagem atomicamente e atualiza o cabeçalho da conversa."""
     if not content or not content.strip():
         raise ApiError("Mensagem não pode estar vazia.", code="empty_content")
 
-    if len(content) > _MAX_CONTENT:
-        raise ApiError(f"Mensagem excede {_MAX_CONTENT} caracteres.", code="content_too_long")
+    if len(content) > _MAX_MESSAGE_LENGTH:
+        raise ApiError(f"Mensagem excede {_MAX_MESSAGE_LENGTH} caracteres.", code="content_too_long")
 
     now = datetime.now(timezone.utc)
 
@@ -135,8 +157,8 @@ def persist_message(conversation_id: int, sender_id: int, content: str) -> Messa
     return msg
 
 
+"""Marca como lidas todas as mensagens do outro participante até a posição indicada."""
 def mark_read(conversation_id: int, reader_id: int, up_to_position: int) -> None:
-    """Marca como lidas todas as mensagens do outro participante até a posição indicada."""
     db.session.execute(
         update(Message)
         .where(

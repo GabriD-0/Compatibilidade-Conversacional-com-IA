@@ -2,99 +2,73 @@
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { nextTick, ref, watch } from 'vue'
-
-type Sender = 'A' | 'B'
-
-type Message = {
-  id: string
-  sender: Sender
-  text: string
-  time: string
-}
-
-type Conversation = {
-  id: string
-  participantA: string
-  participantB: string
-  avatarColorA: string
-  avatarColorB: string
-  score: number | null
-  messages: Message[]
-}
+import { useAuthStore } from '../../stores/auth'
+import { useConversationStore, type UiConversation, type UiMessage } from '../../stores/conversation'
+import { avatarGradient } from '../../utils/avatarGradient'
 
 const props = defineProps<{
-  conversation: Conversation
+  conversation: UiConversation
+  messages: UiMessage[]
+  typingVisible: boolean
 }>()
 
-const emit = defineEmits<{
-  back: []
-  analyze: []
-}>()
+const emit = defineEmits<{ back: []; analyze: [] }>()
 
-const messages = ref<Message[]>([...props.conversation.messages])
+const authStore = useAuthStore()
+const store = useConversationStore()
 const input = ref('')
-const activeSender = ref<Sender>('A')
 const scrollRef = ref<HTMLDivElement | null>(null)
+
+function scoreLabel(score: number | null): 'high' | 'mid' | 'low' | null {
+  if (score === null) return null
+  if (score >= 80) return 'high'
+  if (score >= 60) return 'mid'
+  return 'low'
+}
+
+function isSent(msg: UiMessage): boolean {
+  return msg.senderId === authStore.user?.id
+}
+
+function formatTime(iso: string): string {
+  const date = new Date(iso)
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
 
 function scrollToEnd() {
   nextTick(() => {
-    if (scrollRef.value) {
-      scrollRef.value.scrollTop = scrollRef.value.scrollHeight
-    }
+    if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
   })
 }
 
-watch(
-  () => props.conversation.id,
-  () => {
-    messages.value = [...props.conversation.messages]
-    input.value = ''
-    activeSender.value = 'A'
-    scrollToEnd()
-  },
-  { immediate: true },
-)
+watch(() => props.conversation.id, () => {
+  input.value = ''
+  scrollToEnd()
+}, { immediate: true })
 
-watch(
-  () => messages.value.length,
-  () => {
-    scrollToEnd()
-  },
-)
+watch(() => props.messages.length, scrollToEnd)
 
-function getCurrentName(sender: Sender): string {
-  return sender === 'A' ? props.conversation.participantA : props.conversation.participantB
-}
+let typingDebounce: ReturnType<typeof setTimeout> | null = null
 
-function getAvatarClass(sender: Sender): string {
-  return sender === 'A' ? props.conversation.avatarColorA : props.conversation.avatarColorB
-}
+watch(input, (val) => {
+  if (!val.trim()) return
+  if (typingDebounce) clearTimeout(typingDebounce)
+  typingDebounce = setTimeout(() => {
+    store.emitTypingForActiveConversation()
+  }, 500)
+})
 
-function formatNow(): string {
-  const now = new Date()
-  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-}
-
-function handleSend() {
+async function handleSend() {
   const text = input.value.trim()
   if (!text) return
-
-  messages.value.push({
-    id: `${props.conversation.id}-${Date.now()}`,
-    sender: activeSender.value,
-    text,
-    time: formatNow(),
-  })
   input.value = ''
-}
-
-function onAnalyze() {
-  emit('analyze')
+  await store.sendMessage(text)
 }
 </script>
 
 <template>
   <div class="chat-view">
+    <!-- Header -->
     <header class="chat-view__header">
       <div class="chat-view__left">
         <Button
@@ -105,90 +79,94 @@ function onAnalyze() {
           aria-label="Voltar"
           @click="emit('back')"
         />
-        <div class="chat-view__stack" aria-hidden="true">
-          <span :class="['chat-view__head-av', conversation.avatarColorA]">
-            {{ conversation.participantA.charAt(0) }}
-          </span>
-          <span :class="['chat-view__head-av', conversation.avatarColorB]">
-            {{ conversation.participantB.charAt(0) }}
-          </span>
+        <div class="chat-view__av-wrap">
+          <span
+            class="chat-view__head-av"
+            :style="{ background: avatarGradient(conversation.otherParticipant.name) }"
+            aria-hidden="true"
+          >{{ conversation.otherParticipant.name.charAt(0) }}</span>
+          <span class="chat-view__online-dot"></span>
         </div>
         <div class="chat-view__participants">
-          <strong>{{ conversation.participantA }} &amp; {{ conversation.participantB }}</strong>
-          <small>{{ messages.length }} mensagens</small>
+          <strong>{{ conversation.otherParticipant.name }}</strong>
+          <small>{{ messages.length }} mensagens · online</small>
         </div>
       </div>
 
       <div class="chat-view__header-right">
-        <template v-if="conversation.score !== null">
-          <i class="pi pi-chart-bar chat-view__score-ico" aria-hidden="true"></i>
-          <span class="chat-view__score-num">{{ conversation.score }}</span>
-        </template>
-        <button type="button" class="chat-view__analyze" @click="onAnalyze">Analisar</button>
+        <span
+          v-if="conversation.score !== null"
+          :class="['chat-view__score-badge', `chat-view__score-badge--${scoreLabel(conversation.score)}`]"
+        >
+          <i class="pi pi-chart-bar"></i> {{ conversation.score }}%
+        </span>
+        <button type="button" class="chat-view__analyze" @click="emit('analyze')">
+          <i class="pi pi-sparkles"></i> Analisar
+        </button>
       </div>
     </header>
 
+    <!-- Messages -->
     <div ref="scrollRef" class="chat-view__messages">
-      <div
-        v-for="message in messages"
-        :key="message.id"
-        class="chat-view__row"
-        :class="{ 'chat-view__row--right': message.sender === 'B' }"
-      >
-        <div class="chat-view__avatar" :class="getAvatarClass(message.sender)">
-          {{ getCurrentName(message.sender).charAt(0) }}
+      <div class="chat-view__messages-body">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="chat-view__row"
+          :class="{ 'chat-view__row--right': isSent(message) }"
+        >
+          <div
+            v-if="!isSent(message)"
+            class="chat-view__avatar"
+            :style="{ background: avatarGradient(conversation.otherParticipant.name) }"
+          >{{ conversation.otherParticipant.name.charAt(0) }}</div>
+
+          <div
+            class="chat-view__bubble"
+            :class="isSent(message) ? 'chat-view__bubble--sent' : 'chat-view__bubble--recv'"
+          >
+            <p>{{ message.content }}</p>
+            <small>{{ formatTime(message.sentAt) }}</small>
+          </div>
         </div>
-        <div class="chat-view__bubble" :class="{ 'chat-view__bubble--right': message.sender === 'B' }">
-          <p>{{ message.text }}</p>
-          <small>{{ message.time }}</small>
+
+        <!-- Typing indicator -->
+        <div v-if="typingVisible" class="chat-view__row chat-view__typing">
+          <div
+            class="chat-view__avatar"
+            :style="{ background: avatarGradient(conversation.otherParticipant.name) }"
+          >{{ conversation.otherParticipant.name.charAt(0) }}</div>
+          <div class="chat-view__bubble chat-view__bubble--recv chat-view__bubble--typing">
+            <span class="chat-view__typing-dot"></span>
+            <span class="chat-view__typing-dot"></span>
+            <span class="chat-view__typing-dot"></span>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Footer -->
     <footer class="chat-view__footer">
-      <div class="chat-view__sender">
-        <span class="chat-view__sender-label">Enviando como:</span>
-        <div class="chat-view__sender-actions">
-          <button
-            type="button"
-            class="chat-view__pill"
-            :class="{ 'chat-view__pill--on': activeSender === 'A' }"
-            @click="activeSender = 'A'"
-          >
-            <span :class="['chat-view__pill-av', conversation.avatarColorA]">
-              {{ conversation.participantA.charAt(0) }}
-            </span>
-            {{ conversation.participantA }}
+      <div class="chat-view__footer-body">
+        <div class="chat-view__input-row">
+          <button class="chat-view__attach" aria-label="Anexar arquivo" type="button">
+            <i class="pi pi-paperclip"></i>
           </button>
-          <button
-            type="button"
-            class="chat-view__pill"
-            :class="{ 'chat-view__pill--on': activeSender === 'B' }"
-            @click="activeSender = 'B'"
-          >
-            <span :class="['chat-view__pill-av', conversation.avatarColorB]">
-              {{ conversation.participantB.charAt(0) }}
-            </span>
-            {{ conversation.participantB }}
-          </button>
+          <InputText
+            v-model="input"
+            class="chat-view__input"
+            placeholder="Escrever uma mensagem..."
+            @keydown.enter="handleSend"
+          />
+          <Button
+            icon="pi pi-send"
+            class="chat-view__send"
+            rounded
+            aria-label="Enviar"
+            :disabled="!input.trim()"
+            @click="handleSend"
+          />
         </div>
-      </div>
-
-      <div class="chat-view__input-row">
-        <InputText
-          v-model="input"
-          class="chat-view__input"
-          :placeholder="`Escrever como ${getCurrentName(activeSender)}...`"
-          @keydown.enter="handleSend"
-        />
-        <Button
-          icon="pi pi-send"
-          class="chat-view__send"
-          rounded
-          aria-label="Enviar"
-          :disabled="!input.trim()"
-          @click="handleSend"
-        />
       </div>
     </footer>
   </div>
@@ -196,32 +174,38 @@ function onAnalyze() {
 
 <style scoped>
 .chat-view {
-  --cv-panel: #231530;
-  --cv-deep: #1a0d24;
-  --cv-border: rgba(90, 219, 148, 0.22);
+  --cv-bg: #080114;
+  --cv-surface: rgba(16, 3, 28, 0.93);
+  --cv-border: rgba(90, 219, 148, 0.11);
   --cv-accent: #5adb94;
-  --cv-muted: rgba(255, 255, 255, 0.55);
-  --cv-bubble-left: #2a1838;
-  --cv-bubble-right: rgba(138, 3, 77, 0.35);
-  --cv-input-bg: #150a1c;
+  --cv-magenta: #8a034d;
+  --cv-muted: rgba(195, 178, 228, 0.5);
+  --cv-text: #f0ebff;
 
   display: flex;
   flex-direction: column;
   height: 100%;
   border: 1px solid var(--cv-border);
-  border-radius: 1.25rem;
-  background: var(--cv-panel);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 1.5rem;
+  background: var(--cv-surface);
+  backdrop-filter: blur(28px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 24px 64px rgba(0, 0, 0, 0.65),
+    0 0 48px rgba(90, 219, 148, 0.04);
   overflow: hidden;
 }
 
+/* ── Header ── */
 .chat-view__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1.1rem;
+  background: rgba(10, 2, 20, 0.65);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--cv-border);
   flex-shrink: 0;
 }
@@ -229,57 +213,59 @@ function onAnalyze() {
 .chat-view__left {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
   min-width: 0;
 }
 
 .chat-view__back {
   color: var(--cv-muted) !important;
   flex-shrink: 0;
+  transition: color 0.15s !important;
 }
 
-.chat-view__stack {
+.chat-view__back:hover {
+  color: var(--cv-text) !important;
+}
+
+/* Avatar */
+.chat-view__av-wrap {
   position: relative;
-  width: 2.85rem;
-  height: 2.1rem;
   flex-shrink: 0;
 }
 
 .chat-view__head-av {
-  position: absolute;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.45rem;
+  height: 2.45rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: #fff;
-  border: 2px solid var(--cv-panel);
-  box-sizing: border-box;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
-.chat-view__head-av:first-child {
-  left: 0;
-  top: 0;
-  z-index: 1;
+.chat-view__online-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 50%;
+  background: var(--cv-accent);
+  border: 2px solid rgba(10, 2, 20, 0.95);
+  box-shadow: 0 0 8px rgba(90, 219, 148, 0.6);
 }
 
-.chat-view__head-av:last-child {
-  left: 0.95rem;
-  top: 0.12rem;
-  z-index: 2;
-}
-
-.chat-view__participants {
-  min-width: 0;
-}
+/* Participants info */
+.chat-view__participants { min-width: 0; }
 
 .chat-view__participants strong {
   display: block;
-  font-size: 0.95rem;
+  font-size: 0.93rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--cv-text);
   letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
@@ -288,61 +274,103 @@ function onAnalyze() {
 
 .chat-view__participants small {
   display: block;
-  margin-top: 0.15rem;
-  font-size: 0.78rem;
+  margin-top: 0.1rem;
+  font-size: 0.7rem;
   color: var(--cv-muted);
 }
 
 .chat-view__header-right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   flex-shrink: 0;
   margin-left: auto;
 }
 
-.chat-view__score-ico {
-  font-size: 1rem;
-  color: var(--cv-accent);
-  opacity: 0.9;
-}
-
-.chat-view__score-num {
-  font-size: 0.95rem;
+/* Score badge */
+.chat-view__score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #fff;
 }
 
+.chat-view__score-badge .pi { font-size: 0.68rem; }
+
+.chat-view__score-badge--high {
+  background: rgba(90, 219, 148, 0.13);
+  color: #5adb94;
+  border: 1px solid rgba(90, 219, 148, 0.28);
+  box-shadow: 0 0 14px rgba(90, 219, 148, 0.1);
+}
+
+.chat-view__score-badge--mid {
+  background: rgba(251, 191, 36, 0.11);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.24);
+}
+
+.chat-view__score-badge--low {
+  background: rgba(248, 113, 113, 0.11);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+/* Analyze button */
 .chat-view__analyze {
-  margin: 0;
-  padding: 0.45rem 1rem;
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.44rem 1.05rem;
+  font-size: 0.8rem;
   font-weight: 700;
   font-family: inherit;
-  color: #1a0d24;
-  background: var(--cv-accent);
+  color: #060010;
+  background: linear-gradient(135deg, #5adb94, #0ba18c);
   border: none;
   border-radius: 999px;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.1s ease;
+  transition: filter 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 18px rgba(90, 219, 148, 0.28);
 }
 
+.chat-view__analyze .pi { font-size: 0.72rem; }
+
 .chat-view__analyze:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 7px 24px rgba(90, 219, 148, 0.38);
 }
 
 .chat-view__analyze:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
+/* ── Messages area ── */
 .chat-view__messages {
   flex: 1;
   overflow-y: auto;
+  padding: 1.35rem 1.1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 219, 148, 0.1) transparent;
+
+  background-color: #080114;
+  background-image:
+    radial-gradient(ellipse 45% 38% at 18% 22%, rgba(138, 3, 77, 0.09)  0%, transparent 65%),
+    radial-gradient(ellipse 38% 32% at 82% 78%, rgba(90, 219, 148, 0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 30% 25% at 60% 40%, rgba(60, 0, 90, 0.15)    0%, transparent 65%);
+}
+
+.chat-view__messages-body {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  padding: 1rem 1.1rem;
-  background: var(--cv-deep);
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 54rem;
+  margin: 0 auto;
 }
 
 .chat-view__row {
@@ -353,41 +381,50 @@ function onAnalyze() {
 }
 
 .chat-view__row--right {
-  justify-content: flex-end;
   flex-direction: row-reverse;
 }
 
 .chat-view__avatar {
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 1.9rem;
+  height: 1.9rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
+/* ── Bubbles ── */
 .chat-view__bubble {
-  max-width: 78%;
+  max-width: 70%;
   min-width: 0;
   border-radius: 1.35rem;
-  padding: 0.65rem 0.95rem 0.5rem;
-  background: var(--cv-bubble-left);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.72rem 1.05rem 0.5rem;
 }
 
-.chat-view__bubble--right {
-  background: var(--cv-bubble-right);
-  border-color: rgba(255, 255, 255, 0.08);
+.chat-view__bubble--recv {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom-left-radius: 0.3rem;
+  backdrop-filter: blur(10px);
+}
+
+.chat-view__bubble--sent {
+  background: linear-gradient(135deg, #7a023f, #3d0068);
+  border: 1px solid rgba(192, 52, 94, 0.2);
+  border-bottom-right-radius: 0.3rem;
+  box-shadow: 0 5px 20px rgba(138, 3, 77, 0.32);
 }
 
 .chat-view__bubble p {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(240, 235, 255, 0.92);
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -395,149 +432,121 @@ function onAnalyze() {
 .chat-view__bubble small {
   display: block;
   text-align: right;
-  font-size: 0.68rem;
-  color: var(--cv-muted);
-  margin-top: 0.35rem;
+  font-size: 0.64rem;
+  color: rgba(195, 178, 228, 0.42);
+  margin-top: 0.38rem;
 }
 
+/* ── Footer ── */
 .chat-view__footer {
-  padding: 0.9rem 1rem 1rem;
+  padding: 0.85rem 1.1rem 1rem;
   border-top: 1px solid var(--cv-border);
-  background: var(--cv-panel);
+  background: rgba(8, 1, 20, 0.6);
+  backdrop-filter: blur(14px);
   flex-shrink: 0;
 }
 
-.chat-view__sender-label {
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--cv-muted);
-  margin-bottom: 0.45rem;
-}
-
-.chat-view__sender-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.chat-view__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.65rem 0.35rem 0.4rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--cv-muted);
-  background: var(--cv-input-bg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.chat-view__pill:hover {
-  border-color: rgba(90, 219, 148, 0.35);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.chat-view__pill--on {
-  background: rgba(90, 219, 148, 0.18);
-  border-color: var(--cv-accent);
-  color: var(--cv-accent);
-}
-
-.chat-view__pill-av {
-  width: 1.45rem;
-  height: 1.45rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #fff;
+.chat-view__footer-body {
+  max-width: 54rem;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .chat-view__input-row {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  margin-top: 0.75rem;
+  gap: 0.5rem;
   min-width: 0;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1.5rem;
+  padding: 0.3rem 0.3rem 0.3rem 0.55rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.chat-view__input-row:focus-within {
+  border-color: rgba(90, 219, 148, 0.3);
+  box-shadow: 0 0 0 3px rgba(90, 219, 148, 0.07), 0 4px 22px rgba(0, 0, 0, 0.3);
+}
+
+.chat-view__attach {
+  background: none;
+  border: none;
+  color: var(--cv-muted);
+  cursor: pointer;
+  padding: 0.3rem 0.4rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.chat-view__attach:hover {
+  color: var(--cv-text);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .chat-view__input {
   flex: 1;
   min-width: 0;
-  border-radius: 1.5rem !important;
-  background: var(--cv-input-bg) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #fff !important;
-  padding: 0.75rem 1.15rem !important;
-  font-size: 0.92rem !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: var(--cv-text) !important;
+  padding: 0.52rem 0.4rem !important;
+  font-size: 0.9rem !important;
 }
 
-.chat-view__input::placeholder {
-  color: var(--cv-muted);
-}
+.chat-view__input::placeholder { color: var(--cv-muted); }
 
 .chat-view__send {
-  width: 2.85rem !important;
-  height: 2.85rem !important;
+  width: 2.65rem !important;
+  height: 2.65rem !important;
   padding: 0 !important;
   flex-shrink: 0;
-  background: var(--cv-accent) !important;
+  background: linear-gradient(135deg, #5adb94, #0ba18c) !important;
   border: none !important;
-  color: #1a0d24 !important;
+  color: #060010 !important;
+  box-shadow: 0 4px 16px rgba(90, 219, 148, 0.3) !important;
+  transition: filter 0.15s, transform 0.12s, box-shadow 0.15s !important;
+}
+
+.chat-view__send:not(:disabled):hover {
+  filter: brightness(1.08) !important;
+  transform: scale(1.06) !important;
+  box-shadow: 0 7px 22px rgba(90, 219, 148, 0.44) !important;
 }
 
 .chat-view__send:disabled {
-  opacity: 0.45;
+  opacity: 0.3 !important;
+  box-shadow: none !important;
 }
 
-@media (prefers-color-scheme: light) {
-  .chat-view {
-    --cv-panel: #ffffff;
-    --cv-deep: #f1f0f5;
-    --cv-border: rgba(11, 161, 140, 0.2);
-    --cv-muted: rgba(33, 53, 71, 0.62);
-    --cv-bubble-left: #ede9f4;
-    --cv-bubble-right: rgba(11, 161, 140, 0.18);
-    --cv-input-bg: #f6f4fa;
-  }
+/* ── Typing indicator ── */
+.chat-view__bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.72rem 1.05rem;
+  min-width: 3rem;
+}
 
-  .chat-view__head-av {
-    border-color: var(--cv-panel);
-  }
+.chat-view__typing-dot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: rgba(195, 178, 228, 0.55);
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
 
-  .chat-view__participants strong {
-    color: #1e1530;
-  }
+.chat-view__typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.chat-view__typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-  .chat-view__score-num {
-    color: #1e1530;
-  }
-
-  .chat-view__bubble p {
-    color: #1e1530;
-  }
-
-  .chat-view__input {
-    color: #1e1530 !important;
-  }
-
-  .chat-view__pill {
-    color: var(--cv-muted);
-  }
-
-  .chat-view__pill--on {
-    color: #0ba18c;
-  }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-0.35rem); opacity: 1; }
 }
 </style>

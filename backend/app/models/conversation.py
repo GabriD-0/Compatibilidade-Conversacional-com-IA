@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from app.extensions import db
 
-
 class Conversation(db.Model):
     __tablename__ = "conversation"
 
