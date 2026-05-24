@@ -68,6 +68,38 @@ cd backend
 
    Por padrão a API fica em `http://127.0.0.1:5000`.
 
+## Testes unitarios
+
+Instale as dependencias de teste:
+
+```bash
+pip install -r requirements-test.txt
+```
+
+Execute todos os testes configurados:
+
+```bash
+python -m pytest
+```
+
+Execute apenas os testes unitarios:
+
+```bash
+python -m pytest tests/unit
+```
+
+Execute apenas um teste unitario:
+
+```bash
+python -m pytest tests/unit/test_lsm.py
+```
+
+Para ver o nome de cada teste executado:
+
+```bash
+python -m pytest -v
+```
+
 ## Variáveis de ambiente importantes
 
 Crie um arquivo `.env` na pasta `backend` ou exporte no shell.
