@@ -12,7 +12,7 @@ from app.sockets import register_handlers
 
 log = logging.getLogger(__name__)
 
-def create_app(config_name: str) -> Flask:
+def create_app(config_name: str | None) -> Flask:
     flask_app = Flask(__name__)
 
     env_name = config_name.lower()

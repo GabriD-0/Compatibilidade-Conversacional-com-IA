@@ -1,4 +1,4 @@
-from statistics import mean_or_none
+from statistics import mean
 from app.core.preprocessing import PreparedMessage
 
 def calculate_behavioral_signs(messages: list[PreparedMessage], participant_ids: tuple[int, int]) -> dict:
@@ -128,7 +128,7 @@ def mean_or_none(values: list[float | int]) -> float | None:
     if not values:
         return None
 
-    return float(mean_or_none(values))
+    return float(mean(values))
 
 
 def round_or_none(value: float | None) -> float | None:

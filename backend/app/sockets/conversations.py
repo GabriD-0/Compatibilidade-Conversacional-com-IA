@@ -4,7 +4,8 @@ from flask import request, session
 from flask_jwt_extended import decode_token
 from flask_socketio import emit, join_room, leave_room
 from app.errors import ApiError
-from app.services.conversation_service import get_conversation, get_conversation, mark_read, persist_message
+from app.services.analysis import auto_analyze_conversation
+from app.services.conversation import get_conversation, mark_read, persist_message
 
 log = logging.getLogger(__name__)
 
@@ -118,6 +119,14 @@ def register_handlers(socketio) -> None:
         }
         room = f"conv_{conversation_id}"
         emit("new_message", payload, room=room)
+
+        try:
+            analysis_payload = auto_analyze_conversation(conversation_id)
+            if analysis_payload:
+                emit("analysis_updated", analysis_payload, room=room)
+        except Exception:
+            log.exception("Falha ao calcular analise automatica: conv=%s", conversation_id)
+
         return {"ok": True, "position": msg.position}
 
     @socketio.on("typing")

@@ -1,5 +1,4 @@
 import logging
-from __future__ import annotations
 from datetime import datetime, timezone
 from app.core.agregation import aggregate_metrics
 from app.core.behavioral_signs import calculate_behavioral_signs
@@ -10,11 +9,10 @@ from app.core.sentiments import analyze_sentiments
 from app.errors import ApiError
 from app.extensions import db
 from app.models import Conversation, ConversationAnalysis, Message
-from app.services.conversation_service import get_conversation
+from app.services.conversation import get_conversation
 
 log = logging.getLogger(__name__)
 
-ANALYSIS_VERSION = "compatibility-hf-sentiment-v1"
 MAX_MESSAGES_FOR_ANALYSIS = 1000
 LOW_CONFIDENCE_MESSAGE_COUNT = 6
 
@@ -129,9 +127,8 @@ def compute_and_persist_analysis(conversation: Conversation) -> ConversationAnal
         classification=aggregate["classification"],
         metrics=metrics,
         explanation=explanation,
-        analysis_version=ANALYSIS_VERSION,
-        message_count_snapshot=len(prepared_messages),
-        last_message_at_snapshot=conversation.last_message_at,
+        message_count=len(prepared_messages),
+        last_message_at=conversation.last_message_at,
         computed_at=datetime.now(timezone.utc),
     )
 
@@ -145,8 +142,8 @@ def serialize_analysis(analysis: ConversationAnalysis) -> dict:
     metrics = analysis.metrics or {}
     computed_at = analysis.computed_at.isoformat() if analysis.computed_at else None
     last_message_at = (
-        analysis.last_message_at_snapshot.isoformat()
-        if analysis.last_message_at_snapshot
+        analysis.last_message_at.isoformat()
+        if analysis.last_message_at
         else None
     )
 
@@ -158,8 +155,7 @@ def serialize_analysis(analysis: ConversationAnalysis) -> dict:
         "metrics": metrics,
         "explanation": analysis.explanation,
         "warnings": metrics.get("warnings", []),
-        "analysis_version": analysis.analysis_version,
-        "message_count": analysis.message_count_snapshot,
+        "message_count": analysis.message_count,
         "last_message_at": last_message_at,
         "computed_at": computed_at,
     }

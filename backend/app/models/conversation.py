@@ -14,6 +14,7 @@ class Conversation(db.Model):
 
     message_count = db.Column(db.Integer, nullable=False, default=0)
     messages = db.relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
+    analyses = db.relationship("ConversationAnalysis", back_populates="conversation", cascade="all, delete-orphan")
 
     last_message_at = db.Column(db.DateTime, nullable=True, index=True)
 
@@ -40,3 +41,26 @@ class Message(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (db.Index("ix_message_conversation_position", "conversation_id", "position"),)
+
+
+class ConversationAnalysis(db.Model):
+    __tablename__ = "conversation_analysis"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    conversation_id = db.Column(db.Integer, db.ForeignKey("conversation.id", ondelete="CASCADE"), nullable=False, index=True)
+    conversation = db.relationship("Conversation", back_populates="analyses")
+
+    score = db.Column(db.Float, nullable=False)
+    classification = db.Column(db.String(10), nullable=False)
+    metrics = db.Column(db.JSON, nullable=False)
+    explanation = db.Column(db.JSON, nullable=False)
+
+    message_count = db.Column(db.Integer, nullable=False)
+    last_message_at = db.Column(db.DateTime, nullable=True)
+    computed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (db.Index("ix_conversation_analysis_conversation_computed", "conversation_id", "computed_at"),)
