@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 from app.extensions import limiter
 from app.models import Login
-from app.services.auth_service import authenticate, register_user
+from app.services.auth import authenticate, register_user
 
 bp = Blueprint("auth", __name__)
 

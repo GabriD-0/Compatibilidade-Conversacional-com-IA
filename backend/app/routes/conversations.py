@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.extensions import limiter
-from app.services.conversation_service import create_conversation, delete_conversation, get_conversation, get_messages, list_conversations
+from app.services.analysis import analyze_conversation, get_latest_analysis_for_conversation, get_latest_conversation_analysis
+from app.services.conversation import create_conversation, delete_conversation, get_conversation, get_messages, list_conversations
 
 bp = Blueprint("conversations", __name__)
 
@@ -9,6 +10,7 @@ _RATE_READ = "60 per minute"
 _RATE_WRITE = "10 per minute"
 
 def _conversation_payload(conv) -> dict:
+    latest_analysis = get_latest_analysis_for_conversation(conv.id)
     return {
         "id": conv.id,
         "participant_a": {
@@ -30,6 +32,9 @@ def _conversation_payload(conv) -> dict:
         else None,
 
         "created_at": conv.created_at.isoformat(),
+        "score": round(latest_analysis.score) if latest_analysis else None,
+        "classification": latest_analysis.classification if latest_analysis else None,
+        "last_analysis_at": latest_analysis.computed_at.isoformat() if latest_analysis else None,
     }
 
 
@@ -99,3 +104,19 @@ def delete(conversation_id: int):
     login_id = int(get_jwt_identity())
     delete_conversation(login_id, conversation_id)
     return jsonify({"message": "Conversa removida com sucesso."})
+
+
+@bp.post("/<int:conversation_id>/analysis")
+@jwt_required()
+@limiter.limit(_RATE_WRITE)
+def analyze(conversation_id: int):
+    login_id = int(get_jwt_identity())
+    return jsonify(analyze_conversation(login_id, conversation_id)), 201
+
+
+@bp.get("/<int:conversation_id>/analysis")
+@jwt_required()
+@limiter.limit(_RATE_READ)
+def get_analysis(conversation_id: int):
+    login_id = int(get_jwt_identity())
+    return jsonify(get_latest_conversation_analysis(login_id, conversation_id))
