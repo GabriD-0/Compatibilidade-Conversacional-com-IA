@@ -5,11 +5,16 @@ import { nextTick, ref, watch } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useConversationStore, type UiConversation, type UiMessage } from '../../stores/conversation'
 import { avatarGradient } from '../../utils/avatarGradient'
+import type { ConversationAnalysis } from '../../types/types'
+import AnalysisModal from './AnalysisModal.vue'
 
 const props = defineProps<{
   conversation: UiConversation
   messages: UiMessage[]
   typingVisible: boolean
+  analysis: ConversationAnalysis | null
+  loadingAnalysis: boolean
+  analysisError: string | null
 }>()
 
 const emit = defineEmits<{ back: []; analyze: [] }>()
@@ -18,6 +23,7 @@ const authStore = useAuthStore()
 const store = useConversationStore()
 const input = ref('')
 const scrollRef = ref<HTMLDivElement | null>(null)
+const showAnalysisModal = ref(false)
 
 function scoreLabel(score: number | null): 'high' | 'mid' | 'low' | null {
   if (score === null) return null
@@ -43,6 +49,7 @@ function scrollToEnd() {
 
 watch(() => props.conversation.id, () => {
   input.value = ''
+  showAnalysisModal.value = false
   scrollToEnd()
 }, { immediate: true })
 
@@ -63,6 +70,11 @@ async function handleSend() {
   if (!text) return
   input.value = ''
   await store.sendMessage(text)
+}
+
+function handleAnalyzeClick() {
+  showAnalysisModal.value = true
+  emit('analyze')
 }
 </script>
 
@@ -100,11 +112,25 @@ async function handleSend() {
         >
           <i class="pi pi-chart-bar"></i> {{ conversation.score }}%
         </span>
-        <button type="button" class="chat-view__analyze" @click="emit('analyze')">
-          <i class="pi pi-sparkles"></i> Analisar
+        <button
+          type="button"
+          class="chat-view__analyze"
+          :disabled="loadingAnalysis"
+          :aria-busy="loadingAnalysis"
+          @click="handleAnalyzeClick"
+        >
+          <i :class="loadingAnalysis ? 'pi pi-spinner pi-spin' : 'pi pi-sparkles'"></i>
+          {{ loadingAnalysis ? 'Analisando' : 'Analisar' }}
         </button>
       </div>
     </header>
+
+    <AnalysisModal
+      v-model="showAnalysisModal"
+      :analysis="analysis"
+      :loading="loadingAnalysis"
+      :error="analysisError"
+    />
 
     <!-- Messages -->
     <div ref="scrollRef" class="chat-view__messages">
@@ -349,6 +375,20 @@ async function handleSend() {
   transform: scale(0.97);
 }
 
+.chat-view__analyze:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  filter: none;
+  transform: none;
+  box-shadow: 0 4px 14px rgba(90, 219, 148, 0.18);
+}
+
+.chat-view__analyze:disabled:hover {
+  filter: none;
+  transform: none;
+  box-shadow: 0 4px 14px rgba(90, 219, 148, 0.18);
+}
+
 /* ── Messages area ── */
 .chat-view__messages {
   flex: 1;
@@ -544,6 +584,13 @@ async function handleSend() {
 
 .chat-view__typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .chat-view__typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@media (max-width: 640px) {
+  .chat-view__header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
 
 @keyframes typing-bounce {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
