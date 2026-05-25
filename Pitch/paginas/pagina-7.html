@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 7 — Casos de Uso</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 720px; overflow: hidden; background: #2e0331; font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; color: rgba(255,255,255,0.87); display: flex; align-items: center; justify-content: center; position: relative; }
+  body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 600px 400px at 0% 100%, rgba(90,219,148,0.09) 0%, transparent 70%), radial-gradient(ellipse 500px 350px at 100% 0%, rgba(138,3,77,0.12) 0%, transparent 60%); pointer-events: none; }
+  .wrapper { width: 960px; z-index: 1; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #e8448a; margin-bottom: 10px; text-align: center; }
+  .title { font-size: 40px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+  .title span { color: #5adb94; }
+  .subtitle { font-size: 15px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 32px; line-height: 1.5; }
+  .use-cases { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+  .uc-card { background: rgba(36,36,36,0.75); border: 1px solid rgba(54,137,134,0.3); border-radius: 16px; padding: 22px 18px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
+  .uc-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+  .uc-card.c1::before { background: linear-gradient(90deg, #5adb94, #0ba18c); }
+  .uc-card.c2::before { background: linear-gradient(90deg, #0ba18c, #368986); }
+  .uc-card.c3::before { background: linear-gradient(90deg, #8a034d, #e8448a); }
+  .uc-card.c4::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+  .uc-icon { font-size: 34px; }
+  .uc-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }
+  .uc-desc { font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .uc-benefits { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+  .benefit { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.5); }
+  .benefit-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .d1 { background: #5adb94; } .d2 { background: #0ba18c; } .d3 { background: #e8448a; } .d4 { background: #a5b4fc; }
+  .bottom-cta { display: flex; gap: 18px; align-items: center; background: rgba(90,219,148,0.06); border: 1px solid rgba(90,219,148,0.2); border-radius: 14px; padding: 14px 24px; }
+  .cta-icon { font-size: 26px; }
+  .cta-text { flex: 1; }
+  .cta-title { font-size: 14px; font-weight: 700; color: #5adb94; margin-bottom: 4px; }
+  .cta-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .cta-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cta-tag { padding: 4px 11px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(90,219,148,0.1); color: #5adb94; border: 1px solid rgba(90,219,148,0.25); }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="section-label" id="secLbl">aplicações práticas</div>
+    <h1 class="title" id="mainTitle">Onde <span>a solução</span> pode ser usada</h1>
+    <p class="subtitle" id="mainSub">De atendimento ao cliente a pesquisa acadêmica — qualquer contexto onde a comunicação importa.</p>
+    <div class="use-cases">
+      <div class="uc-card c1" id="uc1">
+        <div class="uc-icon">🎧</div>
+        <div class="uc-title">Atendimento ao Cliente</div>
+        <div class="uc-desc">Avalie a qualidade do rapport entre atendente e cliente em tempo real.</div>
+        <div class="uc-benefits">
+          <div class="benefit"><div class="benefit-dot d1"></div>Identifica atendimentos com baixa compatibilidade</div>
+          <div class="benefit"><div class="benefit-dot d1"></div>Melhora resolução no primeiro contato</div>
+          <div class="benefit"><div class="benefit-dot d1"></div>Dados para treinamento de equipes</div>
+        </div>
+      </div>
+      <div class="uc-card c2" id="uc2">
+        <div class="uc-icon">👥</div>
+        <div class="uc-title">Formação de Equipes</div>
+        <div class="uc-desc">Forme grupos com maior potencial de sinergia comunicativa.</div>
+        <div class="uc-benefits">
+          <div class="benefit"><div class="benefit-dot d2"></div>Analisa compatibilidade de colaboradores</div>
+          <div class="benefit"><div class="benefit-dot d2"></div>Reduz conflitos em projetos</div>
+          <div class="benefit"><div class="benefit-dot d2"></div>Otimiza onboarding e mentoria</div>
+        </div>
+      </div>
+      <div class="uc-card c3" id="uc3">
+        <div class="uc-icon">🎓</div>
+        <div class="uc-title">Educação e Tutoria</div>
+        <div class="uc-desc">Meça o alinhamento entre tutor e aluno para melhorar o aprendizado.</div>
+        <div class="uc-benefits">
+          <div class="benefit"><div class="benefit-dot d3"></div>Detecta dificuldades de comunicação</div>
+          <div class="benefit"><div class="benefit-dot d3"></div>Apoia plataformas de EAD</div>
+          <div class="benefit"><div class="benefit-dot d3"></div>Feedback objetivo para educadores</div>
+        </div>
+      </div>
+      <div class="uc-card c4" id="uc4">
+        <div class="uc-icon">🔬</div>
+        <div class="uc-title">Pesquisa Acadêmica</div>
+        <div class="uc-desc">API extensível para estudos em linguística e psicologia social.</div>
+        <div class="uc-benefits">
+          <div class="benefit"><div class="benefit-dot d4"></div>Score padronizado e reproduzível</div>
+          <div class="benefit"><div class="benefit-dot d4"></div>Explicações interpretáveis</div>
+          <div class="benefit"><div class="benefit-dot d4"></div>Extensível para novos modelos</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-cta" id="bottomCta">
+      <div class="cta-icon">🌐</div>
+      <div class="cta-text">
+        <div class="cta-title">API REST + Interface Web · Pronto para integrar</div>
+        <div class="cta-desc">Backend Flask, frontend Vue 3, PostgreSQL e WebSockets. Conformidade LGPD.</div>
+      </div>
+      <div class="cta-tags">
+        <span class="cta-tag">REST API</span><span class="cta-tag">WebSocket</span><span class="cta-tag">LGPD</span><span class="cta-tag">PT-BR</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 18, next: 'pagina-8.html', prev: 'pagina-6.html', page: 7, total: 9,
+
+    init(gsap) {
+      gsap.set(['#secLbl','#mainTitle','#mainSub'], { autoAlpha: 0, y: -20 });
+      gsap.set(['#uc1','#uc2','#uc3','#uc4'], { autoAlpha: 0, y: 50, scale: 0.95 });
+      gsap.set('#bottomCta', { autoAlpha: 0, y: 25 });
+    },
+
+    steps: [
+      {
+        subtitle: 'O sistema pode ser usado em qualquer contexto onde a <strong>comunicação importa</strong>.',
+        animate(gsap) {
+          gsap.to(['#secLbl','#mainTitle','#mainSub'], { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.12 });
+        }
+      },
+      {
+        subtitle: '<strong>Atendimento ao cliente</strong>: identifica interações com baixo rapport antes que virem reclamação.',
+        animate(gsap) {
+          gsap.to('#uc1', { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.3)' });
+        }
+      },
+      {
+        subtitle: '<strong>Formação de equipes</strong>: monta grupos com maior sinergia comunicativa e reduz conflitos em projetos.',
+        animate(gsap) {
+          gsap.to('#uc2', { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.3)' });
+        }
+      },
+      {
+        subtitle: '<strong>Educação e tutoria</strong> para melhorar a relação professor-aluno. <strong>Pesquisa acadêmica</strong> com API padronizada.',
+        animate(gsap) {
+          gsap.to(['#uc3','#uc4'], { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.3)', stagger: 0.15 });
+        }
+      },
+      {
+        subtitle: 'Com <strong>API REST</strong>, WebSockets e conformidade total com a <strong>LGPD</strong>. Pronto para integrar a qualquer plataforma.',
+        animate(gsap) {
+          gsap.to('#bottomCta', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

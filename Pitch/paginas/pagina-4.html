@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 4 — Análise Detalhada</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 720px; overflow: hidden; background: #2e0331; font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; color: rgba(255,255,255,0.87); display: flex; align-items: center; justify-content: center; position: relative; }
+  body::before { content: ''; position: absolute; inset: 0; background: rgba(14,3,26,0.7); pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 600px 400px at 20% 80%, rgba(90,219,148,0.06) 0%, transparent 70%), radial-gradient(ellipse 500px 300px at 80% 20%, rgba(138,3,77,0.1) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+  .modal { width: 800px; background: #1a1a2e; border: 1px solid rgba(54,137,134,0.5); border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,0.7); overflow: hidden; z-index: 10; display: flex; flex-direction: column; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px 18px; border-bottom: 1px solid rgba(54,137,134,0.2); background: rgba(14,3,26,0.5); }
+  .modal-title { font-size: 17px; font-weight: 700; }
+  .modal-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+  .close-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.5); }
+  .modal-body { display: flex; }
+  .col-left { width: 240px; flex-shrink: 0; padding: 24px 20px; border-right: 1px solid rgba(54,137,134,0.2); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .score-ring { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .classification { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 20px; background: rgba(90,219,148,0.15); border: 1px solid rgba(90,219,148,0.4); color: #5adb94; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .score-date { font-size: 11px; color: rgba(255,255,255,0.3); }
+  .weights { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .weight-item { display: flex; align-items: center; gap: 10px; }
+  .weight-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .w-green { background: #5adb94; } .w-teal { background: #0ba18c; } .w-magenta { background: #e8448a; }
+  .weight-label { font-size: 11px; color: rgba(255,255,255,0.6); flex: 1; }
+  .weight-pct { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); }
+  .col-right { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+  .metric-card { background: rgba(36,36,36,0.6); border: 1px solid rgba(54,137,134,0.2); border-radius: 12px; padding: 16px 18px; }
+  .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .metric-name { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
+  .metric-icon { font-size: 17px; }
+  .metric-score { font-size: 20px; font-weight: 800; }
+  .ms-green { color: #5adb94; } .ms-teal { color: #0ba18c; } .ms-magenta { color: #e8448a; }
+  .metric-bar { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+  .metric-bar-fill { height: 100%; border-radius: 3px; width: 0%; }
+  .mbf-green { background: linear-gradient(90deg, #5adb94, #0ba18c); }
+  .mbf-teal { background: linear-gradient(90deg, #0ba18c, #368986); }
+  .mbf-magenta { background: linear-gradient(90deg, #8a034d, #e8448a); }
+  .metric-explanation { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+  .metric-explanation strong { color: rgba(255,255,255,0.8); font-weight: 600; }
+  .sub-metrics { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+  .sub-metric { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.5); }
+  .sub-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(90,219,148,0.6); }
+</style>
+</head>
+<body>
+  <div class="modal" id="theModal">
+    <div class="modal-header" id="mHeader">
+      <div>
+        <div class="modal-title">Análise Detalhada · Ana & Bruno</div>
+        <div class="modal-sub">24 mensagens analisadas · Calculado em 25 mai. 2025 às 10:29</div>
+      </div>
+      <div class="close-btn">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="col-left" id="colLeft">
+        <div class="score-ring">
+          <svg width="120" height="120" viewBox="0 0 100 100">
+            <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5adb94"/><stop offset="100%" stop-color="#0ba18c"/></linearGradient></defs>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(90,219,148,0.12)" stroke-width="10"/>
+            <circle id="mainArc" cx="50" cy="50" r="42" fill="none" stroke="url(#g1)" stroke-width="10" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <text x="50" y="46" text-anchor="middle" font-size="24" font-weight="800" fill="rgba(255,255,255,0.93)" font-family="system-ui" id="mainScore">0</text>
+            <text x="50" y="60" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.4)" font-family="system-ui">de 100</text>
+          </svg>
+          <div class="classification" id="classLabel" style="opacity:0">✦ HIGH</div>
+          <div class="score-date">Análise #3 · há 2 minutos</div>
+        </div>
+        <div class="weights">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:2px;">Pesos</div>
+          <div class="weight-item"><div class="weight-dot w-green"></div><div class="weight-label">Estilo Linguístico</div><div class="weight-pct">40%</div></div>
+          <div class="weight-item"><div class="weight-dot w-teal"></div><div class="weight-label">Sentimentos</div><div class="weight-pct">35%</div></div>
+          <div class="weight-item"><div class="weight-dot w-magenta"></div><div class="weight-label">Comportamento</div><div class="weight-pct">25%</div></div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="metric-card" id="mc1">
+          <div class="metric-header">
+            <div class="metric-name"><span class="metric-icon">🔤</span>Language Style Matching (LSM)</div>
+            <div class="metric-score ms-green">91 / 100</div>
+          </div>
+          <div class="metric-bar"><div class="metric-bar-fill mbf-green" data-w="91"></div></div>
+          <div class="metric-explanation"><strong>Alta similaridade de estilo.</strong> Pronomes pessoais e conectivos em proporções muito próximas — espelhamento natural do estilo comunicativo.</div>
+          <div class="sub-metrics">
+            <div class="sub-metric"><div class="sub-dot"></div>Pronomes: 94%</div>
+            <div class="sub-metric"><div class="sub-dot"></div>Artigos: 89%</div>
+            <div class="sub-metric"><div class="sub-dot"></div>Conectivos: 91%</div>
+          </div>
+        </div>
+        <div class="metric-card" id="mc2">
+          <div class="metric-header">
+            <div class="metric-name"><span class="metric-icon">💛</span>Convergência de Sentimentos</div>
+            <div class="metric-score ms-teal">84 / 100</div>
+          </div>
+          <div class="metric-bar"><div class="metric-bar-fill mbf-teal" data-w="84"></div></div>
+          <div class="metric-explanation"><strong>Boa convergência emocional.</strong> Tom <strong>positivo e construtivo</strong> ao longo da conversa, sem polarizações opostas. Polaridade média: +0.72.</div>
+        </div>
+        <div class="metric-card" id="mc3">
+          <div class="metric-header">
+            <div class="metric-name"><span class="metric-icon">🔄</span>Sinais Comportamentais</div>
+            <div class="metric-score ms-magenta">78 / 100</div>
+          </div>
+          <div class="metric-bar"><div class="metric-bar-fill mbf-magenta" data-w="78"></div></div>
+          <div class="metric-explanation"><strong>Boa dinâmica conversacional.</strong> Ana: 52%, Bruno: 48%. Tempo médio de resposta: <strong>2 minutos</strong>.</div>
+          <div class="sub-metrics">
+            <div class="sub-metric"><div class="sub-dot"></div>Equilíbrio: 96%</div>
+            <div class="sub-metric"><div class="sub-dot"></div>Reciprocidade: 81%</div>
+            <div class="sub-metric"><div class="sub-dot"></div>Fluidez: 74%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 30, next: 'pagina-5.html', prev: 'pagina-3.html', page: 4, total: 9,
+
+    init(gsap) {
+      gsap.set('#theModal', { autoAlpha: 0, scale: 0.92, y: 20 });
+      gsap.set('#colLeft', { autoAlpha: 0, x: -30 });
+      gsap.set(['#mc1','#mc2','#mc3'], { autoAlpha: 0, x: 40 });
+    },
+
+    steps: [
+      {
+        subtitle: 'Ao abrir a análise completa, você vê exatamente o que gerou aquele número.',
+        animate(gsap) {
+          gsap.to('#theModal', { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.3)' });
+          gsap.to('#colLeft', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.2 });
+        }
+      },
+      {
+        subtitle: 'Score <strong>87 de 100</strong>. Classificação <strong>HIGH</strong>. Pesos: LSM 40%, Sentimentos 35%, Comportamento 25%.',
+        animate(gsap) {
+          const arc = document.getElementById('mainArc');
+          const scoreEl = document.getElementById('mainScore');
+          const clsEl = document.getElementById('classLabel');
+          const obj = { v: 264, s: 0 };
+          gsap.to(obj, {
+            v: 264 - (87/100*235), s: 87, duration: 1.5, ease: 'power2.out',
+            onUpdate() { arc.setAttribute('stroke-dashoffset', obj.v); scoreEl.textContent = Math.round(obj.s); },
+            onComplete() { gsap.to(clsEl, { opacity: 1, duration: 0.4 }); }
+          });
+        }
+      },
+      {
+        subtitle: 'LSM: <strong>91</strong>. Pronomes 94%, artigos 89%, conectivos 91% — espelhamento natural do estilo linguístico.',
+        animate(gsap) {
+          gsap.to('#mc1', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power2.out' });
+          gsap.to(document.querySelector('#mc1 .metric-bar-fill'), { width: '91%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
+        }
+      },
+      {
+        subtitle: 'Sentimentos: <strong>84</strong>. Tom positivo e construtivo dos dois lados. Polaridade média: <strong>+0.72</strong>.',
+        animate(gsap) {
+          gsap.to('#mc2', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power2.out' });
+          gsap.to(document.querySelector('#mc2 .metric-bar-fill'), { width: '84%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
+        }
+      },
+      {
+        subtitle: 'Comportamento: <strong>78</strong>. Equilíbrio de turnos 96%, reciprocidade 81%. Tempo médio de resposta: 2 minutos.',
+        animate(gsap) {
+          gsap.to('#mc3', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power2.out' });
+          gsap.to(document.querySelector('#mc3 .metric-bar-fill'), { width: '78%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 2 — A Solução</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1280px; height: 720px; overflow: hidden;
+    background: #2e0331;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color: rgba(255,255,255,0.87);
+    display: flex; position: relative;
+  }
+  body::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 500px 350px at 5% 50%, rgba(90,219,148,0.1) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 95% 20%, rgba(138,3,77,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .sidebar { width: 72px; background: rgba(14,3,26,0.88); border-right: 1px solid rgba(54,137,134,0.3); display: flex; flex-direction: column; align-items: center; padding: 24px 0; gap: 20px; flex-shrink: 0; }
+  .logo { width: 40px; height: 40px; background: linear-gradient(135deg, #5adb94, #0ba18c); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #2e0331; margin-bottom: 12px; }
+  .sidebar-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: rgba(255,255,255,0.4); }
+  .sidebar-icon.active { background: rgba(90,219,148,0.15); color: #5adb94; }
+  .main-content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 60px; z-index: 1; }
+  .content-inner { width: 100%; max-width: 860px; }
+  .section-label { font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #0ba18c; margin-bottom: 12px; }
+  .title { font-size: 44px; font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+  .title span { color: #5adb94; }
+  .subtitle { font-size: 16px; color: rgba(255,255,255,0.6); margin-bottom: 36px; max-width: 600px; line-height: 1.6; }
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .pillar { background: rgba(36,36,36,0.8); border: 1px solid rgba(54,137,134,0.35); border-radius: 12px; padding: 24px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .pillar.primary { border-color: rgba(90,219,148,0.5); }
+  .pillar-icon { font-size: 30px; }
+  .pillar-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }
+  .pillar-weight { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: rgba(90,219,148,0.15); color: #5adb94; letter-spacing: 1px; align-self: flex-start; }
+  .pillar-weight.w2 { background: rgba(11,161,140,0.15); color: #0ba18c; }
+  .pillar-weight.w3 { background: rgba(138,3,77,0.25); color: #e8448a; }
+  .pillar-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .result-arrow { display: flex; align-items: center; gap: 16px; margin-top: 24px; }
+  .result-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(90,219,148,0.2), rgba(90,219,148,0.6), rgba(90,219,148,0.2)); }
+  .result-badge { display: flex; align-items: center; gap: 12px; background: rgba(90,219,148,0.12); border: 1px solid rgba(90,219,148,0.4); border-radius: 30px; padding: 10px 24px; font-size: 14px; font-weight: 600; color: #5adb94; }
+  .result-badge .score-preview { font-size: 22px; font-weight: 800; }
+</style>
+</head>
+<body>
+  <div class="sidebar" id="sidebarEl">
+    <div class="logo">IA</div>
+    <div class="sidebar-icon active">💬</div>
+    <div class="sidebar-icon">📊</div>
+    <div class="sidebar-icon">👤</div>
+  </div>
+  <div class="main-content">
+    <div class="content-inner">
+      <div class="section-label" id="secLbl">a solução</div>
+      <h1 class="title" id="mainTitle">Compatibilidade Conversacional<br><span>com Inteligência Artificial</span></h1>
+      <p class="subtitle" id="mainSub">Um sistema que analisa conversas em português e calcula um <strong>score de compatibilidade</strong> baseado em três pilares científicos.</p>
+      <div class="pillars">
+        <div class="pillar primary" id="p1">
+          <div class="pillar-icon">🔤</div>
+          <div class="pillar-title">Estilo Linguístico (LSM)</div>
+          <div class="pillar-weight">40% do score</div>
+          <div class="pillar-desc">Analisa como as pessoas espelham o estilo de escrita uma da outra — pronomes, artigos, preposições e conectivos.</div>
+        </div>
+        <div class="pillar" id="p2">
+          <div class="pillar-icon">💛</div>
+          <div class="pillar-title">Convergência Emocional</div>
+          <div class="pillar-weight w2">35% do score</div>
+          <div class="pillar-desc">Mede o alinhamento de sentimentos ao longo da conversa usando modelos NLP treinados para o português.</div>
+        </div>
+        <div class="pillar" id="p3">
+          <div class="pillar-icon">🔄</div>
+          <div class="pillar-title">Sinais Comportamentais</div>
+          <div class="pillar-weight w3">25% do score</div>
+          <div class="pillar-desc">Avalia tempo de resposta, equilíbrio de turnos, frequência e reciprocidade na troca de mensagens.</div>
+        </div>
+      </div>
+      <div class="result-arrow" id="resultRow">
+        <div class="result-line"></div>
+        <div class="result-badge">
+          <span>Score Final</span>
+          <span class="score-preview">0 – 100</span>
+          <span style="color:rgba(255,255,255,0.5);font-weight:400">· LOW · MID · HIGH</span>
+        </div>
+        <div class="result-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 28, next: 'pagina-3.html', prev: 'pagina-1.html', page: 2, total: 9,
+
+    init(gsap) {
+      gsap.set('#sidebarEl', { autoAlpha: 0, x: -72 });
+      gsap.set(['#secLbl', '#mainTitle', '#mainSub'], { autoAlpha: 0, y: 28 });
+      gsap.set(['#p1','#p2','#p3'], { autoAlpha: 0, y: 45 });
+      gsap.set('#resultRow', { autoAlpha: 0 });
+    },
+
+    steps: [
+      {
+        subtitle: 'Apresentamos: <strong>Compatibilidade Conversacional com IA</strong>.',
+        animate(gsap) {
+          gsap.to('#sidebarEl', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power3.out' });
+          gsap.to('#secLbl', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', delay: 0.2 });
+        }
+      },
+      {
+        subtitle: 'Um sistema que analisa conversas em português e calcula um <strong>score objetivo de compatibilidade</strong>.',
+        animate(gsap) {
+          gsap.to('#mainTitle', { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+          gsap.to('#mainSub',   { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.15 });
+        }
+      },
+      {
+        subtitle: 'Primeiro pilar: <strong>Language Style Matching (LSM)</strong> — <strong>40%</strong> do score. Analisa o espelhamento do estilo de escrita.',
+        animate(gsap) {
+          gsap.to('#p1', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)' });
+        }
+      },
+      {
+        subtitle: 'Segundo pilar: <strong>Convergência Emocional</strong> — <strong>35%</strong>. Mede o alinhamento de sentimentos com NLP em português.',
+        animate(gsap) {
+          gsap.to('#p2', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)' });
+        }
+      },
+      {
+        subtitle: 'Terceiro pilar: <strong>Sinais Comportamentais</strong> — <strong>25%</strong>. Tempo de resposta, equilíbrio de turnos e reciprocidade.',
+        animate(gsap) {
+          gsap.to('#p3', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'back.out(1.4)' });
+        }
+      },
+      {
+        subtitle: 'Combinados, geram um número de <strong>0 a 100</strong> — classificado em LOW, MID ou <strong>HIGH</strong>.',
+        animate(gsap) {
+          gsap.to('#resultRow', { autoAlpha: 1, duration: 0.7, ease: 'power2.out' });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

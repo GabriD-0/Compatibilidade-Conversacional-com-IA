@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 9 — Fechamento</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1280px; height: 720px; overflow: hidden;
+    background: #2e0331;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color: rgba(255,255,255,0.87);
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  body::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 800px 600px at 50% 60%, rgba(90,219,148,0.14) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 5% 10%, rgba(138,3,77,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 500px 400px at 95% 90%, rgba(11,161,140,0.12) 0%, transparent 65%),
+      radial-gradient(ellipse 300px 200px at 50% 0%, rgba(90,219,148,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .container {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; z-index: 1; gap: 0; width: 900px;
+  }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: #5adb94; margin-bottom: 20px; opacity: 0.85; }
+  .main-title { font-size: 56px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+  .main-title .glow { color: #5adb94; text-shadow: 0 0 40px rgba(90,219,148,0.4); }
+  .tagline { font-size: 20px; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 36px; max-width: 700px; }
+  .badges { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; }
+  .badge { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 24px; font-size: 12px; font-weight: 600; background: rgba(36,36,36,0.8); border: 1px solid rgba(54,137,134,0.3); color: rgba(255,255,255,0.7); }
+  .badge.b-green { border-color: rgba(90,219,148,0.4); color: #5adb94; background: rgba(90,219,148,0.08); }
+  .badge.b-teal { border-color: rgba(11,161,140,0.4); color: #0ba18c; background: rgba(11,161,140,0.08); }
+  .badge.b-mag { border-color: rgba(232,68,138,0.35); color: #e8448a; background: rgba(138,3,77,0.1); }
+  .final-score {
+    display: flex; align-items: center; gap: 40px;
+    background: rgba(36,36,36,0.7); border: 1px solid rgba(90,219,148,0.3);
+    border-radius: 20px; padding: 24px 48px; margin-bottom: 36px;
+    box-shadow: 0 0 60px rgba(90,219,148,0.08);
+  }
+  .score-giant { font-size: 80px; font-weight: 900; color: #5adb94; line-height: 1; letter-spacing: -2px; text-shadow: 0 0 40px rgba(90,219,148,0.4); }
+  .score-of { font-size: 20px; color: rgba(255,255,255,0.3); font-weight: 400; }
+  .score-right { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+  .score-class { font-size: 24px; font-weight: 800; color: #5adb94; letter-spacing: 2px; text-transform: uppercase; }
+  .score-desc { font-size: 13px; color: rgba(255,255,255,0.5); max-width: 280px; line-height: 1.5; }
+  .credits { font-size: 12px; color: rgba(255,255,255,0.28); letter-spacing: 1px; }
+  .credits strong { color: rgba(255,255,255,0.45); font-weight: 600; }
+  .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #5adb94, #0ba18c, transparent); }
+  .particle { position: absolute; border-radius: 50%; pointer-events: none; }
+  .p1 { width: 4px; height: 4px; top: 80px; left: 120px; background: rgba(90,219,148,0.5); }
+  .p2 { width: 6px; height: 6px; top: 200px; right: 180px; background: rgba(138,3,77,0.6); }
+  .p3 { width: 3px; height: 3px; bottom: 120px; left: 200px; background: rgba(90,219,148,0.5); }
+  .p4 { width: 5px; height: 5px; bottom: 80px; right: 150px; background: rgba(11,161,140,0.5); }
+</style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="particle p1"></div>
+  <div class="particle p2"></div>
+  <div class="particle p3"></div>
+  <div class="particle p4"></div>
+
+  <div class="container">
+    <div class="eyebrow" id="eyebrow">Compatibilidade Conversacional com IA</div>
+    <h1 class="main-title" id="mainTitle">
+      Comunicação <span class="glow">analisada</span>,<br>
+      relacionamentos transformados.
+    </h1>
+    <p class="tagline" id="tagline">
+      Chega de achismos. Pela primeira vez, você pode medir
+      de forma objetiva o quanto duas pessoas se entendem em português.
+    </p>
+    <div class="badges" id="badgesRow">
+      <div class="badge b-green">✦ Score 0–100 explicável</div>
+      <div class="badge b-teal">🔤 LSM + Sentimentos + Comportamento</div>
+      <div class="badge b-mag">🌐 API REST + WebSocket</div>
+      <div class="badge b-green">🛡️ Conformidade LGPD</div>
+      <div class="badge">🇧🇷 PT-BR nativo</div>
+      <div class="badge">⚡ Resultado em &lt; 3 segundos</div>
+    </div>
+    <div class="final-score" id="finalScore">
+      <div>
+        <div class="score-giant" id="giantScore">0</div>
+        <div class="score-of">/ 100</div>
+      </div>
+      <div style="width:1px;height:70px;background:rgba(90,219,148,0.2);flex-shrink:0;"></div>
+      <div class="score-right">
+        <div class="score-class" id="scoreClass" style="opacity:0">HIGH ✦</div>
+        <div class="score-desc">Alta compatibilidade. Estilo linguístico alinhado, emoções convergentes e dinâmica conversacional saudável.</div>
+      </div>
+    </div>
+    <div class="credits" id="credits">
+      Trabalho de Conclusão de Curso · <strong>IFSP · 2025</strong>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 15, next: 'pagina-1.html', prev: 'pagina-8.html', page: 9, total: 9,
+
+    init(gsap) {
+      gsap.set(['#eyebrow', '#mainTitle'], { autoAlpha: 0, y: -25 });
+      gsap.set('#tagline', { autoAlpha: 0, y: 20 });
+      gsap.set('.badge', { autoAlpha: 0, y: 20, scale: 0.9 });
+      gsap.set(['#finalScore', '#credits'], { autoAlpha: 0, y: 20 });
+    },
+
+    steps: [
+      {
+        subtitle: 'Compatibilidade Conversacional com IA. <strong>Comunicação analisada, relacionamentos transformados.</strong>',
+        animate(gsap) {
+          gsap.to('#eyebrow', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
+          gsap.to('#mainTitle', { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.15 });
+        }
+      },
+      {
+        subtitle: 'Chega de achismos. Pela primeira vez, você pode <strong>medir de forma objetiva</strong> o quanto duas pessoas se entendem em português.',
+        animate(gsap) {
+          gsap.to('#tagline', { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' });
+        }
+      },
+      {
+        subtitle: 'Score <strong>0–100 explicável</strong>. LSM, Sentimentos, Comportamento. API REST. LGPD. PT-BR nativo.',
+        animate(gsap) {
+          gsap.to('.badge', { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(1.5)', stagger: 0.1 });
+        }
+      },
+      {
+        subtitle: '<strong>87 de 100. HIGH.</strong> Trabalho de Conclusão de Curso — IFSP 2025.',
+        animate(gsap) {
+          gsap.to('#finalScore', { autoAlpha: 1, y: 0, duration: 0.7, ease: 'back.out(1.2)' });
+          gsap.to('#credits', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 0.2 });
+          const el = document.getElementById('giantScore');
+          const cls = document.getElementById('scoreClass');
+          const obj = { v: 0 };
+          gsap.to(obj, {
+            v: 87, duration: 1.4, ease: 'power2.out', delay: 0.3,
+            onUpdate() { el.textContent = Math.round(obj.v); },
+            onComplete() {
+              gsap.to(cls, { opacity: 1, duration: 0.4 });
+              gsap.to(el, { textShadow: '0 0 60px rgba(90,219,148,0.8)', duration: 0.5, yoyo: true, repeat: 1, ease: 'power2.inOut' });
+            }
+          });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

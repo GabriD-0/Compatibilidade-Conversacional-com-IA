@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 1 — O Problema</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1280px; height: 720px; overflow: hidden;
+    background: #2e0331;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color: rgba(255,255,255,0.87);
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  body::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 10% 90%, rgba(90,219,148,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 350px at 90% 10%, rgba(138,3,77,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 700px 500px at 50% 50%, rgba(11,161,140,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 1; }
+  .problem-label { font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #5adb94; margin-bottom: 20px; opacity: 0.9; }
+  .main-question { font-size: 58px; font-weight: 700; line-height: 1.15; max-width: 860px; margin-bottom: 28px; color: rgba(255,255,255,0.93); }
+  .main-question span.highlight { color: #5adb94; }
+  .divider { width: 60px; height: 3px; background: linear-gradient(90deg, #5adb94, #0ba18c); border-radius: 2px; margin: 0 auto 32px; transform-origin: left center; }
+  .sub-text { font-size: 20px; color: rgba(255,255,255,0.6); max-width: 680px; line-height: 1.6; margin-bottom: 48px; }
+  .stat-row { display: flex; gap: 64px; margin-top: 8px; }
+  .stat { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .stat-number { font-size: 42px; font-weight: 700; color: #5adb94; }
+  .stat-desc { font-size: 13px; color: rgba(255,255,255,0.55); text-align: center; max-width: 130px; line-height: 1.4; }
+  .floating { position: absolute; opacity: 0.07; font-size: 120px; }
+  .f1 { top: 60px; left: 80px; transform: rotate(-15deg); }
+  .f2 { bottom: 60px; right: 100px; transform: rotate(10deg); }
+  .tcc-badge { position: absolute; bottom: 28px; right: 36px; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+</style>
+</head>
+<body>
+  <div class="floating f1">💬</div>
+  <div class="floating f2">🔗</div>
+  <div class="container">
+    <div class="problem-label">o problema</div>
+    <h1 class="main-question">
+      Como saber se duas pessoas<br>
+      <span class="highlight">realmente se entendem</span><br>
+      em uma conversa?
+    </h1>
+    <div class="divider"></div>
+    <p class="sub-text">
+      Mal-entendidos custam tempo, dinheiro e relacionamentos.<br>
+      Mas a comunicação humana nunca foi medida de forma objetiva.
+    </p>
+    <div class="stat-row">
+      <div class="stat stat-el">
+        <span class="stat-number" id="statN1">0</span>
+        <span class="stat-desc">dos conflitos profissionais têm origem em falhas de comunicação</span>
+      </div>
+      <div class="stat stat-el">
+        <span class="stat-number">3x</span>
+        <span class="stat-desc">mais produtividade em equipes com boa sintonia comunicativa</span>
+      </div>
+      <div class="stat stat-el">
+        <span class="stat-number">0</span>
+        <span class="stat-desc">ferramentas acessíveis que medem isso em português</span>
+      </div>
+    </div>
+  </div>
+  <div class="tcc-badge">TCC · IFSP · 2025</div>
+
+  <script>
+  window.PITCH = {
+    duration: 22, next: 'pagina-2.html', prev: null, page: 1, total: 9,
+
+    init(gsap) {
+      gsap.set(['.problem-label', '.main-question', '.divider', '.sub-text'], { autoAlpha: 0, y: 35 });
+      gsap.set('.stat-el', { autoAlpha: 0, y: 40 });
+      gsap.set('.tcc-badge', { autoAlpha: 0 });
+    },
+
+    steps: [
+      {
+        subtitle: 'Toda vez que duas pessoas conversam, algo acontece que vai além das palavras.',
+        animate(gsap) {
+          gsap.to('.problem-label', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
+        }
+      },
+      {
+        subtitle: 'Como saber se duas pessoas <em>realmente</em> se entendem em uma conversa?',
+        animate(gsap) {
+          gsap.to('.main-question', { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' });
+        }
+      },
+      {
+        subtitle: 'Mal-entendidos custam tempo, dinheiro e relacionamentos. A comunicação humana nunca foi medida de forma objetiva.',
+        animate(gsap) {
+          gsap.to('.divider', { autoAlpha: 1, y: 0, scaleX: 1, duration: 0.6, ease: 'power3.out', transformOrigin: 'left center' });
+          gsap.to('.sub-text', { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.1 });
+        }
+      },
+      {
+        subtitle: '<strong>70%</strong> dos conflitos profissionais têm origem em falhas de comunicação.',
+        animate(gsap) {
+          const el = document.querySelector('.stat-el');
+          gsap.to(el, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' });
+          const obj = { v: 0 };
+          gsap.to(obj, {
+            v: 70, duration: 1.4, ease: 'power2.out',
+            onUpdate() { document.getElementById('statN1').textContent = Math.round(obj.v) + '%'; }
+          });
+        }
+      },
+      {
+        subtitle: 'Equipes com boa sintonia são <strong>3x</strong> mais produtivas. E até hoje: zero ferramentas em português para medir isso.',
+        animate(gsap) {
+          const stats = document.querySelectorAll('.stat-el');
+          gsap.to([stats[1], stats[2]], { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.18 });
+          gsap.to('.tcc-badge', { autoAlpha: 1, duration: 0.5, delay: 0.4 });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 5 — Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 720px; overflow: hidden; background: #2e0331; font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; color: rgba(255,255,255,0.87); display: flex; position: relative; }
+  body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 500px 350px at 0% 100%, rgba(90,219,148,0.07) 0%, transparent 70%), radial-gradient(ellipse 400px 250px at 100% 0%, rgba(138,3,77,0.09) 0%, transparent 60%); pointer-events: none; }
+  .sidebar { width: 72px; background: rgba(14,3,26,0.92); border-right: 1px solid rgba(54,137,134,0.3); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 16px; flex-shrink: 0; }
+  .logo { width: 38px; height: 38px; background: linear-gradient(135deg, #5adb94, #0ba18c); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #2e0331; margin-bottom: 8px; }
+  .s-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; color: rgba(255,255,255,0.35); }
+  .s-icon.active { background: rgba(90,219,148,0.15); color: #5adb94; }
+  .main { flex: 1; padding: 24px 28px; z-index: 1; overflow: hidden; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-title { font-size: 22px; font-weight: 700; }
+  .page-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+  .period-tabs { display: flex; gap: 4px; background: rgba(36,36,36,0.6); padding: 4px; border-radius: 8px; border: 1px solid rgba(54,137,134,0.2); }
+  .tab { padding: 5px 14px; border-radius: 6px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45); }
+  .tab.active { background: rgba(90,219,148,0.2); color: #5adb94; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  .kpi { background: rgba(36,36,36,0.7); border: 1px solid rgba(54,137,134,0.25); border-radius: 12px; padding: 14px 16px; }
+  .kpi-label { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .kpi-value { font-size: 26px; font-weight: 800; }
+  .kpi-green { color: #5adb94; } .kpi-teal { color: #0ba18c; }
+  .kpi-trend { font-size: 11px; margin-top: 4px; }
+  .up { color: #5adb94; } .down { color: #e8448a; }
+  .charts-row { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 14px; }
+  .chart-card { background: rgba(36,36,36,0.7); border: 1px solid rgba(54,137,134,0.25); border-radius: 12px; padding: 16px 18px; }
+  .chart-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: rgba(255,255,255,0.85); }
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 96px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+  .bar-fill { width: 100%; border-radius: 4px 4px 0 0; }
+  .bar-day { font-size: 10px; color: rgba(255,255,255,0.4); }
+  .bar-val { font-size: 10px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .radar-container { display: flex; align-items: center; justify-content: center; height: 115px; }
+  .donut-container { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .donut-legend { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,0.6); }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .legend-pct { margin-left: auto; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="sidebar" id="sidebarEl">
+    <div class="logo">CC</div>
+    <div class="s-icon">💬</div>
+    <div class="s-icon active">📊</div>
+    <div class="s-icon">👤</div>
+  </div>
+  <div class="main">
+    <div class="page-header" id="pageHeader">
+      <div>
+        <div class="page-title">Dashboard de Análises</div>
+        <div class="page-sub">Visão geral das suas conversas e compatibilidades</div>
+      </div>
+      <div class="period-tabs">
+        <div class="tab">7 dias</div><div class="tab active">30 dias</div><div class="tab">3 meses</div>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpiRow">
+      <div class="kpi"><div class="kpi-label">Conversas Analisadas</div><div class="kpi-value kpi-green">18</div><div class="kpi-trend up">↑ +5 este mês</div></div>
+      <div class="kpi"><div class="kpi-label">Score Médio</div><div class="kpi-value kpi-teal">74.3</div><div class="kpi-trend up">↑ +3.1 vs. anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Alta Compatibilidade</div><div class="kpi-value kpi-green">7</div><div class="kpi-trend" style="color:rgba(255,255,255,0.4)">39% do total</div></div>
+      <div class="kpi"><div class="kpi-label">Pares Únicos</div><div class="kpi-value" style="color:rgba(255,255,255,0.8)">12</div><div class="kpi-trend down">↓ -1 vs. anterior</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card" id="cc1">
+        <div class="chart-title">Score por Semana</div>
+        <div class="bar-chart">
+          <div class="bar-group"><div class="bar-val">62</div><div class="bar-fill" data-h="62" style="height:0;background:linear-gradient(180deg,#368986,rgba(54,137,134,0.4))"></div><div class="bar-day">S1</div></div>
+          <div class="bar-group"><div class="bar-val">71</div><div class="bar-fill" data-h="71" style="height:0;background:linear-gradient(180deg,#0ba18c,rgba(11,161,140,0.4))"></div><div class="bar-day">S2</div></div>
+          <div class="bar-group"><div class="bar-val">68</div><div class="bar-fill" data-h="68" style="height:0;background:linear-gradient(180deg,#0ba18c,rgba(11,161,140,0.4))"></div><div class="bar-day">S3</div></div>
+          <div class="bar-group"><div class="bar-val">79</div><div class="bar-fill" data-h="79" style="height:0;background:linear-gradient(180deg,#5adb94,rgba(90,219,148,0.4))"></div><div class="bar-day">S4</div></div>
+          <div class="bar-group"><div class="bar-val">74</div><div class="bar-fill" data-h="74" style="height:0;background:linear-gradient(180deg,#5adb94,rgba(90,219,148,0.4))"></div><div class="bar-day">S5</div></div>
+          <div class="bar-group"><div class="bar-val">83</div><div class="bar-fill" data-h="83" style="height:0;background:linear-gradient(180deg,#5adb94,rgba(90,219,148,0.5))"></div><div class="bar-day">S6</div></div>
+          <div class="bar-group"><div class="bar-val" style="color:#5adb94">87</div><div class="bar-fill" data-h="87" style="height:0;background:linear-gradient(180deg,#5adb94,rgba(90,219,148,0.6));box-shadow:0 0 10px rgba(90,219,148,0.3)"></div><div class="bar-day" style="color:#5adb94">S7</div></div>
+        </div>
+      </div>
+      <div class="chart-card" id="cc2">
+        <div class="chart-title">Perfil de Compatibilidade</div>
+        <div class="radar-container">
+          <svg width="145" height="125" viewBox="-10 -10 120 120" id="radarSvg" style="opacity:0">
+            <polygon points="50,5 90,30 90,70 50,95 10,70 10,30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <polygon points="50,20 76,35 76,65 50,80 24,65 24,35" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <polygon points="50,35 63,43 63,58 50,65 37,58 37,43" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <line x1="50" y1="5" x2="50" y2="95" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <line x1="10" y1="30" x2="90" y2="70" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <line x1="90" y1="30" x2="10" y2="70" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <polygon id="radarData" points="50,50 50,50 50,50 50,50 50,50 50,50" fill="rgba(90,219,148,0.2)" stroke="#5adb94" stroke-width="1.5"/>
+            <text x="50" y="-2" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.5)" font-family="system-ui">LSM</text>
+            <text x="97" y="33" text-anchor="start" font-size="7" fill="rgba(255,255,255,0.5)" font-family="system-ui">Emoção</text>
+            <text x="95" y="72" text-anchor="start" font-size="7" fill="rgba(255,255,255,0.5)" font-family="system-ui">Comportamento</text>
+            <text x="50" y="106" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.5)" font-family="system-ui">Engajamento</text>
+            <text x="2" y="72" text-anchor="end" font-size="7" fill="rgba(255,255,255,0.5)" font-family="system-ui">Reciproc.</text>
+            <text x="2" y="33" text-anchor="end" font-size="7" fill="rgba(255,255,255,0.5)" font-family="system-ui">Fluidez</text>
+          </svg>
+        </div>
+      </div>
+      <div class="chart-card" id="cc3">
+        <div class="chart-title">Distribuição por Nível</div>
+        <div class="donut-container">
+          <svg width="88" height="88" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="35" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
+            <circle id="dHigh" cx="45" cy="45" r="35" fill="none" stroke="#5adb94" stroke-width="14" stroke-dasharray="0 220" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+            <circle id="dMid"  cx="45" cy="45" r="35" fill="none" stroke="#0ba18c" stroke-width="14" stroke-dasharray="0 220" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+            <circle id="dLow"  cx="45" cy="45" r="35" fill="none" stroke="#8a034d" stroke-width="14" stroke-dasharray="0 220" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+            <text x="45" y="41" text-anchor="middle" font-size="11" font-weight="800" fill="rgba(255,255,255,0.9)" font-family="system-ui">18</text>
+            <text x="45" y="53" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.4)" font-family="system-ui">análises</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#5adb94"></div><span>Alta (HIGH)</span><span class="legend-pct" style="color:#5adb94">7 · 39%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#0ba18c"></div><span>Média (MID)</span><span class="legend-pct" style="color:#0ba18c">7 · 39%</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8a034d"></div><span>Baixa (LOW)</span><span class="legend-pct" style="color:#e8448a">4 · 22%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 20, next: 'pagina-6.html', prev: 'pagina-4.html', page: 5, total: 9,
+
+    init(gsap) {
+      gsap.set('#sidebarEl', { autoAlpha: 0, x: -72 });
+      gsap.set('#pageHeader', { autoAlpha: 0, y: -20 });
+      gsap.set('#kpiRow', { autoAlpha: 0, y: 30 });
+      gsap.set(['#cc1','#cc2','#cc3'], { autoAlpha: 0, y: 30 });
+    },
+
+    steps: [
+      {
+        subtitle: 'Para uma visão gerencial, o <strong>Dashboard</strong> centraliza tudo em um só lugar.',
+        animate(gsap) {
+          gsap.to('#sidebarEl', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power3.out' });
+          gsap.to('#pageHeader', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', delay: 0.2 });
+        }
+      },
+      {
+        subtitle: '<strong>18</strong> conversas analisadas. Score médio <strong>74.3</strong>. 7 pares em nível HIGH. 12 pares únicos.',
+        animate(gsap) {
+          gsap.to('#kpiRow', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+        }
+      },
+      {
+        subtitle: 'Evolução semanal: de 62 na semana 1 a <strong>87 na semana 7</strong> — crescimento consistente.',
+        animate(gsap) {
+          gsap.to('#cc1', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+          document.querySelectorAll('.bar-fill').forEach((el, i) => {
+            gsap.to(el, { height: el.dataset.h + 'px', duration: 0.7, ease: 'power2.out', delay: i * 0.07 });
+          });
+        }
+      },
+      {
+        subtitle: 'Radar chart com <strong>6 dimensões</strong>: LSM, Emoção, Comportamento, Engajamento, Reciprocidade e Fluidez.',
+        animate(gsap) {
+          gsap.to('#cc2', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+          gsap.to('#radarSvg', { opacity: 1, duration: 0.4, delay: 0.2 });
+          gsap.fromTo('#radarData',
+            { attr: { points: '50,50 50,50 50,50 50,50 50,50 50,50' } },
+            { attr: { points: '50,12 85,32 82,66 50,86 18,66 15,32' }, duration: 1.2, ease: 'back.out(1.2)', delay: 0.3 }
+          );
+        }
+      },
+      {
+        subtitle: 'Distribuição: <strong>39% HIGH</strong>, 39% MID, 22% LOW. Visão clara do nível da base de conversas.',
+        animate(gsap) {
+          gsap.to('#cc3', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+          const c = 220, high = c*0.39, mid = c*0.39, low = c*0.22;
+          gsap.to(document.getElementById('dHigh'), { attr: { 'stroke-dasharray': high+' '+(c-high), 'stroke-dashoffset': 0 }, duration: 0.9, ease: 'power2.out', delay: 0.2 });
+          gsap.to(document.getElementById('dMid'),  { attr: { 'stroke-dasharray': mid+' '+(c-mid),   'stroke-dashoffset': -high }, duration: 0.9, ease: 'power2.out', delay: 0.4 });
+          gsap.to(document.getElementById('dLow'),  { attr: { 'stroke-dasharray': low+' '+(c-low),   'stroke-dashoffset': -(high+mid) }, duration: 0.9, ease: 'power2.out', delay: 0.6 });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

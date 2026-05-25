@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 8 — Stack Tecnológico</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 720px; overflow: hidden; background: #2e0331; font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; color: rgba(255,255,255,0.87); display: flex; align-items: center; justify-content: center; position: relative; }
+  body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 500px 400px at 100% 100%, rgba(90,219,148,0.08) 0%, transparent 65%), radial-gradient(ellipse 600px 400px at 0% 0%, rgba(138,3,77,0.09) 0%, transparent 65%); pointer-events: none; }
+  .wrapper { width: 920px; z-index: 1; display: flex; gap: 50px; align-items: center; }
+  .arch-side { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #0ba18c; margin-bottom: 6px; }
+  .title { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; }
+  .title span { color: #5adb94; }
+  .layer { background: rgba(36,36,36,0.75); border: 1px solid rgba(54,137,134,0.25); border-radius: 10px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; position: relative; }
+  .layer-icon { font-size: 18px; flex-shrink: 0; }
+  .layer-name { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); }
+  .layer-tech { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .layer-badge { position: absolute; right: 10px; font-size: 9px; font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+  .lb-green { background: rgba(90,219,148,0.12); color: #5adb94; border: 1px solid rgba(90,219,148,0.3); }
+  .lb-teal  { background: rgba(11,161,140,0.12);  color: #0ba18c; border: 1px solid rgba(11,161,140,0.3); }
+  .lb-mag   { background: rgba(138,3,77,0.2);     color: #e8448a; border: 1px solid rgba(232,68,138,0.3); }
+  .lb-purple{ background: rgba(99,102,241,0.15);  color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
+  .connector { display: flex; align-items: center; justify-content: center; height: 14px; gap: 8px; }
+  .conn-line { flex: 1; height: 1px; background: rgba(90,219,148,0.15); }
+  .conn-label { font-size: 8px; color: rgba(255,255,255,0.25); letter-spacing: 1px; font-weight: 600; }
+  .tech-side { width: 360px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+  .tech-group-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 7px; }
+  .tech-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { padding: 5px 11px; border-radius: 7px; font-size: 10px; font-weight: 600; background: rgba(36,36,36,0.8); border: 1px solid rgba(54,137,134,0.25); color: rgba(255,255,255,0.7); }
+  .chip.fe { border-color: rgba(90,219,148,0.35); color: #5adb94; background: rgba(90,219,148,0.08); }
+  .chip.be { border-color: rgba(11,161,140,0.35); color: #0ba18c; background: rgba(11,161,140,0.08); }
+  .chip.ai { border-color: rgba(99,102,241,0.35); color: #a5b4fc; background: rgba(99,102,241,0.1); }
+  .chip.db { border-color: rgba(232,68,138,0.35); color: #e8448a; background: rgba(138,3,77,0.1); }
+  .tech-divider { height: 1px; background: rgba(54,137,134,0.15); }
+  .tech-group { }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="arch-side">
+      <div class="section-label" id="archLbl">arquitetura</div>
+      <h1 class="title" id="archTitle">Stack <span>completo</span><br>e moderno</h1>
+      <div class="layer" id="la1"><div class="layer-icon">🖥️</div><div><div class="layer-name">Camada de Apresentação</div><div class="layer-tech">Vue 3 + TypeScript + Pinia + Chart.js</div></div><div class="layer-badge lb-green">Frontend</div></div>
+      <div class="connector" id="cn1"><div class="conn-line"></div><div class="conn-label">HTTP/HTTPS + WebSocket</div><div class="conn-line"></div></div>
+      <div class="layer" id="la2"><div class="layer-icon">⚡</div><div><div class="layer-name">Camada de API e Serviços</div><div class="layer-tech">Flask + SocketIO + JWT + Rate Limiting + CORS</div></div><div class="layer-badge lb-teal">Backend</div></div>
+      <div class="connector" id="cn2"><div class="conn-line"></div><div class="conn-label">Chamada interna</div><div class="conn-line"></div></div>
+      <div class="layer" id="la3" style="border-color:rgba(99,102,241,0.35)"><div class="layer-icon">🤖</div><div><div class="layer-name">Motor de Inteligência Artificial</div><div class="layer-tech">LSM · Sentimentos · Comportamento · Explicabilidade</div></div><div class="layer-badge lb-purple">IA Core</div></div>
+      <div class="connector" id="cn3"><div class="conn-line"></div><div class="conn-label">SQLAlchemy ORM</div><div class="conn-line"></div></div>
+      <div class="layer" id="la4"><div class="layer-icon">🗄️</div><div><div class="layer-name">Camada de Persistência</div><div class="layer-tech">PostgreSQL + Alembic Migrations + Índices</div></div><div class="layer-badge lb-mag">Banco</div></div>
+    </div>
+
+    <div class="tech-side" id="techSide">
+      <div class="tech-group" id="tg1">
+        <div class="tech-group-title">🖥️ Frontend</div>
+        <div class="tech-chips">
+          <div class="chip fe">Vue 3</div><div class="chip fe">TypeScript</div><div class="chip fe">Pinia</div><div class="chip fe">Vite</div><div class="chip fe">Tailwind CSS</div><div class="chip fe">PrimeVue</div><div class="chip fe">Chart.js</div><div class="chip fe">Socket.io-client</div>
+        </div>
+      </div>
+      <div class="tech-divider"></div>
+      <div class="tech-group" id="tg2">
+        <div class="tech-group-title">⚡ Backend</div>
+        <div class="tech-chips">
+          <div class="chip be">Flask 3</div><div class="chip be">Flask-JWT</div><div class="chip be">Flask-SocketIO</div><div class="chip be">Flask-Limiter</div><div class="chip be">bcrypt</div><div class="chip be">SQLAlchemy</div>
+        </div>
+      </div>
+      <div class="tech-divider"></div>
+      <div class="tech-group" id="tg3">
+        <div class="tech-group-title">🤖 IA</div>
+        <div class="tech-chips">
+          <div class="chip ai">Transformers</div><div class="chip ai">PyTorch</div><div class="chip ai">NumPy</div><div class="chip ai">HuggingFace</div>
+        </div>
+      </div>
+      <div class="tech-divider"></div>
+      <div class="tech-group" id="tg4">
+        <div class="tech-group-title">🗄️ Dados e Qualidade</div>
+        <div class="tech-chips">
+          <div class="chip db">PostgreSQL</div><div class="chip db">Alembic</div><div class="chip db">pytest</div><div class="chip db">LGPD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 12, next: 'pagina-9.html', prev: 'pagina-7.html', page: 8, total: 9,
+
+    init(gsap) {
+      gsap.set(['#archLbl','#archTitle'], { autoAlpha: 0, y: -20 });
+      gsap.set(['#la1','#cn1','#la2','#cn2','#la3','#cn3','#la4'], { autoAlpha: 0, x: -30 });
+      gsap.set(['#tg1','#tg2','#tg3','#tg4'], { autoAlpha: 0, x: 30 });
+    },
+
+    steps: [
+      {
+        subtitle: '<strong>Frontend</strong>: Vue 3, TypeScript, Pinia, Vite, Tailwind CSS, PrimeVue e Chart.js.',
+        animate(gsap) {
+          gsap.to(['#archLbl','#archTitle'], { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.1 });
+          gsap.to('#la1', { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.2 });
+          gsap.to('#tg1', { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.3 });
+        }
+      },
+      {
+        subtitle: '<strong>Backend</strong> Flask com JWT, SocketIO e rate limiting. <strong>Motor de IA</strong> com HuggingFace e PyTorch.',
+        animate(gsap) {
+          gsap.to(['#cn1','#la2','#cn2','#la3'], { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.1 });
+          gsap.to(['#tg2','#tg3'], { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.12, delay: 0.1 });
+        }
+      },
+      {
+        subtitle: '<strong>PostgreSQL</strong> com Alembic, <strong>pytest</strong> para testes unitários e conformidade <strong>LGPD</strong> garantida.',
+        animate(gsap) {
+          gsap.to(['#cn3','#la4'], { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.1 });
+          gsap.to('#tg4', { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>

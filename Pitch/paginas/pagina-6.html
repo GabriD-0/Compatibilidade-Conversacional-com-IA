@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Pitch 6 — Motor de IA</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 720px; overflow: hidden; background: #2e0331; font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; color: rgba(255,255,255,0.87); display: flex; align-items: center; justify-content: center; position: relative; }
+  body::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 700px 500px at 50% 50%, rgba(11,161,140,0.06) 0%, transparent 70%), radial-gradient(ellipse 300px 200px at 90% 90%, rgba(90,219,148,0.1) 0%, transparent 60%), radial-gradient(ellipse 400px 300px at 10% 10%, rgba(138,3,77,0.08) 0%, transparent 60%); pointer-events: none; }
+  .container { width: 960px; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .title-section { text-align: center; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #0ba18c; margin-bottom: 10px; }
+  .title { font-size: 38px; font-weight: 800; line-height: 1.15; }
+  .title span { color: #5adb94; }
+  .pipeline { display: flex; align-items: center; width: 100%; }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+  .step-box { width: 100%; background: rgba(36,36,36,0.8); border: 1px solid rgba(54,137,134,0.3); border-radius: 12px; padding: 16px 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .step-box.highlight { border-color: rgba(90,219,148,0.5); background: rgba(90,219,148,0.06); }
+  .step-icon { font-size: 26px; }
+  .step-name { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); }
+  .step-desc { font-size: 10px; color: rgba(255,255,255,0.45); line-height: 1.4; }
+  .step-badge { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(90,219,148,0.12); color: #5adb94; border: 1px solid rgba(90,219,148,0.3); }
+  .step-badge.b2 { background: rgba(11,161,140,0.12); color: #0ba18c; border-color: rgba(11,161,140,0.3); }
+  .step-badge.b3 { background: rgba(232,68,138,0.12); color: #e8448a; border-color: rgba(232,68,138,0.3); }
+  .step-badge.b4 { background: rgba(99,102,241,0.15); color: #a5b4fc; border-color: rgba(99,102,241,0.3); }
+  .step-badge.b5 { background: rgba(90,219,148,0.2); color: #5adb94; border-color: rgba(90,219,148,0.5); }
+  .arrow { width: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(90,219,148,0.4); padding-bottom: 16px; }
+  .flow-labels { display: flex; width: 100%; justify-content: space-between; align-items: center; padding: 0 10px; }
+  .flow-input { display: flex; align-items: center; gap: 10px; background: rgba(36,36,36,0.6); border: 1px solid rgba(54,137,134,0.2); border-radius: 10px; padding: 10px 14px; }
+  .flow-input-icon { font-size: 18px; }
+  .flow-input-text { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .flow-input-text strong { color: rgba(255,255,255,0.8); display: block; font-size: 12px; }
+  .flow-arrow-main { flex: 1; height: 2px; background: linear-gradient(90deg, rgba(90,219,148,0.2), rgba(90,219,148,0.6), rgba(90,219,148,0.2)); margin: 0 14px; }
+  .flow-output { display: flex; align-items: center; gap: 12px; background: rgba(90,219,148,0.1); border: 1px solid rgba(90,219,148,0.4); border-radius: 10px; padding: 10px 18px; }
+  .score-display { font-size: 28px; font-weight: 800; color: #5adb94; line-height: 1; }
+  .score-context { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .score-context strong { color: #5adb94; font-size: 12px; display: block; }
+  .triple-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; width: 100%; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-section" id="titleSec">
+      <div class="section-label">como funciona</div>
+      <h1 class="title">O motor de <span>Inteligência Artificial</span></h1>
+    </div>
+    <div class="pipeline">
+      <div class="step" id="step1">
+        <div class="step-box">
+          <div class="step-icon">💬</div>
+          <div class="step-name">Entrada de Texto</div>
+          <div class="step-desc">Mensagens dos dois participantes em português com timestamps</div>
+          <div class="step-badge">PT-BR</div>
+        </div>
+      </div>
+      <div class="arrow" id="arr1">→</div>
+      <div class="step" id="step2">
+        <div class="step-box">
+          <div class="step-icon">⚙️</div>
+          <div class="step-name">Pré-processamento</div>
+          <div class="step-desc">Normalização, tokenização e extração de palavras-função</div>
+          <div class="step-badge b2">NLP</div>
+        </div>
+      </div>
+      <div class="arrow" id="arr2">→</div>
+      <div class="step" id="step3" style="flex:2.2">
+        <div class="triple-grid">
+          <div class="step-box highlight">
+            <div class="step-icon">🔤</div>
+            <div class="step-name" style="font-size:11px">LSM</div>
+            <div class="step-desc">Espelhamento de estilo linguístico</div>
+            <div class="step-badge">40%</div>
+          </div>
+          <div class="step-box highlight">
+            <div class="step-icon">💛</div>
+            <div class="step-name" style="font-size:11px">Sentimentos</div>
+            <div class="step-desc">Convergência emocional ao longo do tempo</div>
+            <div class="step-badge b2">35%</div>
+          </div>
+          <div class="step-box highlight">
+            <div class="step-icon">🔄</div>
+            <div class="step-name" style="font-size:11px">Comportamento</div>
+            <div class="step-desc">Turnos, tempo e reciprocidade</div>
+            <div class="step-badge b3">25%</div>
+          </div>
+        </div>
+      </div>
+      <div class="arrow" id="arr3">→</div>
+      <div class="step" id="step4">
+        <div class="step-box">
+          <div class="step-icon">∑</div>
+          <div class="step-name">Agregação</div>
+          <div class="step-desc">Combinação ponderada com explicabilidade automática</div>
+          <div class="step-badge b4">Heurística</div>
+        </div>
+      </div>
+      <div class="arrow" id="arr4">→</div>
+      <div class="step" id="step5">
+        <div class="step-box" style="border-color:rgba(90,219,148,0.5);background:rgba(90,219,148,0.08)">
+          <div class="step-icon">✦</div>
+          <div class="step-name">Score Final</div>
+          <div class="step-desc">0–100 com classificação e sumário explicável</div>
+          <div class="step-badge b5">HIGH</div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-labels" id="flowLabels">
+      <div class="flow-input">
+        <div class="flow-input-icon">📝</div>
+        <div class="flow-input-text"><strong>Conversa de texto</strong>2 participantes · em português</div>
+      </div>
+      <div class="flow-arrow-main"></div>
+      <div class="flow-output">
+        <div><div class="score-display" id="scoreDisplay">0</div><div class="score-context" style="font-size:9px;color:rgba(255,255,255,0.4)">/100</div></div>
+        <div><div class="score-context"><strong>Compatibilidade HIGH</strong>Modular e extensível.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.PITCH = {
+    duration: 25, next: 'pagina-7.html', prev: 'pagina-5.html', page: 6, total: 9,
+
+    init(gsap) {
+      gsap.set('#titleSec', { autoAlpha: 0, y: -30 });
+      gsap.set(['#step1','#step2','#step3','#step4','#step5'], { autoAlpha: 0, y: 30 });
+      gsap.set(['#arr1','#arr2','#arr3','#arr4'], { autoAlpha: 0 });
+      gsap.set('#flowLabels', { autoAlpha: 0, y: 20 });
+    },
+
+    steps: [
+      {
+        subtitle: 'Por trás de tudo isso está um <strong>motor de IA</strong> construído do zero em Python.',
+        animate(gsap) {
+          gsap.to('#titleSec', { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' });
+        }
+      },
+      {
+        subtitle: 'O texto dos dois participantes entra via <strong>API Flask</strong> e é persistido no PostgreSQL.',
+        animate(gsap) {
+          gsap.to('#step1', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
+          gsap.to('#arr1',  { autoAlpha: 1, duration: 0.3, delay: 0.4 });
+        }
+      },
+      {
+        subtitle: 'Passa pelo <strong>pré-processamento</strong> em português: normalização, tokenização e extração de palavras-função.',
+        animate(gsap) {
+          gsap.to('#step2', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
+          gsap.to('#arr2',  { autoAlpha: 1, duration: 0.3, delay: 0.4 });
+        }
+      },
+      {
+        subtitle: 'Analisado em <strong>paralelo</strong> pelos três módulos: LSM, Sentimentos (HuggingFace Transformers) e Comportamento.',
+        animate(gsap) {
+          gsap.to('#step3', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'back.out(1.2)' });
+          gsap.to('#arr3',  { autoAlpha: 1, duration: 0.3, delay: 0.5 });
+        }
+      },
+      {
+        subtitle: 'Agregado com <strong>pesos heurísticos</strong> e explicação gerada automaticamente em linguagem natural.',
+        animate(gsap) {
+          gsap.to('#step4', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
+          gsap.to('#arr4',  { autoAlpha: 1, duration: 0.3, delay: 0.4 });
+          gsap.to('#step5', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)', delay: 0.5 });
+        }
+      },
+      {
+        subtitle: 'De texto bruto a score explicável em <strong>menos de 3 segundos</strong>. Modular e extensível para novos modelos.',
+        animate(gsap) {
+          gsap.to('#flowLabels', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
+          const el = document.getElementById('scoreDisplay');
+          const obj = { v: 0 };
+          gsap.to(obj, { v: 87, duration: 1.2, ease: 'power2.out', onUpdate() { el.textContent = Math.round(obj.v); } });
+        }
+      },
+    ]
+  };
+  </script>
+  <script src="pitch.js"></script>
+</body>
+</html>
