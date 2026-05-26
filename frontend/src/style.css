@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   --color-primary: #5adb94;    /* verde - cor principal */
   --color-secondary: #0ba18c;  /* teal */
   --color-tertiary: #368986;   /* teal escuro */
-  --color-accent: #8a034d;     /* magenta - destaque */
+  --color-accent: #be267a;     /* magenta - destaque */
   --color-dark: #2e0331;       /* roxo escuro */
 
   /* Tokens semânticos (variam com tema claro/escuro) */
