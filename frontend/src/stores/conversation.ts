@@ -1,9 +1,9 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
-import { conversationsApi, extractApiError } from '../services/api'
-import { connectSocket, disconnectSocket, joinConversation, leaveConversation, sendMessage as socketSendMessage, emitTyping, emitRead, onNewMessage, onUserTyping, onMessageStatus } from '../services/socket'
-import type { WsNewMessage, WsUserTyping, WsMessageStatus, MessageStatus } from '../types/types'
+import { conversationsApi, extractApiError, extractApiErrorCode } from '../services/api'
+import { connectSocket, disconnectSocket, joinConversation, leaveConversation, sendMessage as socketSendMessage, emitTyping, emitRead, onNewMessage, onUserTyping, onMessageStatus, onAnalysisUpdated } from '../services/socket'
+import type { Conversation, ConversationAnalysis, AnalysisClassification, WsNewMessage, WsUserTyping, WsMessageStatus, WsAnalysisUpdated, MessageStatus } from '../types/types'
 
 export interface UiConversation {
   id: number
@@ -12,6 +12,8 @@ export interface UiConversation {
   lastMessageAt: string | null
   messageCount: number
   score: number | null
+  classification: AnalysisClassification | null
+  lastAnalysisAt: string | null
   activityLabel: string
 }
 
@@ -43,12 +45,16 @@ export const useConversationStore = defineStore('conversation', () => {
   const messages = ref<UiMessage[]>([])
   const loadingConversations = ref(false)
   const loadingMessages = ref(false)
+  const loadingAnalysis = ref(false)
   const creatingConversation = ref(false)
   const typingVisible = ref(false)
   const error = ref<string | null>(null)
+  const activeAnalysis = ref<ConversationAnalysis | null>(null)
+  const analysisError = ref<string | null>(null)
 
   let typingTimer: ReturnType<typeof setTimeout> | null = null
   let socketCleanups: Array<() => void> = []
+  let analysisRequestSeq = 0
 
   const myId = computed(() => authStore.user?.id ?? 0)
 
@@ -56,13 +62,7 @@ export const useConversationStore = defineStore('conversation', () => {
     () => conversations.value.find((conversation) => conversation.id === activeConversationId.value) ?? null,
   )
 
-  function buildUiConversation(raw: {
-    id: number
-    participant_a: { id: number; name: string }
-    participant_b: { id: number; name: string } | null
-    message_count: number
-    last_message_at: string | null
-  }): UiConversation {
+  function buildUiConversation(raw: Conversation): UiConversation {
     const other =
       raw.participant_a.id === myId.value
         ? (raw.participant_b ?? raw.participant_a)
@@ -73,7 +73,9 @@ export const useConversationStore = defineStore('conversation', () => {
       lastMessage: '',
       lastMessageAt: raw.last_message_at,
       messageCount: raw.message_count,
-      score: null,
+      score: raw.score,
+      classification: raw.classification,
+      lastAnalysisAt: raw.last_analysis_at,
       activityLabel: formatRelative(raw.last_message_at),
     }
   }
@@ -83,6 +85,7 @@ export const useConversationStore = defineStore('conversation', () => {
     socketCleanups.push(onNewMessage(handleNewMessage))
     socketCleanups.push(onUserTyping(handleUserTyping))
     socketCleanups.push(onMessageStatus(handleMessageStatusEvent))
+    socketCleanups.push(onAnalysisUpdated(handleAnalysisUpdated))
   }
 
   function cleanup() {
@@ -111,9 +114,15 @@ export const useConversationStore = defineStore('conversation', () => {
     if (activeConversationId.value !== null && activeConversationId.value !== id) {
       leaveConversation(activeConversationId.value)
     }
+
     activeConversationId.value = id
     messages.value = []
-    await loadMessages(id)
+    activeAnalysis.value = null
+    analysisError.value = null
+
+    await Promise.all([loadMessages(id), loadActiveAnalysis(id)])
+    if (activeConversationId.value !== id) return
+
     try {
       await joinConversation(id)
     } catch {
@@ -122,22 +131,52 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
+  async function loadActiveAnalysis(id: number) {
+    const requestSeq = ++analysisRequestSeq
+    loadingAnalysis.value = true
+    analysisError.value = null
+
+    try {
+      const analysis = await conversationsApi.getAnalysis(id)
+      if (activeConversationId.value === id && requestSeq === analysisRequestSeq) {
+        applyAnalysis(analysis)
+      }
+    } catch (err) {
+      if (activeConversationId.value !== id || requestSeq !== analysisRequestSeq) return
+      if (extractApiErrorCode(err) === 'analysis_not_found') {
+        activeAnalysis.value = null
+        return
+      }
+      analysisError.value = extractApiError(err)
+    } finally {
+      if (activeConversationId.value === id && requestSeq === analysisRequestSeq) {
+        loadingAnalysis.value = false
+      }
+    }
+  }
+
   async function loadMessages(id: number) {
     loadingMessages.value = true
     try {
       const page = await conversationsApi.messages(id)
-      messages.value = page.messages.map((message) => ({
-        id: message.id,
-        senderId: message.sender_id,
-        content: message.content,
-        sentAt: message.sent_at,
-        position: message.position,
-        status: message.status,
-      }))
+      if (activeConversationId.value === id) {
+        messages.value = page.messages.map((message) => ({
+          id: message.id,
+          senderId: message.sender_id,
+          content: message.content,
+          sentAt: message.sent_at,
+          position: message.position,
+          status: message.status,
+        }))
+      }
     } catch (err) {
-      error.value = extractApiError(err)
+      if (activeConversationId.value === id) {
+        error.value = extractApiError(err)
+      }
     } finally {
-      loadingMessages.value = false
+      if (activeConversationId.value === id) {
+        loadingMessages.value = false
+      }
     }
   }
 
@@ -165,6 +204,30 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
+  async function analyzeActiveConversation() {
+    if (activeConversationId.value === null || loadingAnalysis.value) return
+
+    const conversationId = activeConversationId.value
+    const requestSeq = ++analysisRequestSeq
+    loadingAnalysis.value = true
+    analysisError.value = null
+
+    try {
+      const analysis = await conversationsApi.analyze(conversationId)
+      if (activeConversationId.value === conversationId && requestSeq === analysisRequestSeq) {
+        applyAnalysis(analysis)
+      }
+    } catch (err) {
+      if (activeConversationId.value === conversationId && requestSeq === analysisRequestSeq) {
+        analysisError.value = extractApiError(err)
+      }
+    } finally {
+      if (activeConversationId.value === conversationId && requestSeq === analysisRequestSeq) {
+        loadingAnalysis.value = false
+      }
+    }
+  }
+
   async function startConversation() {
     creatingConversation.value = true
     error.value = null
@@ -187,11 +250,30 @@ export const useConversationStore = defineStore('conversation', () => {
       await conversationsApi.delete(id)
       conversations.value = conversations.value.filter((conversation) => conversation.id !== id)
       if (activeConversationId.value === id) {
+        analysisRequestSeq++
         activeConversationId.value = null
         messages.value = []
+        activeAnalysis.value = null
+        loadingMessages.value = false
+        loadingAnalysis.value = false
+        analysisError.value = null
       }
     } catch (err) {
       error.value = extractApiError(err)
+    }
+  }
+
+  function applyAnalysis(analysis: ConversationAnalysis) {
+    const conversation = conversations.value.find((item) => item.id === analysis.conversation_id)
+    if (conversation) {
+      conversation.score = Math.round(analysis.score)
+      conversation.classification = analysis.classification
+      conversation.lastAnalysisAt = analysis.computed_at
+    }
+
+    if (activeConversationId.value === analysis.conversation_id) {
+      activeAnalysis.value = analysis
+      analysisError.value = null
     }
   }
 
@@ -252,9 +334,18 @@ export const useConversationStore = defineStore('conversation', () => {
     })
   }
 
+  function handleAnalysisUpdated(data: WsAnalysisUpdated) {
+    applyAnalysis(data)
+  }
+
   function clearActiveConversation() {
+    analysisRequestSeq++
     activeConversationId.value = null
     messages.value = []
+    activeAnalysis.value = null
+    loadingMessages.value = false
+    loadingAnalysis.value = false
+    analysisError.value = null
   }
 
   // Expõe emitTyping para uso no ChatView
@@ -270,9 +361,12 @@ export const useConversationStore = defineStore('conversation', () => {
     messages,
     loadingConversations,
     loadingMessages,
+    loadingAnalysis,
     creatingConversation,
     typingVisible,
     error,
+    activeAnalysis,
+    analysisError,
     activeConversation,
     myId,
     init,
@@ -280,6 +374,7 @@ export const useConversationStore = defineStore('conversation', () => {
     loadConversations,
     selectConversation,
     sendMessage,
+    analyzeActiveConversation,
     startConversation,
     removeConversation,
     clearActiveConversation,

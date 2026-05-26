@@ -4,9 +4,9 @@ import Card from 'primevue/card'
 import Divider from 'primevue/divider'
 import { useRouter } from 'vue-router'
 import ChatPreview from '../components/chat/ChatPreview.vue'
-import CompatibilityRing from '../components/graphs/CompatibilityRing.vue'
-import MetricsBar from '../components/graphs/MetricsBar.vue'
-import NetworkGraph from '../components/graphs/NetworkGraph.vue'
+import CompatibilityRing from '../components/dash/graphs/CompatibilityRing.vue'
+import MetricsBar from '../components/dash/graphs/MetricsBar.vue'
+import NetworkGraph from '../components/dash/graphs/NetworkGraph.vue'
 
 const router = useRouter()
 

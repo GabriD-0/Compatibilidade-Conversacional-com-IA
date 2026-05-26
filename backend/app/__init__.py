@@ -7,6 +7,7 @@ from app.errors.handlers import register_error_handlers, register_jwt_handlers
 from app.extensions import cors, db, jwt, limiter, migrate, socketio
 from app.routes.auth import bp as auth_bp
 from app.routes.conversations import bp as conversations_bp
+from app.routes.dashboard import bp as dashboard_bp
 from app.routes.health import bp as health_bp
 from app.sockets import register_handlers
 
@@ -63,6 +64,7 @@ def create_app(config_name: str | None) -> Flask:
     flask_app.register_blueprint(health_bp)
     flask_app.register_blueprint(auth_bp, url_prefix="/api/auth")
     flask_app.register_blueprint(conversations_bp, url_prefix="/api/conversations")
+    flask_app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
 
     importlib.import_module("app.models")
 

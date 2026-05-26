@@ -176,7 +176,11 @@ async function confirmNewConversation() {
           :conversation="activeConversation"
           :messages="store.messages"
           :typing-visible="store.typingVisible"
+          :analysis="store.activeAnalysis"
+          :loading-analysis="store.loadingAnalysis"
+          :analysis-error="store.analysisError"
           @back="onChatBack"
+          @analyze="store.analyzeActiveConversation"
         />
         <div v-else class="chat-page__empty">
           <div class="chat-page__empty-icon-wrap">

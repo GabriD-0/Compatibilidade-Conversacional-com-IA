@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { RefreshResponse, ConversationsPage, Conversation, MessagesPage } from '../types/types'
+import type { Conversation, ConversationAnalysis, ConversationsPage, MessagesPage, RefreshResponse, SummaryDash } from '../types/types'
 
 const ACCESS_KEY = 'access_token'
 const REFRESH_KEY = 'refresh_token'
@@ -91,9 +91,33 @@ export const conversationsApi = {
       .then((r) => r.data)
   },
 
+  getAnalysis(conversationId: number): Promise<ConversationAnalysis> {
+    return api.get(`/api/conversations/${conversationId}/analysis`).then((r) => r.data)
+  },
+
+  analyze(conversationId: number): Promise<ConversationAnalysis> {
+    return api.post(`/api/conversations/${conversationId}/analysis`).then((r) => r.data)
+  },
+
   delete(id: number): Promise<void> {
     return api.delete(`/api/conversations/${id}`).then(() => undefined)
   },
+}
+
+// ---- Dashboard endpoints ----
+
+export const dashboardApi = {
+  getSummary(): Promise<SummaryDash> {
+    return api.get('/api/dashboard').then((r) => r.data)
+  },
+}
+
+export function extractApiErrorCode(err: unknown): string | null {
+  if (axios.isAxiosError(err)) {
+    const code = err.response?.data?.error?.code
+    if (typeof code === 'string') return code
+  }
+  return null
 }
 
 export function extractApiError(err: unknown): string {

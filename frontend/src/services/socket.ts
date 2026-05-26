@@ -1,5 +1,5 @@
 import { io, type Socket } from 'socket.io-client'
-import type { WsNewMessage, WsUserTyping, WsMessageStatus } from '../types/types'
+import type { WsNewMessage, WsUserTyping, WsMessageStatus, WsAnalysisUpdated } from '../types/types'
 
 const ACCESS_KEY = 'access_token'
 
@@ -61,4 +61,10 @@ export function onMessageStatus(handler: (data: WsMessageStatus) => void): () =>
   const socket = getSocket()
   socket.on('message_status', handler)
   return () => socket.off('message_status', handler)
+}
+
+export function onAnalysisUpdated(handler: (data: WsAnalysisUpdated) => void): () => void {
+  const socket = getSocket()
+  socket.on('analysis_updated', handler)
+  return () => socket.off('analysis_updated', handler)
 }
