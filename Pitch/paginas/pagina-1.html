@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -36,8 +36,9 @@
   .f2 { bottom: 60px; right: 100px; transform: rotate(10deg); }
   .tcc-badge { position: absolute; bottom: 28px; right: 36px; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 </style>
+<link rel="stylesheet" href="pitch-theme.css">
 </head>
-<body>
+<body class="pitch-page">
   <div class="floating f1">💬</div>
   <div class="floating f2">🔗</div>
   <div class="container">
@@ -67,11 +68,10 @@
       </div>
     </div>
   </div>
-  <div class="tcc-badge">TCC · IFSP · 2025</div>
 
   <script>
   window.PITCH = {
-    duration: 22, next: 'pagina-2.html', prev: null, page: 1, total: 9,
+    duration: 22, next: 'pagina-2.html', prev: null, page: 1, total: 7,
 
     init(gsap) {
       gsap.set(['.problem-label', '.main-question', '.divider', '.sub-text'], { autoAlpha: 0, y: 35 });
@@ -82,18 +82,21 @@
     steps: [
       {
         subtitle: 'Toda vez que duas pessoas conversam, algo acontece que vai além das palavras.',
+        focus: '.problem-label',
         animate(gsap) {
           gsap.to('.problem-label', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
         }
       },
       {
         subtitle: 'Como saber se duas pessoas <em>realmente</em> se entendem em uma conversa?',
+        focus: '.main-question',
         animate(gsap) {
           gsap.to('.main-question', { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' });
         }
       },
       {
         subtitle: 'Mal-entendidos custam tempo, dinheiro e relacionamentos. A comunicação humana nunca foi medida de forma objetiva.',
+        focus: ['.divider', '.sub-text'],
         animate(gsap) {
           gsap.to('.divider', { autoAlpha: 1, y: 0, scaleX: 1, duration: 0.6, ease: 'power3.out', transformOrigin: 'left center' });
           gsap.to('.sub-text', { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.1 });
@@ -101,6 +104,7 @@
       },
       {
         subtitle: '<strong>70%</strong> dos conflitos profissionais têm origem em falhas de comunicação.',
+        focus: '.stat-el',
         animate(gsap) {
           const el = document.querySelector('.stat-el');
           gsap.to(el, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' });
@@ -113,6 +117,7 @@
       },
       {
         subtitle: 'Equipes com boa sintonia são <strong>3x</strong> mais produtivas. E até hoje: zero ferramentas em português para medir isso.',
+        focus: ['.stat-row', '.tcc-badge'],
         animate(gsap) {
           const stats = document.querySelectorAll('.stat-el');
           gsap.to([stats[1], stats[2]], { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.18 });

@@ -32,15 +32,15 @@
   /* ── Progress bar ───────────────────────────────────────────── */
   function createProgressBar(cfg, roteiroNome) {
     const track = document.createElement('div');
-    track.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;height:3px;background:rgba(255,255,255,0.07);z-index:9999;';
+    track.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;height:3px;background:rgba(90,219,148,0.08);z-index:9999;box-shadow:0 -1px 0 rgba(90,219,148,0.08);';
     const fill = document.createElement('div');
-    fill.style.cssText = 'height:100%;width:0%;background:linear-gradient(90deg,#5adb94,#0ba18c);border-radius:0 2px 2px 0;transition:width 0.4s ease;';
+    fill.style.cssText = 'height:100%;width:0%;background:linear-gradient(90deg,#5adb94,#0ba18c);border-radius:0 2px 2px 0;transition:width 0.4s ease;box-shadow:0 0 14px rgba(90,219,148,0.45);';
     track.appendChild(fill);
     document.body.appendChild(track);
 
     const info = document.createElement('div');
-    info.style.cssText = 'position:fixed;bottom:7px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;z-index:9999;pointer-events:none;';
-    const st = 'font:10px/1 system-ui,sans-serif;letter-spacing:1px;color:rgba(255,255,255,0.2);';
+    info.style.cssText = 'position:fixed;bottom:7px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 16px;z-index:9999;pointer-events:none;';
+    const st = 'font:10px/1 system-ui,sans-serif;letter-spacing:1px;color:rgba(195,178,228,0.34);';
     const rotLabel = roteiroNome
       ? `<span style="${st}color:rgba(90,219,148,0.45);">${roteiroNome.toUpperCase()}</span>`
       : '';
@@ -58,23 +58,23 @@
     const panel = document.createElement('div');
     panel.id = '_sub_panel';
     panel.style.cssText = [
-      'position:fixed', 'right:12px', 'bottom:28px',
-      'width:280px', 'max-height:340px',
-      'background:rgba(8,1,16,0.93)',
-      'border:1px solid rgba(54,137,134,0.3)',
+      'position:fixed', 'right:14px', 'bottom:30px',
+      'width:300px', 'max-height:340px',
+      'background:rgba(16,4,28,0.94)',
+      'border:1px solid rgba(90,219,148,0.18)',
       'border-left:3px solid #5adb94',
-      'border-radius:0 12px 12px 0',
+      'border-radius:8px',
       'z-index:9990',
       'font-family:system-ui,sans-serif',
-      'backdrop-filter:blur(10px)',
-      '-webkit-backdrop-filter:blur(10px)',
-      'box-shadow:0 6px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(90,219,148,0.06)',
+      'backdrop-filter:blur(18px) saturate(145%)',
+      '-webkit-backdrop-filter:blur(18px) saturate(145%)',
+      'box-shadow:0 18px 46px rgba(0,0,0,0.48), 0 0 28px rgba(90,219,148,0.08)',
       'display:flex', 'flex-direction:column',
       'overflow:hidden',
     ].join(';');
 
     const header = document.createElement('div');
-    header.style.cssText = 'padding:8px 14px 7px;border-bottom:1px solid rgba(54,137,134,0.18);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;';
+    header.style.cssText = 'padding:9px 14px 8px;border-bottom:1px solid rgba(90,219,148,0.12);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:rgba(14,3,26,0.5);';
     const rotTag = roteiroNome
       ? `<span style="font-size:8px;font-weight:700;color:rgba(90,219,148,0.6);letter-spacing:1px;">${roteiroNome.toUpperCase()}</span>`
       : '';
@@ -88,17 +88,17 @@
     panel.appendChild(header);
 
     const body = document.createElement('div');
-    body.style.cssText = 'padding:10px 14px 8px;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:rgba(90,219,148,0.2) transparent;';
+    body.style.cssText = 'padding:10px 14px 8px;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:rgba(90,219,148,0.24) transparent;';
 
     steps.forEach((step, i) => {
       const line = document.createElement('div');
       line.id = '_sub_line_' + i;
       line.style.cssText = [
         'font-size:12.5px', 'line-height:1.6',
-        'color:rgba(255,255,255,0.22)',
+        'color:rgba(195,178,228,0.34)',
         'padding:5px 0',
         'transition:color 0.3s ease',
-        i < steps.length - 1 ? 'border-bottom:1px solid rgba(54,137,134,0.1)' : '',
+        i < steps.length - 1 ? 'border-bottom:1px solid rgba(90,219,148,0.08)' : '',
         i < steps.length - 1 ? 'margin-bottom:4px' : '',
       ].filter(Boolean).join(';');
       line.innerHTML = step.subtitle || '';
@@ -108,7 +108,7 @@
     panel.appendChild(body);
 
     const footer = document.createElement('div');
-    footer.style.cssText = 'padding:5px 14px 8px;border-top:1px solid rgba(54,137,134,0.12);flex-shrink:0;';
+    footer.style.cssText = 'padding:6px 14px 9px;border-top:1px solid rgba(90,219,148,0.1);flex-shrink:0;background:rgba(14,3,26,0.35);';
     footer.innerHTML = `<span id="_sub_hint" style="font-size:9px;color:rgba(255,255,255,0.2);">[ESPAÇO] próximo &nbsp;·&nbsp; [→] próxima tela</span>`;
     panel.appendChild(footer);
 
@@ -132,9 +132,10 @@
     const overlay = document.createElement('div');
     overlay.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:99999',
-      'background:rgba(6,0,12,0.98)',
+      'background:#0c0017',
+      'background-image:radial-gradient(ellipse 60% 50% at 8% 0%, rgba(138,3,77,0.22) 0%, transparent 65%), radial-gradient(ellipse 45% 40% at 92% 100%, rgba(90,219,148,0.12) 0%, transparent 65%), radial-gradient(ellipse 50% 45% at 50% 50%, rgba(55,0,100,0.28) 0%, transparent 75%)',
       'display:flex', 'align-items:center', 'justify-content:center',
-      'flex-direction:column', 'gap:40px',
+      'flex-direction:column', 'gap:34px',
       'font-family:system-ui,sans-serif',
       'opacity:0', 'transition:opacity 0.5s ease',
     ].join(';');
@@ -149,7 +150,7 @@
         Selecione o Roteiro
       </div>
       <div style="font-size:14px;color:rgba(255,255,255,0.38);line-height:1.6;">
-        As mesmas telas, três abordagens de narração diferentes.
+        Roteiro final para gravação do pitch.
       </div>
     `;
     overlay.appendChild(titleEl);
@@ -163,19 +164,21 @@
       3: { accent: '#e8448a', border: 'rgba(232,68,138,0.35)', bg: 'rgba(138,3,77,0.07)'    },
     };
 
-    [1, 2, 3].forEach(n => {
+    Object.keys(meta).map(Number).forEach(n => {
       const m = meta[n];
       const c = COLORS[n];
 
       const card = document.createElement('div');
       card.style.cssText = [
-        'width:220px', 'padding:28px 22px 24px',
-        `background:${c.bg}`,
+        'width:220px', 'padding:24px 22px',
+        `background:linear-gradient(145deg, ${c.bg}, rgba(18,4,32,0.88) 46%)`,
         `border:1px solid ${c.border}`,
-        'border-radius:16px',
+        'border-radius:8px',
         'cursor:pointer',
         'transition:transform 0.2s ease, box-shadow 0.2s ease',
         'display:flex', 'flex-direction:column', 'gap:12px',
+        'box-shadow:0 18px 46px rgba(0,0,0,0.36)',
+        'backdrop-filter:blur(18px) saturate(145%)',
       ].join(';');
 
       card.innerHTML = `
@@ -245,7 +248,7 @@
     function navigate(url) {
       if (!url) return;
       gsap.to(document.body, {
-        opacity: 0, duration: 0.4, ease: 'power1.in',
+        opacity: 0, duration: 0.9, ease: 'power2.inOut',
         onComplete() { window.location.href = url; }
       });
     }
@@ -257,23 +260,53 @@
     }
 
     let currentStep = -1;
+    let activeTargets = [];
+
+    function setActiveTargets(targetSpec) {
+      activeTargets.forEach(el => el.classList && el.classList.remove('pitch-step-active'));
+      activeTargets = [];
+
+      if (!targetSpec) return;
+
+      let els = [];
+      if (typeof targetSpec === 'string') {
+        els = Array.from(document.querySelectorAll(targetSpec));
+      } else if (Array.isArray(targetSpec)) {
+        targetSpec.forEach(sel => {
+          if (!sel) return;
+          if (typeof sel === 'string') els.push(...document.querySelectorAll(sel));
+          else if (sel && sel.nodeType === 1) els.push(sel);
+        });
+      } else if (targetSpec && targetSpec.nodeType === 1) {
+        els = [targetSpec];
+      }
+
+      els = els.filter(Boolean);
+      els.forEach(el => el.classList && el.classList.add('pitch-step-active'));
+      activeTargets = els;
+    }
 
     function runNextStep() {
       if (currentStep >= steps.length - 1) return;
 
       if (currentStep >= 0) {
         const prev = sub.getLine(currentStep);
-        if (prev) prev.style.color = 'rgba(255,255,255,0.22)';
+        if (prev) {
+          prev.style.color = 'rgba(255,255,255,0.22)';
+          prev.classList && prev.classList.remove('pitch-sub-active');
+        }
       }
 
       currentStep++;
       const step = steps[currentStep];
 
       if (typeof step.animate === 'function') step.animate(gsap);
+      setActiveTargets(step.focus);
 
       const line = sub.getLine(currentStep);
       if (line) {
         line.style.color = 'rgba(255,255,255,0.88)';
+        line.classList && line.classList.add('pitch-sub-active');
         line.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
@@ -291,13 +324,20 @@
       while (currentStep < steps.length - 1) {
         if (currentStep >= 0) {
           const prev = sub.getLine(currentStep);
-          if (prev) prev.style.color = 'rgba(255,255,255,0.22)';
+          if (prev) {
+            prev.style.color = 'rgba(255,255,255,0.22)';
+            prev.classList && prev.classList.remove('pitch-sub-active');
+          }
         }
         currentStep++;
         const step = steps[currentStep];
         if (typeof step.animate === 'function') step.animate(gsap);
+        setActiveTargets(step.focus);
         const line = sub.getLine(currentStep);
-        if (line) line.style.color = 'rgba(255,255,255,0.88)';
+        if (line) {
+          line.style.color = 'rgba(255,255,255,0.88)';
+          line.classList && line.classList.add('pitch-sub-active');
+        }
       }
       sub.counter.textContent = steps.length + ' / ' + steps.length;
       updateProgress(currentStep);
@@ -341,7 +381,7 @@
     if (!cfg) return;
 
     document.body.style.opacity = '0';
-    document.body.style.transition = 'opacity 0.5s ease';
+    document.body.style.transition = 'opacity 0.9s ease';
     requestAnimationFrame(() => { document.body.style.opacity = '1'; });
 
     const saved = sessionStorage.getItem('pitchRoteiro');

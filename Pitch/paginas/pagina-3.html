@@ -1,137 +1,175 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<title>Pitch 3 — Interface de Chat</title>
+<title>Pitch 3 - Interface de Chat</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     width: 1280px; height: 720px; overflow: hidden;
-    background: #2e0331;
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     color: rgba(255,255,255,0.87);
     display: flex; position: relative;
   }
-  body::before {
-    content: ''; position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 400px 300px at 0% 100%, rgba(90,219,148,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 300px 200px at 100% 0%, rgba(138,3,77,0.1) 0%, transparent 60%);
-    pointer-events: none;
-  }
-  .sidebar { width: 260px; background: rgba(14,3,26,0.92); border-right: 1px solid rgba(54,137,134,0.3); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
-  .sidebar-header { display: flex; align-items: center; gap: 12px; padding: 0 20px 20px; border-bottom: 1px solid rgba(54,137,134,0.2); margin-bottom: 12px; }
-  .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #5adb94, #0ba18c); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #2e0331; flex-shrink: 0; }
-  .app-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); line-height: 1.3; }
-  .app-name-sub { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 400; }
-  .sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 20px; margin-bottom: 8px; }
-  .conv-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; }
-  .conv-item.active { background: rgba(90,219,148,0.1); border-right: 2px solid #5adb94; }
-  .avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; }
-  .av1 { background: linear-gradient(135deg, #5adb94, #0ba18c); color: #1a1a2e; }
-  .av2 { background: linear-gradient(135deg, #8a034d, #c0336e); }
-  .av3 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-  .conv-info { flex: 1; min-width: 0; }
-  .conv-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); }
-  .conv-preview { font-size: 11px; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .conv-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: rgba(90,219,148,0.15); color: #5adb94; }
-  .chat-area { flex: 1; display: flex; flex-direction: column; z-index: 1; }
-  .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid rgba(54,137,134,0.2); background: rgba(14,3,26,0.5); }
-  .chat-header-left { display: flex; align-items: center; gap: 12px; }
-  .participants { display: flex; align-items: center; }
-  .chat-title { font-size: 14px; font-weight: 700; }
-  .chat-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
-  .analyze-btn { display: flex; align-items: center; gap: 8px; padding: 9px 20px; background: linear-gradient(135deg, #5adb94, #0ba18c); color: #2e0331; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; }
-  .messages { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
-  .msg-row { display: flex; gap: 10px; align-items: flex-end; }
-  .msg-row.right { flex-direction: row-reverse; }
-  .msg-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
-  .bubble { max-width: 480px; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
-  .bubble.left { background: rgba(36,36,36,0.9); border: 1px solid rgba(54,137,134,0.25); border-bottom-left-radius: 4px; color: rgba(255,255,255,0.85); }
-  .bubble.right { background: rgba(90,219,148,0.18); border: 1px solid rgba(90,219,148,0.35); border-bottom-right-radius: 4px; color: rgba(255,255,255,0.9); }
-  .msg-time { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 3px; }
-  .chat-input { padding: 14px 24px; border-top: 1px solid rgba(54,137,134,0.2); display: flex; gap: 12px; align-items: center; background: rgba(14,3,26,0.4); }
-  .input-box { flex: 1; background: rgba(36,36,36,0.8); border: 1px solid rgba(54,137,134,0.3); border-radius: 10px; padding: 10px 16px; font-size: 13px; color: rgba(255,255,255,0.87); font-family: inherit; }
-  .send-btn { width: 40px; height: 40px; background: linear-gradient(135deg, #5adb94, #0ba18c); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: #2e0331; border: none; font-weight: 700; }
-  .sender-toggle { display: flex; gap: 6px; margin-right: 4px; }
-  .s-btn { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid rgba(54,137,134,0.3); background: transparent; color: rgba(255,255,255,0.5); }
-  .s-btn.active { background: rgba(90,219,148,0.15); border-color: rgba(90,219,148,0.5); color: #5adb94; }
+  svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 </style>
+<link rel="stylesheet" href="pitch-theme.css">
 </head>
-<body>
-  <div class="sidebar" id="sidebarEl">
-    <div class="sidebar-header">
-      <div class="logo">CC</div>
-      <div class="app-name">Compatibilidade<br><span class="app-name-sub">Conversacional com IA</span></div>
-    </div>
-    <div class="sidebar-section">Conversas</div>
-    <div class="conv-item active">
-      <div class="avatar av1">AB</div>
-      <div class="conv-info"><div class="conv-name">Ana & Bruno</div><div class="conv-preview">Ótimo, vou revisar isso!</div></div>
-      <div class="conv-badge">87</div>
-    </div>
-    <div class="conv-item">
-      <div class="avatar av2">CM</div>
-      <div class="conv-info"><div class="conv-name">Carlos & Maria</div><div class="conv-preview">Preciso entender melhor...</div></div>
-    </div>
-    <div class="conv-item">
-      <div class="avatar av3">JL</div>
-      <div class="conv-info"><div class="conv-name">João & Laura</div><div class="conv-preview">Concordo completamente</div></div>
-    </div>
-  </div>
-
-  <div class="chat-area">
-    <div class="chat-header" id="chatHeader">
-      <div class="chat-header-left">
-        <div class="participants">
-          <div class="avatar av1" style="width:30px;height:30px;font-size:11px;">A</div>
-          <div class="avatar av2" style="width:30px;height:30px;font-size:11px;margin-left:-8px;border:2px solid rgba(14,3,26,0.9)">B</div>
+<body class="pitch-page pitch-chat-page">
+  <div class="pitch-chat-shell">
+    <aside class="chat-page__sidebar" id="sidebarEl">
+      <div class="chat-page__sidebar-head">
+        <div class="chat-page__title-row">
+          <span class="chat-page__title-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+          </span>
+          <h2 class="chat-page__sidebar-title">Conversas</h2>
         </div>
-        <div>
-          <div class="chat-title">Ana & Bruno</div>
-          <div class="chat-sub">24 mensagens · Análise disponível</div>
+        <button class="chat-page__add-btn" aria-label="Nova conversa">+</button>
+      </div>
+
+      <div class="chat-page__search-field">
+        <span class="chat-page__search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+        </span>
+        <input class="chat-page__search" placeholder="Buscar conversas..." readonly>
+      </div>
+
+      <div class="chat-page__list" role="list">
+        <button type="button" class="chat-page__conv chat-page__conv--active">
+          <div class="chat-page__av-wrap">
+            <span class="chat-page__mini-av av1">A</span>
+            <span class="chat-page__online-dot"></span>
+          </div>
+          <div class="chat-page__conv-body">
+            <div class="chat-page__conv-row1">
+              <span class="chat-page__conv-name">Ana</span>
+              <span class="chat-page__conv-time">10:29</span>
+            </div>
+            <p class="chat-page__conv-preview">Otimo, vou revisar isso!</p>
+            <span class="chat-page__score-pill chat-page__score-pill--high">
+              <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-7"/></svg>
+              87%
+            </span>
+          </div>
+        </button>
+        <button type="button" class="chat-page__conv">
+          <div class="chat-page__av-wrap">
+            <span class="chat-page__mini-av av2">C</span>
+            <span class="chat-page__online-dot"></span>
+          </div>
+          <div class="chat-page__conv-body">
+            <div class="chat-page__conv-row1">
+              <span class="chat-page__conv-name">Carlos</span>
+              <span class="chat-page__conv-time">09:48</span>
+            </div>
+            <p class="chat-page__conv-preview">Preciso entender melhor...</p>
+            <span class="chat-page__noscore">sem analise</span>
+          </div>
+        </button>
+        <button type="button" class="chat-page__conv">
+          <div class="chat-page__av-wrap">
+            <span class="chat-page__mini-av av3">J</span>
+            <span class="chat-page__online-dot"></span>
+          </div>
+          <div class="chat-page__conv-body">
+            <div class="chat-page__conv-row1">
+              <span class="chat-page__conv-name">Joao</span>
+              <span class="chat-page__conv-time">ontem</span>
+            </div>
+            <p class="chat-page__conv-preview">Concordo completamente</p>
+            <span class="chat-page__score-pill chat-page__score-pill--mid">72%</span>
+          </div>
+        </button>
+      </div>
+    </aside>
+
+    <section class="chat-view" aria-label="Conversa Ana">
+      <header class="chat-view__header" id="chatHeader">
+        <div class="chat-view__left">
+          <button class="chat-view__back" aria-label="Voltar">
+            <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div class="chat-view__av-wrap">
+            <span class="chat-view__head-av av1">A</span>
+            <span class="chat-view__online-dot"></span>
+          </div>
+          <div class="chat-view__participants">
+            <strong>Ana</strong>
+            <small>24 mensagens · online</small>
+          </div>
+        </div>
+
+        <div class="chat-view__header-right">
+          <span class="chat-view__score-badge chat-view__score-badge--high">
+            <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-7"/></svg>
+            87%
+          </span>
+          <button type="button" class="chat-view__analyze" id="analyzeBtn">
+            <svg viewBox="0 0 24 24"><path d="m12 3 1.7 5.2L19 10l-5.3 1.8L12 17l-1.7-5.2L5 10l5.3-1.8z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+            Analisar
+          </button>
+        </div>
+      </header>
+
+      <div class="chat-view__messages">
+        <div class="chat-view__messages-body">
+          <div class="chat-view__row" id="m1">
+            <div class="chat-view__avatar av1">A</div>
+            <div class="chat-view__bubble chat-view__bubble--recv">
+              <p>Oi Bruno! Conseguiste revisar o documento que enviei ontem? Acho que ficou bem estruturado dessa vez.</p>
+              <small>10:23</small>
+            </div>
+          </div>
+          <div class="chat-view__row chat-view__row--right" id="m2">
+            <div class="chat-view__bubble chat-view__bubble--sent">
+              <p>Sim! Li tudo com cuidado. Concordo que ficou bem organizado. Tenho algumas sugestoes pequenas, posso te mandar agora?</p>
+              <small>10:25</small>
+            </div>
+          </div>
+          <div class="chat-view__row" id="m3">
+            <div class="chat-view__avatar av1">A</div>
+            <div class="chat-view__bubble chat-view__bubble--recv">
+              <p>Claro, pode mandar! Adoro receber feedback, ajuda muito a melhorar.</p>
+              <small>10:26</small>
+            </div>
+          </div>
+          <div class="chat-view__row chat-view__row--right" id="m4">
+            <div class="chat-view__bubble chat-view__bubble--sent">
+              <p>Perfeito! Acho que a secao 3 pode ser mais direta. No mais, esta otimo mesmo. Bom trabalho!</p>
+              <small>10:28</small>
+            </div>
+          </div>
+          <div class="chat-view__row" id="m5">
+            <div class="chat-view__avatar av1">A</div>
+            <div class="chat-view__bubble chat-view__bubble--recv">
+              <p>Otimo, vou revisar isso! Obrigada pelo retorno tao rapido, Bruno.</p>
+              <small>10:29</small>
+            </div>
+          </div>
         </div>
       </div>
-      <button class="analyze-btn" id="analyzeBtn">⚡ Analisar Compatibilidade</button>
-    </div>
 
-    <div class="messages">
-      <div class="msg-row" id="m1">
-        <div class="msg-avatar av1" style="background:linear-gradient(135deg,#5adb94,#0ba18c);color:#1a1a2e;">A</div>
-        <div><div class="bubble left">Oi Bruno! Conseguiste revisar o documento que enviei ontem? Acho que ficou bem estruturado dessa vez.</div><div class="msg-time">10:23</div></div>
-      </div>
-      <div class="msg-row right" id="m2">
-        <div class="msg-avatar av2" style="background:linear-gradient(135deg,#8a034d,#c0336e);">B</div>
-        <div><div class="bubble right">Sim! Li tudo com cuidado. Concordo que ficou bem organizado. Tenho algumas sugestões pequenas, posso te mandar agora?</div><div class="msg-time" style="text-align:right">10:25</div></div>
-      </div>
-      <div class="msg-row" id="m3">
-        <div class="msg-avatar av1" style="background:linear-gradient(135deg,#5adb94,#0ba18c);color:#1a1a2e;">A</div>
-        <div><div class="bubble left">Claro, pode mandar! Adoro receber feedback, ajuda muito a melhorar.</div><div class="msg-time">10:26</div></div>
-      </div>
-      <div class="msg-row right" id="m4">
-        <div class="msg-avatar av2" style="background:linear-gradient(135deg,#8a034d,#c0336e);">B</div>
-        <div><div class="bubble right">Perfeito! Acho que a seção 3 pode ser mais direta. No mais, está ótimo mesmo. Bom trabalho!</div><div class="msg-time" style="text-align:right">10:28</div></div>
-      </div>
-      <div class="msg-row" id="m5">
-        <div class="msg-avatar av1" style="background:linear-gradient(135deg,#5adb94,#0ba18c);color:#1a1a2e;">A</div>
-        <div><div class="bubble left">Ótimo, vou revisar isso! Obrigada pelo retorno tão rápido, Bruno. 😊</div><div class="msg-time">10:29</div></div>
-      </div>
-    </div>
-
-    <div class="chat-input">
-      <div class="sender-toggle">
-        <button class="s-btn active">Ana</button>
-        <button class="s-btn">Bruno</button>
-      </div>
-      <input class="input-box" placeholder="Digite uma mensagem..." readonly>
-      <button class="send-btn">➤</button>
-    </div>
+      <footer class="chat-view__footer">
+        <div class="chat-view__footer-body">
+          <div class="chat-view__input-row">
+            <button class="chat-view__attach" aria-label="Anexar arquivo">
+              <svg viewBox="0 0 24 24"><path d="m21.4 11.6-8.7 8.7a6 6 0 0 1-8.5-8.5l9.1-9.1a4 4 0 0 1 5.7 5.7l-9.1 9.1a2 2 0 0 1-2.8-2.8l8.7-8.7"/></svg>
+            </button>
+            <input class="chat-view__input" placeholder="Escrever uma mensagem..." readonly>
+            <button class="chat-view__send" aria-label="Enviar">
+              <svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+            </button>
+          </div>
+        </div>
+      </footer>
+    </section>
   </div>
 
   <script>
   window.PITCH = {
-    duration: 25, next: 'pagina-4.html', prev: 'pagina-2.html', page: 3, total: 9,
+    duration: 25, next: 'pagina-4.html', prev: 'pagina-2.html', page: 3, total: 7,
 
     init(gsap) {
       gsap.set('#sidebarEl', { autoAlpha: 0, x: -260 });
@@ -142,26 +180,30 @@
 
     steps: [
       {
-        subtitle: 'A interface é simples e intuitiva. À esquerda ficam todas as suas conversas.',
+        subtitle: 'A interface e simples e intuitiva. A esquerda ficam todas as suas conversas.',
+        focus: '#sidebarEl',
         animate(gsap) {
           gsap.to('#sidebarEl', { autoAlpha: 1, x: 0, duration: 0.7, ease: 'power3.out' });
         }
       },
       {
-        subtitle: 'Você seleciona a conversa e vê os dois participantes identificados no cabeçalho.',
+        subtitle: 'Voce seleciona a conversa e ve os dois participantes identificados no cabecalho.',
+        focus: ['#chatHeader', '#analyzeBtn'],
         animate(gsap) {
           gsap.to('#chatHeader', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' });
           gsap.to('#analyzeBtn', { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(1.7)', delay: 0.2 });
         }
       },
       {
-        subtitle: 'As mensagens ficam registradas com autor e horário. Ana inicia; Bruno responde com atenção.',
+        subtitle: 'As mensagens ficam registradas com autor e horario. Ana inicia; Bruno responde com atencao.',
+        focus: ['#m1', '#m2'],
         animate(gsap) {
           gsap.to(['#m1','#m2'], { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.2 });
         }
       },
       {
-        subtitle: 'O histórico completo fica salvo. Um clique em <strong>Analisar Compatibilidade</strong> e o sistema processa.',
+        subtitle: 'O historico completo fica salvo. Um clique em <strong>Analisar Compatibilidade</strong> e o sistema processa.',
+        focus: ['#m3', '#m4', '#m5', '#analyzeBtn'],
         animate(gsap) {
           gsap.to(['#m3','#m4','#m5'], { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.2 });
           gsap.to('#analyzeBtn', { boxShadow: '0 0 24px rgba(90,219,148,0.6)', duration: 0.5, delay: 0.7 });

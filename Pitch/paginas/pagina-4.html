@@ -1,112 +1,462 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<title>Pitch 4 — Análise Detalhada</title>
+<title>Pitch 4 - Analise Detalhada</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { width: 1280px; height: 720px; overflow: hidden; background: #2e0331; font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; color: rgba(255,255,255,0.87); display: flex; align-items: center; justify-content: center; position: relative; }
-  body::before { content: ''; position: absolute; inset: 0; background: rgba(14,3,26,0.7); pointer-events: none; z-index: 0; }
-  body::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 600px 400px at 20% 80%, rgba(90,219,148,0.06) 0%, transparent 70%), radial-gradient(ellipse 500px 300px at 80% 20%, rgba(138,3,77,0.1) 0%, transparent 60%); pointer-events: none; z-index: 0; }
-  .modal { width: 800px; background: #1a1a2e; border: 1px solid rgba(54,137,134,0.5); border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,0.7); overflow: hidden; z-index: 10; display: flex; flex-direction: column; }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px 18px; border-bottom: 1px solid rgba(54,137,134,0.2); background: rgba(14,3,26,0.5); }
-  .modal-title { font-size: 17px; font-weight: 700; }
-  .modal-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
-  .close-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.5); }
-  .modal-body { display: flex; }
-  .col-left { width: 240px; flex-shrink: 0; padding: 24px 20px; border-right: 1px solid rgba(54,137,134,0.2); display: flex; flex-direction: column; align-items: center; gap: 18px; }
-  .score-ring { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-  .classification { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 20px; background: rgba(90,219,148,0.15); border: 1px solid rgba(90,219,148,0.4); color: #5adb94; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-  .score-date { font-size: 11px; color: rgba(255,255,255,0.3); }
-  .weights { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-  .weight-item { display: flex; align-items: center; gap: 10px; }
-  .weight-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .w-green { background: #5adb94; } .w-teal { background: #0ba18c; } .w-magenta { background: #e8448a; }
-  .weight-label { font-size: 11px; color: rgba(255,255,255,0.6); flex: 1; }
-  .weight-pct { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); }
-  .col-right { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
-  .metric-card { background: rgba(36,36,36,0.6); border: 1px solid rgba(54,137,134,0.2); border-radius: 12px; padding: 16px 18px; }
-  .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .metric-name { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
-  .metric-icon { font-size: 17px; }
-  .metric-score { font-size: 20px; font-weight: 800; }
-  .ms-green { color: #5adb94; } .ms-teal { color: #0ba18c; } .ms-magenta { color: #e8448a; }
-  .metric-bar { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
-  .metric-bar-fill { height: 100%; border-radius: 3px; width: 0%; }
-  .mbf-green { background: linear-gradient(90deg, #5adb94, #0ba18c); }
-  .mbf-teal { background: linear-gradient(90deg, #0ba18c, #368986); }
-  .mbf-magenta { background: linear-gradient(90deg, #8a034d, #e8448a); }
-  .metric-explanation { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.5; }
-  .metric-explanation strong { color: rgba(255,255,255,0.8); font-weight: 600; }
-  .sub-metrics { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
-  .sub-metric { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.5); }
-  .sub-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(90,219,148,0.6); }
+  body {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color: rgba(255,255,255,0.87);
+    display: flex;
+    position: relative;
+  }
+  svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+<link rel="stylesheet" href="pitch-theme.css">
+<style>
+  .analysis-page {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .analysis-backdrop {
+    position: absolute;
+    inset: 0;
+    opacity: 0.62;
+    filter: blur(1.5px);
+    transform: scale(1.012);
+    pointer-events: none;
+  }
+
+  .analysis-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background:
+      linear-gradient(135deg, rgba(5, 35, 40, 0.44) 0%, rgba(18, 18, 42, 0.42) 48%, rgba(48, 14, 42, 0.4) 100%),
+      rgba(4, 0, 10, 0.42);
+    backdrop-filter: blur(8px) saturate(110%);
+  }
+
+  .modal.analysis-modal {
+    position: absolute;
+    z-index: 10;
+    left: 50%;
+    top: 50%;
+    width: min(44rem, calc(100% - 8rem)) !important;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background:
+      linear-gradient(135deg, rgba(13, 43, 48, 0.98) 0%, rgba(21, 24, 43, 0.98) 48%, rgba(48, 19, 43, 0.97) 100%),
+      #101923 !important;
+    border: 1px solid rgba(111, 241, 186, 0.22) !important;
+    border-radius: 1.1rem !important;
+    color: #f7f2ff;
+    backdrop-filter: blur(28px);
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.68),
+      0 0 36px rgba(90, 219, 148, 0.08) !important;
+  }
+
+  .analysis-modal__header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 1.05rem 1.25rem;
+    background: rgba(8, 28, 34, 0.28);
+    border-bottom: 1px solid rgba(111, 241, 186, 0.13);
+  }
+
+  .analysis-modal__icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    color: #5adb94;
+    background: linear-gradient(135deg, rgba(90, 219, 148, 0.16), rgba(11, 161, 140, 0.08));
+    border: 1px solid rgba(90, 219, 148, 0.26);
+    box-shadow: 0 0 18px rgba(90, 219, 148, 0.08);
+  }
+
+  .analysis-modal__icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .analysis-modal__title {
+    min-width: 0;
+    display: grid;
+    gap: 0.16rem;
+    flex: 1;
+  }
+
+  .analysis-modal__title span {
+    color: rgba(195, 178, 228, 0.56);
+    font-size: 0.66rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .analysis-modal__title strong {
+    color: #f0ebff;
+    font-size: 0.98rem;
+    line-height: 1.25;
+  }
+
+  .analysis-modal__status {
+    padding: 0.24rem 0.65rem;
+    border-radius: 999px;
+    color: #5adb94;
+    background: rgba(90, 219, 148, 0.12);
+    border: 1px solid rgba(90, 219, 148, 0.25);
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+
+  .analysis-modal__close {
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    color: rgba(240, 235, 255, 0.68);
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 50%;
+    font-size: 0.92rem;
+  }
+
+  .analysis-modal__body {
+    display: grid;
+    gap: 1.05rem;
+    padding: 1.1rem 1.25rem 1.2rem;
+    background: rgba(9, 24, 35, 0.1);
+  }
+
+  .analysis-modal__hero {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.72fr) minmax(0, 1.28fr);
+    gap: 1rem;
+  }
+
+  .analysis-modal__score-card,
+  .analysis-modal__summary-card,
+  .analysis-modal__metric {
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+      rgba(12, 36, 44, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.095);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 10px 28px rgba(4, 12, 18, 0.16);
+  }
+
+  .analysis-modal__score-card {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 0.75rem;
+    padding: 1rem 0.85rem;
+  }
+
+  .score-ring {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+  }
+
+  .score-ring svg {
+    width: 7.25rem;
+    height: 7.25rem;
+    filter: none;
+  }
+
+  .score-ring__core {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 7.25rem;
+    height: 7.25rem;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.18rem;
+    pointer-events: none;
+  }
+
+  .score-ring__value {
+    color: #f0ebff;
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .score-ring__label {
+    color: rgba(195, 178, 228, 0.62);
+    font-size: 0.5rem;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .classification {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.24rem 0.65rem;
+    border-radius: 999px;
+    color: #5adb94;
+    background: rgba(90, 219, 148, 0.12);
+    border: 1px solid rgba(90, 219, 148, 0.25);
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+
+  .score-date,
+  .analysis-modal__score-meta {
+    color: rgba(195, 178, 228, 0.58);
+    font-size: 0.7rem;
+  }
+
+  .analysis-modal__summary-card {
+    display: grid;
+    align-content: center;
+    gap: 0.45rem;
+    padding: 1rem;
+  }
+
+  .analysis-modal__eyebrow {
+    color: rgba(90, 219, 148, 0.86);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .analysis-modal__summary {
+    margin: 0;
+    color: rgba(240, 235, 255, 0.75);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .analysis-modal__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .analysis-modal__metric {
+    min-width: 0;
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.85rem;
+  }
+
+  .analysis-modal__metric-icon {
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 0.6rem;
+    color: #5adb94;
+    background: rgba(90, 219, 148, 0.09);
+    border: 1px solid rgba(90, 219, 148, 0.14);
+  }
+
+  .analysis-modal__metric-icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .analysis-modal__metric-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.55rem;
+  }
+
+  .analysis-modal__metric-head span {
+    display: block;
+    color: rgba(195, 178, 228, 0.72);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .analysis-modal__metric-head small {
+    display: block;
+    margin-top: 0.12rem;
+    color: rgba(195, 178, 228, 0.48);
+    font-size: 0.66rem;
+    line-height: 1.25;
+  }
+
+  .analysis-modal__metric-head strong {
+    flex-shrink: 0;
+    color: rgba(240, 235, 255, 0.9);
+    font-size: 0.82rem;
+  }
+
+  .analysis-modal__track {
+    height: 0.44rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .analysis-modal__fill {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #5adb94, #0ba18c);
+  }
+
+  .analysis-modal__fill--teal {
+    background: linear-gradient(90deg, #0ba18c, #368986);
+  }
+
+  .analysis-modal__fill--magenta {
+    background: linear-gradient(90deg, #8a034d, #e8448a);
+  }
 </style>
 </head>
-<body>
-  <div class="modal" id="theModal">
-    <div class="modal-header" id="mHeader">
-      <div>
-        <div class="modal-title">Análise Detalhada · Ana & Bruno</div>
-        <div class="modal-sub">24 mensagens analisadas · Calculado em 25 mai. 2025 às 10:29</div>
-      </div>
-      <div class="close-btn">✕</div>
+<body class="pitch-page pitch-chat-page analysis-page">
+  <div class="analysis-backdrop" aria-hidden="true">
+    <div class="pitch-chat-shell">
+      <aside class="chat-page__sidebar">
+        <div class="chat-page__sidebar-head">
+          <div class="chat-page__title-row">
+            <span class="chat-page__title-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+            </span>
+            <h2 class="chat-page__sidebar-title">Conversas</h2>
+          </div>
+          <button class="chat-page__add-btn">+</button>
+        </div>
+        <div class="chat-page__search-field">
+          <span class="chat-page__search-icon">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+          </span>
+          <input class="chat-page__search" placeholder="Buscar conversas..." readonly>
+        </div>
+        <div class="chat-page__list">
+          <button type="button" class="chat-page__conv chat-page__conv--active">
+            <div class="chat-page__av-wrap"><span class="chat-page__mini-av av1">A</span><span class="chat-page__online-dot"></span></div>
+            <div class="chat-page__conv-body">
+              <div class="chat-page__conv-row1"><span class="chat-page__conv-name">Ana</span><span class="chat-page__conv-time">10:29</span></div>
+              <p class="chat-page__conv-preview">Otimo, vou revisar isso!</p>
+              <span class="chat-page__score-pill chat-page__score-pill--high">87%</span>
+            </div>
+          </button>
+        </div>
+      </aside>
+      <section class="chat-view">
+        <header class="chat-view__header">
+          <div class="chat-view__left">
+            <button class="chat-view__back"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="chat-view__av-wrap"><span class="chat-view__head-av av1">A</span><span class="chat-view__online-dot"></span></div>
+            <div class="chat-view__participants"><strong>Ana</strong><small>24 mensagens · online</small></div>
+          </div>
+          <div class="chat-view__header-right">
+            <span class="chat-view__score-badge chat-view__score-badge--high">87%</span>
+            <button type="button" class="chat-view__analyze">Analisar</button>
+          </div>
+        </header>
+        <div class="chat-view__messages">
+          <div class="chat-view__messages-body">
+            <div class="chat-view__row"><div class="chat-view__avatar av1">A</div><div class="chat-view__bubble chat-view__bubble--recv"><p>Oi Bruno! Conseguiste revisar o documento que enviei ontem?</p><small>10:23</small></div></div>
+            <div class="chat-view__row chat-view__row--right"><div class="chat-view__bubble chat-view__bubble--sent"><p>Sim! Li tudo com cuidado. Concordo que ficou bem organizado.</p><small>10:25</small></div></div>
+            <div class="chat-view__row"><div class="chat-view__avatar av1">A</div><div class="chat-view__bubble chat-view__bubble--recv"><p>Otimo, vou revisar isso! Obrigada pelo retorno.</p><small>10:29</small></div></div>
+          </div>
+        </div>
+        <footer class="chat-view__footer"><div class="chat-view__footer-body"><div class="chat-view__input-row"><button class="chat-view__attach"><svg viewBox="0 0 24 24"><path d="m21.4 11.6-8.7 8.7a6 6 0 0 1-8.5-8.5l9.1-9.1a4 4 0 0 1 5.7 5.7l-9.1 9.1a2 2 0 0 1-2.8-2.8l8.7-8.7"/></svg></button><input class="chat-view__input" placeholder="Escrever uma mensagem..." readonly><button class="chat-view__send"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></button></div></div></footer>
+      </section>
     </div>
-    <div class="modal-body">
-      <div class="col-left" id="colLeft">
-        <div class="score-ring">
-          <svg width="120" height="120" viewBox="0 0 100 100">
-            <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5adb94"/><stop offset="100%" stop-color="#0ba18c"/></linearGradient></defs>
-            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(90,219,148,0.12)" stroke-width="10"/>
-            <circle id="mainArc" cx="50" cy="50" r="42" fill="none" stroke="url(#g1)" stroke-width="10" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" transform="rotate(-90 50 50)"/>
-            <text x="50" y="46" text-anchor="middle" font-size="24" font-weight="800" fill="rgba(255,255,255,0.93)" font-family="system-ui" id="mainScore">0</text>
-            <text x="50" y="60" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.4)" font-family="system-ui">de 100</text>
-          </svg>
-          <div class="classification" id="classLabel" style="opacity:0">✦ HIGH</div>
-          <div class="score-date">Análise #3 · há 2 minutos</div>
+  </div>
+
+  <div class="analysis-mask" aria-hidden="true"></div>
+
+  <div class="modal analysis-modal" id="theModal" role="dialog" aria-modal="true" aria-labelledby="analysisTitle">
+    <div class="analysis-modal__header" id="mHeader">
+      <div class="analysis-modal__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-7"/></svg>
+      </div>
+      <div class="analysis-modal__title" id="analysisTitle">
+        <span>Analise da conversa</span>
+        <strong>87% · Alta</strong>
+      </div>
+      <span class="analysis-modal__status">Alta</span>
+      <div class="analysis-modal__close">x</div>
+    </div>
+
+    <div class="analysis-modal__body">
+      <div class="analysis-modal__hero">
+        <div class="analysis-modal__score-card" id="colLeft">
+          <div class="score-ring">
+            <svg viewBox="0 0 100 100">
+              <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5adb94"/><stop offset="100%" stop-color="#0ba18c"/></linearGradient></defs>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+              <circle id="mainArc" cx="50" cy="50" r="42" fill="none" stroke="url(#g1)" stroke-width="10" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            </svg>
+            <div class="score-ring__core">
+              <div class="score-ring__value" id="mainScore">0</div>
+              <div class="score-ring__label">% score</div>
+            </div>
+            <div class="classification" id="classLabel" style="opacity:0">HIGH</div>
+            <div class="score-date">24 mensagens · agora</div>
+          </div>
         </div>
-        <div class="weights">
-          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:2px;">Pesos</div>
-          <div class="weight-item"><div class="weight-dot w-green"></div><div class="weight-label">Estilo Linguístico</div><div class="weight-pct">40%</div></div>
-          <div class="weight-item"><div class="weight-dot w-teal"></div><div class="weight-label">Sentimentos</div><div class="weight-pct">35%</div></div>
-          <div class="weight-item"><div class="weight-dot w-magenta"></div><div class="weight-label">Comportamento</div><div class="weight-pct">25%</div></div>
+
+        <div class="analysis-modal__summary-card">
+          <span class="analysis-modal__eyebrow">Resumo</span>
+          <div class="analysis-modal__summary">
+            <p>
+              Alta compatibilidade.
+            </p>
+            A conversa mostra estilo linguistico alinhado, tom positivo e uma dinamica equilibrada entre os participantes.
+          </div>
+          
         </div>
       </div>
-      <div class="col-right">
-        <div class="metric-card" id="mc1">
-          <div class="metric-header">
-            <div class="metric-name"><span class="metric-icon">🔤</span>Language Style Matching (LSM)</div>
-            <div class="metric-score ms-green">91 / 100</div>
+
+      <div class="analysis-modal__metrics">
+        <div class="analysis-modal__metric" id="mc1">
+          <div class="analysis-modal__metric-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2"/><path d="M8 7h7"/><path d="M8 11h6"/></svg></div>
+          <div class="analysis-modal__metric-head">
+            <div><span>LSM</span><small>Estilo linguistico</small></div>
+            <strong>91%</strong>
           </div>
-          <div class="metric-bar"><div class="metric-bar-fill mbf-green" data-w="91"></div></div>
-          <div class="metric-explanation"><strong>Alta similaridade de estilo.</strong> Pronomes pessoais e conectivos em proporções muito próximas — espelhamento natural do estilo comunicativo.</div>
-          <div class="sub-metrics">
-            <div class="sub-metric"><div class="sub-dot"></div>Pronomes: 94%</div>
-            <div class="sub-metric"><div class="sub-dot"></div>Artigos: 89%</div>
-            <div class="sub-metric"><div class="sub-dot"></div>Conectivos: 91%</div>
-          </div>
+          <div class="analysis-modal__track"><span class="analysis-modal__fill" data-w="91"></span></div>
         </div>
-        <div class="metric-card" id="mc2">
-          <div class="metric-header">
-            <div class="metric-name"><span class="metric-icon">💛</span>Convergência de Sentimentos</div>
-            <div class="metric-score ms-teal">84 / 100</div>
+        <div class="analysis-modal__metric" id="mc2">
+          <div class="analysis-modal__metric-icon"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8"/></svg></div>
+          <div class="analysis-modal__metric-head">
+            <div><span>Sentimento</span><small>Convergencia emocional</small></div>
+            <strong>84%</strong>
           </div>
-          <div class="metric-bar"><div class="metric-bar-fill mbf-teal" data-w="84"></div></div>
-          <div class="metric-explanation"><strong>Boa convergência emocional.</strong> Tom <strong>positivo e construtivo</strong> ao longo da conversa, sem polarizações opostas. Polaridade média: +0.72.</div>
+          <div class="analysis-modal__track"><span class="analysis-modal__fill analysis-modal__fill--teal" data-w="84"></span></div>
         </div>
-        <div class="metric-card" id="mc3">
-          <div class="metric-header">
-            <div class="metric-name"><span class="metric-icon">🔄</span>Sinais Comportamentais</div>
-            <div class="metric-score ms-magenta">78 / 100</div>
+        <div class="analysis-modal__metric" id="mc3">
+          <div class="analysis-modal__metric-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="analysis-modal__metric-head">
+            <div><span>Comportamento</span><small>Sinais de ritmo e equilibrio</small></div>
+            <strong>78%</strong>
           </div>
-          <div class="metric-bar"><div class="metric-bar-fill mbf-magenta" data-w="78"></div></div>
-          <div class="metric-explanation"><strong>Boa dinâmica conversacional.</strong> Ana: 52%, Bruno: 48%. Tempo médio de resposta: <strong>2 minutos</strong>.</div>
-          <div class="sub-metrics">
-            <div class="sub-metric"><div class="sub-dot"></div>Equilíbrio: 96%</div>
-            <div class="sub-metric"><div class="sub-dot"></div>Reciprocidade: 81%</div>
-            <div class="sub-metric"><div class="sub-dot"></div>Fluidez: 74%</div>
-          </div>
+          <div class="analysis-modal__track"><span class="analysis-modal__fill analysis-modal__fill--magenta" data-w="78"></span></div>
         </div>
       </div>
     </div>
@@ -114,55 +464,68 @@
 
   <script>
   window.PITCH = {
-    duration: 30, next: 'pagina-5.html', prev: 'pagina-3.html', page: 4, total: 9,
+    duration: 30, next: 'pagina-5.html', prev: 'pagina-3.html', page: 4, total: 7,
 
     init(gsap) {
-      gsap.set('#theModal', { autoAlpha: 0, scale: 0.92, y: 20 });
+      gsap.set('#theModal', { autoAlpha: 0, scale: 0.92, xPercent: -50, yPercent: -50, y: 20 });
       gsap.set('#colLeft', { autoAlpha: 0, x: -30 });
       gsap.set(['#mc1','#mc2','#mc3'], { autoAlpha: 0, x: 40 });
     },
 
     steps: [
       {
-        subtitle: 'Ao abrir a análise completa, você vê exatamente o que gerou aquele número.',
+        subtitle: 'Ao abrir a analise completa, o modal aparece sobre a propria conversa.',
+        focus: ['#theModal', '#colLeft'],
         animate(gsap) {
-          gsap.to('#theModal', { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.3)' });
+          gsap.to('#theModal', { autoAlpha: 1, scale: 1, xPercent: -50, yPercent: -50, y: 0, duration: 0.7, ease: 'back.out(1.3)' });
           gsap.to('#colLeft', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.2 });
         }
       },
       {
-        subtitle: 'Score <strong>87 de 100</strong>. Classificação <strong>HIGH</strong>. Pesos: LSM 40%, Sentimentos 35%, Comportamento 25%.',
+        subtitle: 'Score <strong>87%</strong>. Classificacao <strong>Alta</strong>. O resumo explica o resultado em linguagem natural.',
+        focus: ['#mainScore', '#classLabel', '#mainArc'],
         animate(gsap) {
           const arc = document.getElementById('mainArc');
           const scoreEl = document.getElementById('mainScore');
           const clsEl = document.getElementById('classLabel');
           const obj = { v: 264, s: 0 };
+          let lastScore = -1;
           gsap.to(obj, {
             v: 264 - (87/100*235), s: 87, duration: 1.5, ease: 'power2.out',
-            onUpdate() { arc.setAttribute('stroke-dashoffset', obj.v); scoreEl.textContent = Math.round(obj.s); },
+            onUpdate() {
+              arc.setAttribute('stroke-dashoffset', obj.v);
+              const rounded = Math.round(obj.s);
+              if (rounded !== lastScore) {
+                scoreEl.textContent = rounded;
+                lastScore = rounded;
+              }
+            },
             onComplete() { gsap.to(clsEl, { opacity: 1, duration: 0.4 }); }
           });
         }
       },
       {
-        subtitle: 'LSM: <strong>91</strong>. Pronomes 94%, artigos 89%, conectivos 91% — espelhamento natural do estilo linguístico.',
+        subtitle: 'LSM: <strong>91%</strong>. O estilo linguistico dos participantes aparece muito alinhado.',
+        focus: '#mc1',
         animate(gsap) {
           gsap.to('#mc1', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power2.out' });
-          gsap.to(document.querySelector('#mc1 .metric-bar-fill'), { width: '91%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
+          gsap.to(document.querySelector('#mc1 .analysis-modal__fill'), { width: '91%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
         }
       },
       {
-        subtitle: 'Sentimentos: <strong>84</strong>. Tom positivo e construtivo dos dois lados. Polaridade média: <strong>+0.72</strong>.',
+        subtitle: 'Sentimento: <strong>84%</strong>. O tom se mantem positivo e construtivo nos dois lados.',
+        focus: '#mc2',
         animate(gsap) {
           gsap.to('#mc2', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power2.out' });
-          gsap.to(document.querySelector('#mc2 .metric-bar-fill'), { width: '84%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
+          gsap.to(document.querySelector('#mc2 .analysis-modal__fill'), { width: '84%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
         }
       },
       {
-        subtitle: 'Comportamento: <strong>78</strong>. Equilíbrio de turnos 96%, reciprocidade 81%. Tempo médio de resposta: 2 minutos.',
+        subtitle: 'Comportamento: <strong>78%</strong>. Ha bom equilibrio de turnos, reciprocidade e fluidez.',
+        focus: '#mc3',
         animate(gsap) {
           gsap.to('#mc3', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'power2.out' });
-          gsap.to(document.querySelector('#mc3 .metric-bar-fill'), { width: '78%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
+          gsap.to(document.querySelector('#mc3 .analysis-modal__fill'), { width: '78%', duration: 0.9, ease: 'power2.out', delay: 0.2 });
         }
       },
     ]

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -38,8 +38,9 @@
   .score-context strong { color: #5adb94; font-size: 12px; display: block; }
   .triple-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; width: 100%; }
 </style>
+<link rel="stylesheet" href="pitch-theme.css">
 </head>
-<body>
+<body class="pitch-page">
   <div class="container">
     <div class="title-section" id="titleSec">
       <div class="section-label">como funciona</div>
@@ -120,7 +121,7 @@
 
   <script>
   window.PITCH = {
-    duration: 25, next: 'pagina-7.html', prev: 'pagina-5.html', page: 6, total: 9,
+    duration: 25, next: 'pagina-7.html', prev: 'pagina-5.html', page: 6, total: 7,
 
     init(gsap) {
       gsap.set('#titleSec', { autoAlpha: 0, y: -30 });
@@ -132,12 +133,14 @@
     steps: [
       {
         subtitle: 'Por trás de tudo isso está um <strong>motor de IA</strong> construído do zero em Python.',
+        focus: '#titleSec',
         animate(gsap) {
           gsap.to('#titleSec', { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' });
         }
       },
       {
         subtitle: 'O texto dos dois participantes entra via <strong>API Flask</strong> e é persistido no PostgreSQL.',
+        focus: ['#step1', '#arr1'],
         animate(gsap) {
           gsap.to('#step1', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
           gsap.to('#arr1',  { autoAlpha: 1, duration: 0.3, delay: 0.4 });
@@ -145,6 +148,7 @@
       },
       {
         subtitle: 'Passa pelo <strong>pré-processamento</strong> em português: normalização, tokenização e extração de palavras-função.',
+        focus: ['#step2', '#arr2'],
         animate(gsap) {
           gsap.to('#step2', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
           gsap.to('#arr2',  { autoAlpha: 1, duration: 0.3, delay: 0.4 });
@@ -152,6 +156,7 @@
       },
       {
         subtitle: 'Analisado em <strong>paralelo</strong> pelos três módulos: LSM, Sentimentos (HuggingFace Transformers) e Comportamento.',
+        focus: ['#step3', '#arr3'],
         animate(gsap) {
           gsap.to('#step3', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'back.out(1.2)' });
           gsap.to('#arr3',  { autoAlpha: 1, duration: 0.3, delay: 0.5 });
@@ -159,6 +164,7 @@
       },
       {
         subtitle: 'Agregado com <strong>pesos heurísticos</strong> e explicação gerada automaticamente em linguagem natural.',
+        focus: ['#step4', '#arr4', '#step5'],
         animate(gsap) {
           gsap.to('#step4', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' });
           gsap.to('#arr4',  { autoAlpha: 1, duration: 0.3, delay: 0.4 });
@@ -167,6 +173,7 @@
       },
       {
         subtitle: 'De texto bruto a score explicável em <strong>menos de 3 segundos</strong>. Modular e extensível para novos modelos.',
+        focus: '#flowLabels',
         animate(gsap) {
           gsap.to('#flowLabels', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
           const el = document.getElementById('scoreDisplay');
