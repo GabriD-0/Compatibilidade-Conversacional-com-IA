@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: production
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SSH_PORT: "22"
+      CORS_ORIGINS: https://${APP_DOMAIN}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      SENTIMENT_MODEL_NAME: ${SENTIMENT_MODEL_NAME}
+      SENTIMENT_MODEL_DEVICE: ${SENTIMENT_MODEL_DEVICE}
+      SENTIMENT_BATCH_SIZE: ${SENTIMENT_BATCH_SIZE}
+      SENTIMENT_MAX_LENGTH: ${SENTIMENT_MAX_LENGTH}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=app_network
+      - "traefik.http.routers.compatia-api.rule=Host(`${APP_DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/wsocket`))"
+      - traefik.http.routers.compatia-api.priority=100
+      - traefik.http.routers.compatia-api.entrypoints=websecure
+      - traefik.http.routers.compatia-api.tls=true
+      - traefik.http.routers.compatia-api.tls.certresolver=le
+      - traefik.http.services.compatia-api.loadbalancer.server.port=5000
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: https://${APP_DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=app_network
+      - "traefik.http.routers.compatia-frontend.rule=Host(`${APP_DOMAIN}`)"
+      - traefik.http.routers.compatia-frontend.priority=1
+      - traefik.http.routers.compatia-frontend.entrypoints=websecure
+      - traefik.http.routers.compatia-frontend.tls=true
+      - traefik.http.routers.compatia-frontend.tls.certresolver=le
+      - traefik.http.services.compatia-frontend.loadbalancer.server.port=80
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    external: true

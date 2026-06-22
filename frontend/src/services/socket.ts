@@ -9,6 +9,7 @@ function getSocket(): Socket {
   if (!socket) {
     socket = io(import.meta.env.VITE_API_BASE_URL as string, {
       autoConnect: false,
+      path: '/wsocket',
       transports: ['websocket'],
     })
   }

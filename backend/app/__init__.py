@@ -54,6 +54,7 @@ def create_app(config_name: str | None) -> Flask:
     socketio.init_app(
         flask_app,
         cors_allowed_origins=origins,
+        path="wsocket",
         async_mode="threading",
         logger=False,
         engineio_logger=False,
