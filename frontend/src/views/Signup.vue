@@ -23,6 +23,7 @@ const emailError = ref('')
 const passwordError = ref('')
 const confirmPasswordError = ref('')
 const generalError = ref('')
+const consentAccepted = ref(false)
 
 async function handleSubmit() {
   nameError.value = ''
@@ -36,10 +37,15 @@ async function handleSubmit() {
     return
   }
 
+  if (!consentAccepted.value) {
+    generalError.value = 'Leia e aceite o termo de consentimento para criar sua conta.'
+    return
+  }
+
   isLoading.value = true
 
   try {
-    await authStore.register(name.value, email.value, password.value)
+    await authStore.register(name.value, email.value, password.value, consentAccepted.value)
     router.push('/home')
   } catch (err: unknown) {
     if (isAxiosError(err)) {
@@ -148,6 +154,16 @@ async function handleSubmit() {
           </div>
           <p v-if="confirmPasswordError" class="text-xs text-red-500">{{ confirmPasswordError }}</p>
         </div>
+        <label class="consent-check">
+          <input v-model="consentAccepted" type="checkbox" />
+          <span>
+            Li e concordo com o
+            <a href="/documents/termo-de-consentimento.pdf" target="_blank" rel="noopener" download>
+              Termo de Consentimento
+            </a>
+            para uso acadêmico do projeto.
+          </span>
+        </label>
         <button type="submit" class="btn-primary mt-1" :disabled="isLoading">
           {{ isLoading ? 'Cadastrando...' : 'Cadastrar' }}
         </button>

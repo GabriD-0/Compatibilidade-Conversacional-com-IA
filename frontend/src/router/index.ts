@@ -15,6 +15,7 @@ const router = createRouter({
         { path: 'home', name: 'Home', component: () => import('../views/Home.vue'), meta: { title: 'Início', requiresAuth: true } },
         { path: 'chat', name: 'Chat', component: () => import('../views/Chat.vue'), meta: { title: 'Chat', requiresAuth: true } },
         { path: 'dashboard', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: 'Dashboard', requiresAuth: true } },
+        { path: 'settings', name: 'Settings', component: () => import('../views/Settings.vue'), meta: { title: 'Configurações', requiresAuth: true } },
       ],
     },
   ],

@@ -100,6 +100,25 @@
   text-decoration: underline;
 }
 
+.consent-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.consent-check input {
+  margin-top: 0.2rem;
+  accent-color: var(--color-primary);
+}
+
+.consent-check a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
 /* Modo claro */
 @media (prefers-color-scheme: light) {
   .login-page {

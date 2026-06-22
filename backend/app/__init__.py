@@ -3,7 +3,7 @@ import importlib
 from flask import Flask
 from app.config import build_sqlalchemy_uri, config_by_name
 from app.db_tunnel import start_ssh_tunnel
-from app.errors.handlers import register_error_handlers, register_jwt_handlers
+from app.errors.handlers import register_error_handlers, register_jwt_handlers, register_jwt_user_lookup
 from app.extensions import cors, db, jwt, limiter, migrate, socketio
 from app.routes.auth import bp as auth_bp
 from app.routes.conversations import bp as conversations_bp
@@ -67,6 +67,7 @@ def create_app(config_name: str | None) -> Flask:
     flask_app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
 
     importlib.import_module("app.models")
+    register_jwt_user_lookup(jwt)
 
     register_handlers(socketio)
 

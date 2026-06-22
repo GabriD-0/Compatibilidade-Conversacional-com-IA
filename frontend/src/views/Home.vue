@@ -183,7 +183,7 @@ function goToChat() {
       </Card>
 
       <footer class="home-footer">
-        <span>© 2025 ConversaIA — Gabriel de Oliveira</span>
+        <span>© 2026 ConversaIA — Gabriel de Oliveira</span>
         <span>Engenharia de Software • Compatibilidade Conversacional com IA</span>
       </footer>
     </div>

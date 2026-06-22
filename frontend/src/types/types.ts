@@ -11,6 +11,7 @@ export interface AuthUser {
   id: number
   email: string
   name: string
+  consent_accepted_at: string | null
 }
 
 export interface AuthResponse {
@@ -23,11 +24,22 @@ export interface RefreshResponse {
   access_token: string
 }
 
+export interface UpdateProfilePayload {
+  name?: string
+  email?: string
+  current_password?: string
+  new_password?: string
+}
+
 // ---- Conversation domain ----
 
 export interface ConversationParticipant {
   id: number
   name: string
+}
+
+export interface ParticipantsResponse {
+  participants: ConversationParticipant[]
 }
 
 export interface Conversation {

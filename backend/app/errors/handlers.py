@@ -1,6 +1,8 @@
 from flask import jsonify
 from flask_jwt_extended import JWTManager
 from app.errors import ApiError
+from app.extensions import db
+from app.models import Login
 
 def register_jwt_handlers(jwt: JWTManager) -> None:
     @jwt.unauthorized_loader
@@ -73,6 +75,27 @@ def register_jwt_handlers(jwt: JWTManager) -> None:
             401,
         )
 
+def register_jwt_user_lookup(jwt: JWTManager) -> None:
+    @jwt.user_lookup_loader
+    def load_current_user(_jwt_header, jwt_data):
+        try:
+            return db.session.get(Login, int(jwt_data["sub"]))
+        except (KeyError, TypeError, ValueError):
+            return None
+
+    @jwt.user_lookup_error_loader
+    def user_lookup_error(_jwt_header, _jwt_payload):
+        return (
+            jsonify(
+                {
+                    "error": {
+                        "code": "user_not_found",
+                        "message": "A conta associada a este token nao existe mais.",
+                    }
+                }
+            ),
+            401,
+        )
 
 def register_error_handlers(app):
     @app.errorhandler(ApiError)

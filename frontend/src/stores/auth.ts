@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { api } from '../services/api'
-import type { AuthUser, AuthResponse } from '../types/types'
+import { api, authApi } from '../services/api'
+import type { AuthUser, AuthResponse, UpdateProfilePayload } from '../types/types'
 import { connectSocket, disconnectSocket } from '../services/socket'
 
 const ACCESS_KEY = 'access_token'
@@ -20,9 +20,25 @@ export const useAuthStore = defineStore('auth', () => {
     persist(data)
   }
 
-  async function register(name: string, email: string, password: string): Promise<void> {
-    const { data } = await api.post<AuthResponse>('/api/auth/register', { name, email, password })
+  async function register(name: string, email: string, password: string, consentAccepted: boolean): Promise<void> {
+    const { data } = await api.post<AuthResponse>('/api/auth/register', {
+      name,
+      email,
+      password,
+      consent_accepted: consentAccepted,
+    })
     persist(data)
+  }
+
+  async function updateProfile(payload: UpdateProfilePayload): Promise<void> {
+    const updatedUser = await authApi.updateProfile(payload)
+    user.value = updatedUser
+    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
+  }
+
+  async function deleteAccount(password: string): Promise<void> {
+    await authApi.deleteAccount(password)
+    logout()
   }
 
   function logout(): void {
@@ -45,5 +61,15 @@ export const useAuthStore = defineStore('auth', () => {
     connectSocket()
   }
 
-  return { user, accessToken, refreshToken, isAuthenticated, login, register, logout }
+  return {
+    user,
+    accessToken,
+    refreshToken,
+    isAuthenticated,
+    login,
+    register,
+    updateProfile,
+    deleteAccount,
+    logout,
+  }
 })

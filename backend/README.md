@@ -62,9 +62,9 @@ cd backend
 
 4. Suba o servidor de desenvolvimento:
 
-   ```bash
-   python run.py
-   ```
+```bash
+python run.py
+```
 
    Por padrão a API fica em `http://127.0.0.1:5000`.
 

@@ -4,11 +4,11 @@
 - **Título do Projeto**: Compatibilidade Conversacional com IA
 - **Nome do Estudante**: Gabriel de Oliveira
 - **Curso**: Engenharia de Software
-- **Data de Entrega**: 02/12/2025
+- **Data da Proposta**: 23/06/2026
 
 ## Resumo
 
-Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial para estimar um **índice de compatibilidade conversacional** entre duas pessoas a partir de suas interações textuais. A solução visa aprimorar a colaboração, o engajamento e a satisfação em cenários como atendimento ao cliente, equipes de projeto, duplas de estudo e relacionamentos pessoais, partindo da premissa de que a harmonia comunicativa pode ser inferida diretamente do diálogo. O sistema analisa conversas e gera uma pontuação unificada que reflete a sintonia entre os participantes, combinando três dimensões principais: similaridade de estilo linguístico (Language Style Matching — LSM), convergência de sentimentos e sinais comportamentais (como latência de resposta e equilíbrio de turnos), que são consolidadas por uma camada de agregação em um score final. A solução será disponibilizada via API REST, com armazenamento em banco de dados relacional e um protótipo contendo interface de chat e dashboard para visualização dos resultados e dos fatores que influenciaram a pontuação, garantindo transparência e aderência à LGPD.
+Este projeto desenvolve um sistema de Inteligência Artificial para estimar um **índice de compatibilidade conversacional** entre duas pessoas a partir de interações textuais. A solução visa aprimorar a colaboração, o engajamento e a satisfação em cenários como atendimento ao cliente, equipes de projeto, duplas de estudo e relacionamentos pessoais, partindo da premissa de que a harmonia comunicativa pode ser inferida diretamente do diálogo. O sistema analisa conversas e gera uma pontuação unificada que reflete a sintonia entre os participantes, combinando três dimensões principais: similaridade de estilo linguístico (Language Style Matching — LSM), convergência de sentimentos e sinais comportamentais, com uma explicação dos fatores calculados. O protótipo possui API REST autenticada para contas, conversas, análises e dashboard; o envio de mensagens do chat ocorre em tempo real por WebSocket/Socket.IO. As conversas, mensagens e análises são persistidas em PostgreSQL.
 
 ## 1. Introdução
 
@@ -22,11 +22,11 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
   - **Objetivo Geral**: Desenvolver um sistema de IA capaz de analisar conversas textuais entre duas pessoas e estimar um **score de compatibilidade conversacional**, refletindo sintonia de estilo, alinhamento emocional e dinâmica de interação.
   - **Objetivos Específicos**:
     - Implementar um módulo de **similaridade de estilo linguístico (LSM)** em português, baseado na comparação do uso de palavras-função entre os participantes.
-    - Integrar um componente de **análise de sentimentos em PT-BR**, estimando polaridade e intensidade por mensagem e avaliando a convergência emocional ao longo do diálogo.
+    - Integrar um componente de **análise de sentimentos para conversas em português**, estimando polaridade e intensidade por mensagem e avaliando a convergência emocional ao longo do diálogo.
     - Extrair e consolidar **sinais comportamentais**, como tempo médio de resposta, equilíbrio de turnos de fala e comprimento médio das mensagens.
-    - Definir e testar estratégias de **agregação de métricas em um único score** através de abordagem heurística, combinando LSM, análise de sentimentos e sinais comportamentais.
+    - Definir e testar uma **agregação heurística de métricas em um único score**, combinando LSM, análise de sentimentos e sinais comportamentais.
     - Disponibilizar uma **API REST** para consumo do serviço e um **protótipo de interface** (chat e dashboard) para visualização dos scores e de explicações associadas.
-    - Garantir **conformidade com a LGPD**, incluindo mecanismos de consentimento, anonimização, minimização de dados e direito de exclusão.
+    - Oferecer **consentimento de cadastro, atualização de conta e exclusão de dados da conta**.
 
 ## 2. Descrição do Projeto
 
@@ -38,11 +38,11 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
 
 - **Propósito e Uso Prático**
   O projeto busca resolver o problema de pareamento ineficiente e de conflitos de comunicação em contextos que dependem fortemente de interação textual. Na prática, o sistema será utilizado através de uma **interface web** que permite aos usuários:
-  - **Inserir e visualizar conversas**: através de uma interface de chat, os usuários poderão inserir diálogos textuais entre duas pessoas, visualizando as mensagens organizadas por participante e timestamp;
-  - **Obter análise de compatibilidade**: após o envio de um diálogo, o sistema processa as mensagens e retorna um score de compatibilidade conversacional, acompanhado de explicações sobre os principais fatores que influenciaram a pontuação (alinhamento de estilo linguístico, convergência emocional, equilíbrio de participação);
-  - **Visualizar métricas e insights**: através de um dashboard, os usuários poderão visualizar distribuições de scores, comparar diferentes pares de participantes, identificar padrões de compatibilidade e acessar análises detalhadas sobre as métricas calculadas;
-  - **Integrar via API**: sistemas externos poderão consumir o serviço através de uma API REST, permitindo integração com plataformas de atendimento, sistemas de gestão de equipes ou outras aplicações que necessitem de análise de compatibilidade conversacional.
-  
+  - **Criar e visualizar conversas**: o usuário inicia uma conversa com um participante aleatório ou selecionado, entra na sala em tempo real e visualiza mensagens organizadas por participante e timestamp gerado pelo servidor;
+  - **Obter análise de compatibilidade**: após o envio de um diálogo, o sistema processa as mensagens e retorna um score de compatibilidade conversacional, acompanhado de explicações sobre os principais fatores que influenciaram a pontuação; a análise também pode ser solicitada manualmente;
+  - **Visualizar métricas e insights**: o dashboard mostra métricas agregadas, distribuição de scores, pares com maior score, tendências e gráficos das dimensões; o detalhe explicável de um par é aberto no chat daquela conversa;
+  - **Administrar a conta**: o usuário autenticado atualiza nome, e-mail e senha, ou exclui permanentemente a própria conta após confirmar a senha atual.
+
   O sistema resolve o problema ao fornecer uma avaliação objetiva e explicável da compatibilidade comunicativa, permitindo que gestores, líderes e usuários tomem decisões informadas sobre pareamento, formação de equipes e estratégias de comunicação.
 
 - **Público-Alvo**
@@ -65,14 +65,14 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
   - Arquitetura pensada para **API-first**, facilitando integração com outros sistemas e plataformas;
 
 - **Limitações**
-  - O sistema será focado em **conversas textuais em português (PT-BR)**, não cobrindo áudio, vídeo, imagens, figurinhas ou outros idiomas na versão inicial;
+  - O sistema recebe apenas **mensagens textuais**. O LSM usa vocabulário em português e o modelo de sentimentos é multilíngue; não há detector nem bloqueio de idioma. A versão atual não cobre áudio, vídeo, imagens ou figurinhas.
   - Não se propõe a avaliar **conteúdo temático** profundo (por exemplo, veracidade ou qualidade argumentativa), apenas padrões de estilo, sentimentos e dinâmica;
   - A qualidade do score dependerá da **quantidade e qualidade dos dados** disponíveis (número de mensagens, regularidade da conversa, ruídos de linguagem);
   - A versão inicial terá um **protótipo funcional**, não necessariamente otimizado para alta escala ou uso comercial imediato;
-  - A utilização de modelos supervisionados estará condicionada à disponibilidade de **conjunto de conversas rotuladas**, podendo, inicialmente, ficar restrita a uma abordagem heurística.
+  - O score utiliza somente uma abordagem **heurística**.
 
 - **Normas e Legislações Aplicáveis**
-  - **LGPD – Lei Geral de Proteção de Dados (Lei nº 13.709/2018)**: coleta apenas dos dados necessários, uso com consentimento, anonimização dos textos sempre que possível, mecanismos de exclusão de dados e transparência sobre finalidade do tratamento;
+  - **LGPD – Lei Geral de Proteção de Dados (Lei nº 13.709/2018)**: o protótipo registra a aceitação do termo de consentimento no cadastro e permite atualização e exclusão da conta.
   - **Normas e boas práticas de segurança da informação** (como ISO/IEC 27001 como referência conceitual);
   - **Diretrizes éticas em IA** (UNESCO, OECD AI Principles): foco em transparência, mitigação de vieses, não discriminação e respeito à privacidade;
   - **Boas práticas de acessibilidade digital** (por exemplo, WCAG) para o protótipo de interface, visando facilitar o uso por diferentes perfis de usuários.
@@ -98,8 +98,6 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
     - **Percepção de Justiça e Transparência**: registrar feedbacks sobre situações em que o score possa parecer injusto ou enviesado, usando esses relatos como insumo para ajustes futuros;
     - **Aspectos de Privacidade e LGPD**: verificar se os usuários compreendem as informações sobre uso de dados e se conseguem solicitar a remoção de dados conforme previsto. A ausência de incidentes de privacidade e o correto funcionamento do fluxo de exclusão de dados também compõem as métricas de sucesso.
 
-**Nota sobre evolução futura**: A eventual adoção de um modelo supervisionado treinado com conversas rotuladas é considerada como possibilidade de evolução futura do trabalho, caso haja disponibilidade de dados anotados em quantidade suficiente.
-
 ## 3. Especificação Técnica
 
   Esta seção apresenta a especificação técnica detalhada do sistema de compatibilidade conversacional, contemplando requisitos funcionais e não funcionais, arquitetura em camadas, stack tecnológica, considerações de segurança e conformidade com a LGPD, além da aderência aos critérios obrigatórios da linha de projeto "Projetos com IA".
@@ -107,31 +105,29 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
 ### 3.1. Requisitos de Software
 
 - **Requisitos Funcionais (RF)**
-  - **RF01**: O sistema deve receber, via API REST, diálogos textuais estruturados contendo mensagens, autor e timestamps.
+  - **RF01**: O sistema deve permitir que o usuário autenticado crie uma conversa por API REST e envie mensagens por WebSocket/Socket.IO. Cada mensagem contém a conversa e o conteúdo; o autor vem da sessão autenticada e o timestamp é gerado pelo servidor.
   - **RF02**: O sistema deve pré-processar os textos (normalização, tokenização, identificação de autor) considerando especificidades do português.
   - **RF03**: O sistema deve calcular um **índice de similaridade de estilo linguístico (LSM)** entre os participantes de cada diálogo.
-  - **RF04**: O sistema deve realizar **análise de sentimentos em PT-BR** para cada mensagem, agregando a informação em métricas por participante e por diálogo.
+  - **RF04**: O sistema deve realizar análise de sentimentos por mensagem e agregá-la por participante e conversa. O modelo configurado é `tabularisai/multilingual-sentiment-analysis`, executado pela biblioteca `transformers` 4.55.0; ele é multilíngue e não possui revisão/modelo exclusivo de PT-BR fixado no repositório.
   - **RF05**: O sistema deve extrair **sinais comportamentais**, como tempo médio de resposta, equilíbrio de turnos de fala e comprimento médio das mensagens.
   - **RF06**: O sistema deve combinar as métricas de estilo, sentimento e comportamento em um **score unificado de compatibilidade conversacional**.
   - **RF07**: O sistema deve fornecer, juntamente com o score, um **sumário explicável** destacando os principais fatores que influenciaram o resultado (por exemplo, alto alinhamento de estilo, convergência emocional positiva, equilíbrio de participação).
-  - **RF08**: O sistema deve implementar uma **estratégia heurística de agregação** para combinar as métricas (LSM, sentimentos, sinais comportamentais) em um score único. A arquitetura deve permitir futura integração de um modelo supervisionado simples (como Regressão Logística), caso sejam coletados dados rotulados suficientes.
-  - **RF09**: O sistema deve armazenar, em banco de dados PostgreSQL, as conversas (ou suas versões anonimizadas), os scores gerados e as principais métricas associadas, com versionamento dos cálculos.
-  - **RF10**: O protótipo deve disponibilizar uma **interface de chat** para inserção e visualização dos diálogos.
-  - **RF11**: O protótipo deve disponibilizar um **dashboard** com visualização de métricas agregadas (distribuição de scores, top-N matches, explicabilidade por par).
-  - **RF12**: O sistema deve oferecer mecanismos para **exclusão de dados** de um usuário mediante solicitação, de acordo com a LGPD.
+  - **RF08**: O sistema deve implementar uma **estratégia heurística de agregação** para combinar LSM, sentimentos e sinais comportamentais em um score único.
+  - **RF09**: O sistema deve armazenar em PostgreSQL os dados de conta, conversas, mensagens em texto integral, scores e métricas. Cada novo cálculo é mantido como um histórico de análise;
+  - **RF10**: O protótipo deve disponibilizar uma **interface de chat em tempo real** para criar conversas com participante aleatório ou selecionado, enviar mensagens e visualizar a análise daquele par.
+  - **RF11**: O protótipo deve disponibilizar um **dashboard** com métricas agregadas, distribuição de scores, pares com maior compatibilidade, séries e gráficos de LSM, sentimento e comportamento. A explicabilidade detalhada por par é acessada no modal de análise do chat da conversa correspondente.
+  - **RF12**: O sistema deve permitir que o usuário autenticado exclua a própria conta mediante confirmação da senha atual. A exclusão remove os registros associados pelas relações em cascata do banco de dados.
 
 - **Requisitos Não-Funcionais (RNF)**
   - **RNF01**: A API deve responder às requisições de cálculo de score em tempo adequado ao uso interativo.
-  - **RNF02**: A comunicação com a API deve ser protegida por HTTPS, e o acesso autenticado/autorizado.
+  - **RNF02**: O acesso aos recursos protegidos deve exigir JWT e o acesso autenticado/autorizado.
   - **RNF03**: A interface de chat e o dashboard devem seguir boas práticas de UX, com visual limpo, feedbacks claros e textos explicativos sobre o significado dos scores.
-  - **RNF04**: A arquitetura deve permitir futura horizontalização dos serviços de cálculo.
-  - **RNF05**: O sistema deve ser projetado para rodar em ambiente de desenvolvimento/local e também em contêiner, facilitando implantação em nuvem posteriormente.
-  - **RNF06**: O código deve ser modular, documentado e versionado em sistema de controle de versão.
-  - **RNF07**: O sistema deve registrar logs mínimos necessários para auditoria sem registrar dados sensíveis desnecessários.
-  - **RNF08**: Deve haver suporte à pseudonimização/anonimização dos participantes e, sempre que possível, armazenamento de representações derivadas do texto em vez do texto integral. O sistema deve implementar mecanismos de exclusão de dados conforme LGPD e garantir que dados pessoais sejam tratados apenas com consentimento explícito.
+  - **RNF04**: O código deve ser organizado em componentes Vue, rotas, serviços, módulos de domínio, modelos e migrações, e versionado em Git.
+  - **RNF05**: O sistema deve registrar apenas **logging operacional**: eventos de conexão de socket, persistência de mensagem, cálculo de análise, atualização de perfil, exclusão de conta e erros.
+  - **RNF06**: O cadastro deve exigir aceitação do termo de consentimento acadêmico; a aplicação deve registrar a data dessa aceitação e permitir atualização e exclusão da conta. Pseudonimização, anonimização, portabilidade e retenção automática não fazem parte da implementação atual.
 
 - **Representação dos Requisitos**
-  - **Diagrama de Casos de Uso (UML)**: representação visual dos principais casos de uso do sistema, contemplando os atores "Usuário da Interface", "Sistema Externo (consumidor da API)" e "Administrador do Sistema", além das interações principais;
+  - **Diagrama de Casos de Uso (UML)**: representação visual dos principais casos de uso do sistema, contemplando os atores "Usuário da Interface", "Sistema Externo (consumidor da API)".
 
   ![Diagrama de Casos de Uso - Sistema de Compatibilidade Conversacional com IA](images/diagrama_casos_uso.png)
 
@@ -142,23 +138,23 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
 - **Aderência aos Requisitos da Linha de Projeto (IA)**
   - Uso de **técnicas de IA** (análise de sentimentos através de modelos pré-treinados, LSM e agregação heurística);
   - Disponibilização de **API REST** para consumo do serviço de IA;
-  - Consideração explícita de **questões éticas, viés e privacidade** na concepção do sistema;
-  - Mecanismos básicos de **monitoramento de desempenho do modelo** (métricas, logs de erros).
+  - Consideração explícita de limitações de privacidade, idioma e viés na documentação;
+  - Logs operacionais de erro e eventos técnicos, sem alegação de monitoramento de qualidade do modelo.
 
 ### 3.2. Considerações de Design
 
 - **Visão Inicial da Arquitetura**
   A arquitetura proposta é baseada em **camadas**:
-  - Camada de **Apresentação**: aplicação web (frontend) com tela de chat e dashboard;
-  - Camada de **Serviços / API**: backend em Flask que expõe endpoints REST para envio de diálogos e recuperação de scores e métricas;
-  - Camada de **Motor de IA**: módulos responsáveis pelo pré-processamento, cálculo de LSM, análise de sentimentos, extração de sinais comportamentais e agregação em score;
-  - Camada de **Persistência**: banco de dados PostgreSQL para armazenamento de conversas, scores, métricas e logs.
-  A comunicação entre frontend e backend ocorre via HTTP/HTTPS, enquanto o backend acessa o banco de dados por meio de drivers específicos.
+  - Camada de **Apresentação**: SPA Vue 3/Composition API com telas de autenticação, início, chat, dashboard e configurações;
+  - Camada de **Serviços / API**: Flask expõe REST para autenticação, participantes, conversas, análises e dashboard; Socket.IO mantém o chat em tempo real;
+  - Camada de **Motor de IA**: módulos responsáveis por pré-processamento, LSM, sentimentos, sinais comportamentais, agregação heurística e explicabilidade;
+  - Camada de **Persistência**: PostgreSQL, acessado por SQLAlchemy, armazena contas, conversas, mensagens e históricos de análises.
+  O frontend usa HTTP para REST e WebSocket/Socket.IO para mensagens, digitação, leitura e atualização automática de análise.
 
 - **Padrões de Arquitetura**
   - Adoção de **Arquitetura em Camadas**, separando claramente apresentação, lógica de negócio e acesso a dados;
   - Estilo **API-first** para o backend, facilitando integração com clientes diversos;
-  - Uso de **React** no frontend, com divisão em componentes e hooks, seguindo padrões de organização de código e separação de responsabilidades.
+  - Uso de **Vue 3 com Composition API**, Pinia e Vue Router no frontend, com componentes e stores separados por responsabilidade.
 
 - **Modelos C4**
   Foram elaborados diagramas nos quatro níveis do **C4 Model** para representar a arquitetura do sistema em diferentes níveis de abstração:
@@ -190,14 +186,13 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
 - **Decisões e Alternativas Consideradas**
   - Uso de **Flask** pela simplicidade e aderência ao escopo do projeto, embora frameworks como FastAPI também tenham sido considerados;
   - Escolha de **PostgreSQL** por sua robustez, suporte a tipos de dados avançados e aderência a ambientes de produção;
-  - Definição de uma abordagem **heurística inicial** para o score, com possibilidade de evoluir para um modelo supervisionado caso dados rotulados estejam disponíveis;
+  - Definição de uma abordagem **heurística** para o score, única estratégia no escopo do projeto;
   - Opção por uma **aplicação web responsiva** em vez de aplicativo mobile nativo, visando reduzir complexidade inicial e facilitar testes em diferentes dispositivos.
 
 - **Critérios de Escalabilidade, Resiliência e Segurança**
-  - Uso de **contêineres** para empacotar o backend e facilitar a replicação de instâncias;
-  - Possibilidade de separar o **motor de IA** em um serviço independente, permitindo escalonamento específico para essa parte quando a carga aumentar;
-  - Implementação de **tratamento de erros** robusto, com mensagens claras para o usuário e logs estruturados para o desenvolvedor;
-  - Adoção de boas práticas de segurança.
+  - Uso de `docker-compose.yml` para empacotar frontend, backend e PostgreSQL no ambiente local;
+  - Tratamento de erros de API/JWT e feedback de erro no frontend;
+  - Logging operacional de eventos técnicos, sem alegação de auditoria persistente ou escalonamento horizontal.
 
 ### 3.3. Stack Tecnológica
 
@@ -206,16 +201,17 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
   - **JavaScript/TypeScript**: para o desenvolvimento do frontend web, incluindo chat e dashboard.
 
 - **Frameworks e Bibliotecas**
-  - **Flask** para a API REST;
-  - Bibliotecas de **processamento de linguagem natural** em português (bibliotecas específicas a serem definidas durante o desenvolvimento). Bibliotecas de machine learning poderão ser consideradas para evolução futura, caso seja implementado um modelo supervisionado;
-  - Framework de frontend (**Vue.js**) para construção da interface de chat e dashboard;
-  - Bibliotecas de visualização para gráficos no dashboard;
-  - **SQLAlchemy** para mapeamento objeto-relacional (ORM) com PostgreSQL.
+  - **Flask**, Flask-SQLAlchemy, Flask-Migrate, Flask-JWT-Extended, Flask-Limiter e Flask-SocketIO no backend;
+  - **Transformers 4.55.0** com o modelo `tabularisai/multilingual-sentiment-analysis`. A configuração local não fixa uma revisão do modelo e, por ser multilíngue, não é uma validação de qualidade exclusiva para PT-BR;
+  - **Vue 3.5**, Composition API, Pinia, Vue Router e PrimeVue no frontend;
+  - **Chart.js** e `vue-chartjs` para os gráficos do dashboard;
+  - **SQLAlchemy** para mapeamento objeto-relacional com PostgreSQL.
 
 - **Ferramentas de Desenvolvimento e Gestão**
   - **Git** e plataforma de repositório, GitHub, para versionamento de código;
   - Ambiente de desenvolvimento integrado, VS Code;
   - Ferramentas de documentação (Markdown, diagramas UML/C4);
+  - Docker Compose para subir frontend, backend e PostgreSQL localmente.
 
 - **Licenciamento**
   - O projeto utilizará licença **MIT**;
@@ -230,47 +226,37 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
   - Potenciais vieses nos modelos de IA que possam gerar scores injustos ou discriminatórios.
 
 - **Medidas de Mitigação**
-  - Uso de **criptografia em trânsito** (HTTPS/TLS) para todas as comunicações;
-  - Implementação de **controles de acesso** (autenticação e autorização) para endpoints sensíveis;
-  - **Minimização de dados**: coleta apenas do necessário para o cálculo das métricas e, sempre que possível, anonimização ou pseudonimização dos participantes;
-  - Definição de **políticas de retenção de dados**, com prazos claros para anonimização ou exclusão;
-  - Monitoramento básico de logs para detecção de acessos anômalos;
-  - Análise crítica dos modelos para identificar e assim mitigar vieses.
+  - Autenticação JWT, controle de acesso às conversas e confirmação de senha para alteração sensível e exclusão de conta;
+  - Validação de nome, e-mail, senha e conteúdo de mensagem; ORM para acesso ao banco;
+  - Consentimento acadêmico obrigatório no cadastro, com data de aceite persistida;
+  - Exclusão de conta e dados relacionados por relações em cascata;
+  - Logging operacional sem registrar o conteúdo de mensagens.
 
 - **Normas e Boas Práticas Seguidas**
   - **OWASP Top 10**: aplicação de diretrizes para prevenção de vulnerabilidades comuns em aplicações web, com foco especial em validação de entrada, proteção contra injeção SQL, gerenciamento seguro de sessões e configuração segura;
   - **ISO/IEC 27001**: adoção de princípios de gestão de segurança da informação, incluindo controle de acesso, criptografia de dados sensíveis e monitoramento de segurança;
-  - **LGPD (Lei nº 13.709/2018)**: conformidade com requisitos de proteção de dados pessoais, incluindo coleta com consentimento explícito, minimização de dados, anonimização quando possível, transparência sobre finalidade do tratamento e garantia dos direitos dos titulares (acesso, correção, exclusão);
+  - **LGPD (Lei nº 13.709/2018)**: conformidade com requisitos de proteção de dados pessoais, incluindo coleta com consentimento explícito (Implementação aceite de termo), atualização de conta e exclusão. Os demais mecanismos devem ser tratados como evolução, não como conformidade completa;
   - **Princípios de IA Responsável** (UNESCO e OECD): adoção de princípios de transparência (explicabilidade dos scores), justiça (mitigação de vieses), responsabilidade humana e privacidade;
   - **Boas práticas de desenvolvimento seguro**: implementação de validação rigorosa de entrada, sanitização de dados, uso de parâmetros preparados em consultas ao banco de dados e tratamento adequado de erros sem exposição de informações sensíveis.
 
 - **Responsabilidade Ética**
-  - Clareza, para o usuário, de que o score é uma **estimativa probabilística** e não uma verdade absoluta sobre a relação entre as pessoas;
+  - Clareza, para o usuário, de que o score é uma **estimativa heurística** e não uma verdade absoluta sobre a relação entre as pessoas;
   - Evitar uso do sistema em cenários de alto risco sem avaliação ética e técnica apropriada;
   - Documentar limitações do modelo e potenciais fontes de viés;
-  - Permitir que usuários solicitem explicações adicionais ou exclusão de suas informações.
+  - Permitir que o usuário visualize explicações no chat e exclua a própria conta em Configurações.
 
 ### 3.5. Conformidade e Normas Aplicáveis
 
 - **LGPD – Lei Geral de Proteção de Dados (Lei nº 13.709/2018)**
-  - **Princípio da Finalidade**: coleta de dados apenas para o propósito específico de cálculo de compatibilidade conversacional, não sendo utilizados para outros fins sem consentimento adicional;
-  - **Princípio da Necessidade**: coleta limitada a textos de conversa e metadados mínimos necessários (timestamps, identificação de autor), evitando dados sensíveis desnecessários;
-  - **Princípio da Transparência**: exibição de política de privacidade clara e acessível, descrevendo finalidades do tratamento, base legal, tempo de retenção, compartilhamento de dados e direitos dos titulares;
-  - **Consentimento Explícito**: solicitação de consentimento informado e específico para cada finalidade (análise de compatibilidade, melhoria do sistema e, caso aplicável no futuro, treinamento de modelos), com possibilidade de revogação a qualquer momento;
-  - **Direitos dos Titulares**: implementação de mecanismos para exercício dos direitos de acesso, correção, exclusão, portabilidade e revisão de decisões automatizadas, conforme Art. 18 da LGPD;
-  - **Anonimização e Pseudonimização**: aplicação de técnicas de anonimização sempre que possível, especialmente para dados armazenados para fins de análise e melhoria do sistema;
-  - **Segurança e Prevenção**: adoção de medidas técnicas e administrativas para proteção dos dados pessoais contra acessos não autorizados, alterações, destruição ou perda;
-  - **Retenção de Dados**: definição de prazos claros para retenção de dados, com anonimização ou exclusão automática após o período necessário para cumprimento da finalidade.
-
-- **OWASP Top 10 – Segurança de Aplicações Web**
-  - Aplicação de diretrizes para prevenção das 10 vulnerabilidades mais críticas, com atenção especial a: validação e sanitização de entrada, proteção contra injeção (SQL, NoSQL, comandos), autenticação quebrada, exposição de dados sensíveis e configuração incorreta de segurança.
+  - **Finalidade atual**: o termo de consentimento informa que o projeto é acadêmico e que os dados de cadastro, mensagens e análises são usados para autenticação e cálculo de compatibilidade;
+  - **Consentimento de cadastro**: o frontend exige checkbox e disponibiliza o PDF do termo; o backend rejeita o cadastro sem aceite e grava `consent_accepted_at`;
+  - **Atualização e exclusão**: a tela Configurações permite alterar nome, e-mail e senha, além de excluir a própria conta com confirmação da senha atual;
+  - **Dados armazenados**: e-mail, nome, hash de senha, texto integral de mensagens, timestamps e resultados de análise são persistidos no PostgreSQL;
 
 - **Princípios de IA Responsável (UNESCO e OECD)**
-  - **Transparência e Explicabilidade**: fornecimento de explicações claras sobre como o score de compatibilidade é calculado, destacando os principais fatores que influenciaram o resultado;
-  - **Justiça e Não Discriminação**: análise crítica dos modelos e métricas para identificar e mitigar potenciais vieses que possam gerar scores injustos ou discriminatórios;
-  - **Responsabilidade Humana**: garantia de que o sistema apoia decisões humanas, não as substitui, especialmente em contextos críticos;
-  - **Privacidade e Proteção de Dados**: alinhamento com princípios de privacidade desde a concepção (privacy by design) e proteção de dados pessoais conforme LGPD;
-  - **Robustez e Segurança**: desenvolvimento de sistema resiliente, com tratamento adequado de erros e proteção contra manipulações maliciosas.
+  - **Transparência e Explicabilidade**: o modal de análise apresenta score, componentes, avisos e resumo;
+  - **Responsabilidade Humana**: o resultado deve ser interpretado como apoio exploratório, não como decisão automática em contexto de alto risco;
+  - **Limites de justiça e privacidade**: não há experimento de viés nem privacy by design completo; essas limitações são documentadas para evitar alegações indevidas.
 
 - **WCAG – Diretrizes de Acessibilidade para Conteúdo Web**
   - Aplicação de diretrizes de acessibilidade (nível AA como referência) no frontend, incluindo: contraste adequado de cores, navegação por teclado, compatibilidade com leitores de tela, textos alternativos para elementos visuais e estrutura semântica adequada, visando facilitar o uso por diferentes perfis de usuários.
@@ -280,7 +266,7 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
 ### 4.1. Portfólio I (Planejamento e Fundamentos)
 
 - **Refinamento de Requisitos e Planejamento**:
-  - Revisão e detalhamento dos requisitos funcionais (RF01-RF12) e não funcionais (RNF01-RNF08);
+  - Revisão e detalhamento dos requisitos funcionais (RF01-RF12) e não funcionais (RNF01-RNF06);
   - Elaboração de casos de uso detalhados e cenários de teste;
   - Definição de critérios de aceitação para cada funcionalidade;
   - Planejamento da estratégia de coleta e validação de dados;
@@ -292,43 +278,40 @@ Este projeto propõe o desenvolvimento de um sistema de Inteligência Artificial
   - Definição de contratos de API (endpoints, formatos de requisição/resposta);
 
 - **Definição de Stack Tecnológica**:
-  - Seleção final de bibliotecas de NLP para português;
-  - Definição de bibliotecas de visualização para o dashboard;
+  - Registro da configuração e limitações do modelo multilíngue de sentimentos;
+  - Manutenção das bibliotecas de visualização do dashboard;
   - Configuração do ambiente de desenvolvimento;
 
 - **Design de Interface**:
-  - Criação de **mockups de alta fidelidade** em Figma para:
-    - Tela de Chat;
-    - Dashboard de Métricas;
-  - Definição de identidade visual e padrões de UX;
-  - Validação de acessibilidade (WCAG) nos mockups;
+  - Revisão das telas implementadas de Chat, Dashboard e Configurações;
+  - Definição de critérios de acessibilidade e validação manual das telas;
 
 - **Protótipo Inicial**:
-  - Implementação de estrutura básica do backend com rotas principais;
-  - Criação do esqueleto do motor de IA;
-  - Configuração inicial do banco de dados PostgreSQL;
-  - Setup básico do frontend React com estrutura de componentes.
+  - Manutenção das rotas de autenticação, conversa, análise e dashboard;
+  - Manutenção do motor heurístico de IA;
+  - Evolução das migrações PostgreSQL;
+  - Evolução do frontend Vue 3/Composition API.
 
 ### 4.2. Portfólio II (Implementação, Validação e Entrega)
 
 - **Implementação do Motor de IA**:
   - **Módulo de Pré-processamento**: normalização, tokenização e identificação de autor em português;
   - **Módulo LSM**: implementação completa do cálculo de Language Style Matching adaptado para PT-BR;
-  - **Módulo de Análise de Sentimentos**: integração de biblioteca de NLP para classificação de polaridade em português;
+  - **Módulo de Análise de Sentimentos**: acompanhamento do uso do modelo multilíngue configurado e de suas limitações para PT-BR;
   - **Módulo de Sinais Comportamentais**: extração de métricas temporais (latência, duração de turnos, comprimento de mensagens);
   - **Módulo de Agregação**: implementação da heurística para combinar métricas em score único;
   - **Módulo de Explicabilidade**: geração de sumários explicáveis sobre os fatores que influenciaram o score;
 
 - **Desenvolvimento do Backend**:
   - Implementação completa da API REST com todos os endpoints;
-  - Integração do banco de dados PostgreSQL com persistência de diálogos (anonimizados), scores e métricas;
-  - Implementação de versionamento dos cálculos e histórico de análises;
-  - Desenvolvimento de mecanismos de exclusão de dados conforme LGPD;
+  - Persistência de dados de conta, conversas em texto integral, scores e métricas no PostgreSQL;
+  - Manutenção do histórico de análises por data de cálculo;
+  - Manutenção dos fluxos de consentimento de cadastro e exclusão de conta;
 
 - **Desenvolvimento do Frontend**:
-  - Implementação da interface de Chat com funcionalidades de inserção e visualização de diálogos;
-  - Desenvolvimento do Dashboard com visualizações de métricas agregadas, distribuições de scores e painéis de explicabilidade;
-  - Integração completa do frontend com a API REST;
+  - Evolução do Chat com seleção de participante e mensagens WebSocket;
+  - Evolução do Dashboard com visualizações agregadas; a explicabilidade detalhada permanece no chat do par;
+  - Integração do frontend com REST e Socket.IO;
   - Implementação de tratamento de erros e feedback ao usuário;
 
 - **Testes e Validação**:
@@ -363,7 +346,12 @@ UNESCO. **Recomendação sobre a Ética da Inteligência Artificial**. Paris: UN
 
 **Documentação Oficial de Frameworks e Bibliotecas**:
 - Flask: https://flask.palletsprojects.com/
-- React: https://react.dev/
+- Vue 3: https://vuejs.org/
+- Pinia: https://pinia.vuejs.org/
+- Socket.IO: https://socket.io/
+- Chart.js: https://www.chartjs.org/
+- Transformers: https://huggingface.co/docs/transformers/
+- Modelo de sentimentos: https://huggingface.co/tabularisai/multilingual-sentiment-analysis
 - PostgreSQL: https://www.postgresql.org/docs/
 - SQLAlchemy: https://docs.sqlalchemy.org/
 

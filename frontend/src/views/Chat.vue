@@ -7,6 +7,8 @@ import InputText from 'primevue/inputtext'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import ChatView from '../components/chat/ChatView.vue'
 import { useConversationStore } from '../stores/conversation'
+import { authApi, extractApiError } from '../services/api'
+import type { ConversationParticipant } from '../types/types'
 
 const NARROW_QUERY = '(max-width: 980px)'
 
@@ -36,6 +38,12 @@ const isNarrow = ref(false)
 const mobileShowChat = ref(false)
 const searchQuery = ref('')
 const showNewConversationDialog = ref(false)
+const newConversationMode = ref<'random' | 'select'>('random')
+const participantSearch = ref('')
+const participants = ref<ConversationParticipant[]>([])
+const selectedParticipantId = ref<number | null>(null)
+const loadingParticipants = ref(false)
+const participantError = ref<string | null>(null)
 
 let mq: MediaQueryList | null = null
 
@@ -87,10 +95,47 @@ function onChatBack() {
   store.clearActiveConversation()
 }
 
+function openNewConversationDialog() {
+  newConversationMode.value = 'random'
+  participantSearch.value = ''
+  participants.value = []
+  selectedParticipantId.value = null
+  participantError.value = null
+  showNewConversationDialog.value = true
+}
+
+async function loadParticipants() {
+  loadingParticipants.value = true
+  participantError.value = null
+  try {
+    const response = await authApi.participants(participantSearch.value)
+    participants.value = response.participants
+  } catch (err) {
+    participantError.value = extractApiError(err)
+  } finally {
+    loadingParticipants.value = false
+  }
+}
+
+async function chooseConversationMode(mode: 'random' | 'select') {
+  newConversationMode.value = mode
+  selectedParticipantId.value = null
+  if (mode === 'select' && !participants.value.length) {
+    await loadParticipants()
+  }
+}
+
 async function confirmNewConversation() {
-  await store.startConversation()
+  if (newConversationMode.value === 'select' && selectedParticipantId.value === null) return
+  await store.startConversation(
+    newConversationMode.value === 'select' ? selectedParticipantId.value ?? undefined : undefined,
+  )
   showNewConversationDialog.value = false
 }
+
+const isNewConversationConfirmDisabled = computed(
+  () => newConversationMode.value === 'select' && selectedParticipantId.value === null,
+)
 </script>
 
 <template>
@@ -113,7 +158,7 @@ async function confirmNewConversation() {
             rounded
             class="chat-page__add-btn"
             aria-label="Nova conversa"
-            @click="showNewConversationDialog = true"
+            @click="openNewConversationDialog"
           />
         </div>
 
@@ -198,11 +243,62 @@ async function confirmNewConversation() {
       modal
       header="Nova conversa"
       class="new-conv-dialog"
-      :style="{ width: '22rem' }"
+      :style="{ width: 'min(32rem, calc(100vw - 2rem))' }"
     >
-      <p class="new-conv-dialog__text">
-        Deseja iniciar uma nova conversa com uma pessoa aleatória?
-      </p>
+      <p class="new-conv-dialog__text">Escolha como deseja iniciar a conversa.</p>
+
+      <div class="new-conv-dialog__modes" role="radiogroup" aria-label="Modo de criação de conversa">
+        <button
+          type="button"
+          class="new-conv-dialog__mode"
+          :class="{ 'new-conv-dialog__mode--active': newConversationMode === 'random' }"
+          role="radio"
+          :aria-checked="newConversationMode === 'random'"
+          @click="chooseConversationMode('random')"
+        >
+          <i class="pi pi-shuffle" aria-hidden="true"></i>
+          <span><strong>Par aleatório</strong><small>O sistema escolhe uma pessoa disponível.</small></span>
+        </button>
+        <button
+          type="button"
+          class="new-conv-dialog__mode"
+          :class="{ 'new-conv-dialog__mode--active': newConversationMode === 'select' }"
+          role="radio"
+          :aria-checked="newConversationMode === 'select'"
+          @click="chooseConversationMode('select')"
+        >
+          <i class="pi pi-users" aria-hidden="true"></i>
+          <span><strong>Escolher participante</strong><small>Selecione o par que será analisado.</small></span>
+        </button>
+      </div>
+
+      <div v-if="newConversationMode === 'select'" class="new-conv-dialog__participants">
+        <InputText
+          v-model="participantSearch"
+          class="new-conv-dialog__participant-search"
+          placeholder="Buscar por nome"
+          aria-label="Buscar participante"
+          @input="loadParticipants"
+        />
+        <p v-if="participantError" class="new-conv-dialog__participant-error">{{ participantError }}</p>
+        <p v-else-if="loadingParticipants" class="new-conv-dialog__participant-empty">Carregando participantes...</p>
+        <p v-else-if="!participants.length" class="new-conv-dialog__participant-empty">Nenhuma pessoa disponível.</p>
+        <div v-else class="new-conv-dialog__participant-list" role="listbox" aria-label="Participantes disponíveis">
+          <button
+            v-for="participant in participants"
+            :key="participant.id"
+            type="button"
+            class="new-conv-dialog__participant"
+            :class="{ 'new-conv-dialog__participant--active': selectedParticipantId === participant.id }"
+            role="option"
+            :aria-selected="selectedParticipantId === participant.id"
+            @click="selectedParticipantId = participant.id"
+          >
+            <span class="new-conv-dialog__participant-avatar">{{ participant.name.charAt(0) }}</span>
+            {{ participant.name }}
+          </button>
+        </div>
+      </div>
       <template #footer>
         <Button
           label="Cancelar"
@@ -214,6 +310,7 @@ async function confirmNewConversation() {
           label="Confirmar"
           class="new-conv-dialog__confirm"
           :loading="store.creatingConversation"
+          :disabled="isNewConversationConfirmDisabled"
           @click="confirmNewConversation"
         />
       </template>
@@ -638,6 +735,45 @@ async function confirmNewConversation() {
   font-size: 0.9rem;
   line-height: 1.55;
 }
+
+.new-conv-dialog__modes {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.new-conv-dialog__mode,
+.new-conv-dialog__participant {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #f0ebff;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.new-conv-dialog__mode--active,
+.new-conv-dialog__participant--active {
+  border-color: rgba(90, 219, 148, 0.55);
+  background: rgba(90, 219, 148, 0.1);
+}
+
+.new-conv-dialog__mode .pi { color: #5adb94; }
+.new-conv-dialog__mode span { display: grid; gap: 0.15rem; }
+.new-conv-dialog__mode small { color: rgba(195, 178, 228, 0.62); font-size: 0.72rem; }
+.new-conv-dialog__participants { display: grid; gap: 0.65rem; margin-top: 0.9rem; }
+.new-conv-dialog__participant-search { width: 100%; }
+.new-conv-dialog__participant-list { display: grid; max-height: 12rem; gap: 0.4rem; overflow-y: auto; }
+.new-conv-dialog__participant { padding: 0.55rem 0.65rem; }
+.new-conv-dialog__participant-avatar { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; background: rgba(90, 219, 148, 0.2); color: #5adb94; font-weight: 700; }
+.new-conv-dialog__participant-empty { margin: 0; color: rgba(195, 178, 228, 0.62); font-size: 0.8rem; }
+.new-conv-dialog__participant-error { margin: 0; color: #fca5a5; font-size: 0.8rem; }
 
 :deep(.new-conv-dialog__cancel) {
   color: rgba(195, 178, 228, 0.65) !important;

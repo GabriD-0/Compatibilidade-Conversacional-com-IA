@@ -18,12 +18,20 @@ class FakeQuery:
 
 
 class FakeSession:
-    def __init__(self):
+    def __init__(self, result=None):
+        self.result = result
         self.added = None
+        self.deleted = None
         self.committed = False
 
     def add(self, item):
         self.added = item
+
+    def get(self, _model, _identifier):
+        return self.result
+
+    def delete(self, item):
+        self.deleted = item
 
     def commit(self):
         self.committed = True
@@ -35,10 +43,11 @@ def test_register_user_persists_normalized_user(monkeypatch):
     session = FakeSession()
 
     class FakeLogin:
-        def __init__(self, email, name, password):
+        def __init__(self, email, name, password, consent_accepted_at=None):
             self.email = email
             self.name = name
             self.password = password
+            self.consent_accepted_at = consent_accepted_at
 
     FakeLogin.query = query
     monkeypatch.setattr(auth, "Login", FakeLogin)
@@ -46,7 +55,12 @@ def test_register_user_persists_normalized_user(monkeypatch):
     monkeypatch.setattr(auth, "generate_password_hash", lambda password: f"hash:{password}")
 
     user = auth.register_user(
-        {"email": " USER@Example.COM ", "name": "Alice", "password": "abc12345"}
+        {
+            "email": " USER@Example.COM ",
+            "name": "Alice",
+            "password": "abc12345",
+            "consent_accepted": True,
+        }
     )
 
     assert query.filters == [{"email": "user@example.com"}]
@@ -68,11 +82,26 @@ def test_register_user_rejects_duplicate_email(monkeypatch):
 
     with pytest.raises(ApiError) as exc_info:
         auth.register_user(
-            {"email": "user@example.com", "name": "Alice", "password": "abc12345"}
+            {
+                "email": "user@example.com",
+                "name": "Alice",
+                "password": "abc12345",
+                "consent_accepted": True,
+            }
         )
 
     assert exc_info.value.code == "email_taken"
     assert exc_info.value.status_code == 409
+
+
+@pytest.mark.unit
+def test_register_user_requires_consent():
+    with pytest.raises(ApiError) as exc_info:
+        auth.register_user(
+            {"email": "user@example.com", "name": "Alice", "password": "abc12345"}
+        )
+
+    assert exc_info.value.code == "consent_required"
 
 
 @pytest.mark.unit
@@ -117,3 +146,41 @@ def test_authenticate_rejects_invalid_credentials(monkeypatch, query_result, pas
 
     assert exc_info.value.code == "invalid_credentials"
     assert exc_info.value.status_code == 401
+
+
+@pytest.mark.unit
+def test_update_user_updates_name_without_requiring_password(monkeypatch):
+    user = SimpleNamespace(id=1, name="Alice", email="alice@example.com", password="stored")
+    session = FakeSession(user)
+    monkeypatch.setattr(auth, "db", SimpleNamespace(session=session))
+
+    updated = auth.update_user(1, {"name": "Alice Silva"})
+
+    assert updated is user
+    assert user.name == "Alice Silva"
+    assert session.committed is True
+
+
+@pytest.mark.unit
+def test_update_user_requires_current_password_for_new_password(monkeypatch):
+    user = SimpleNamespace(id=1, name="Alice", email="alice@example.com", password="stored")
+    monkeypatch.setattr(auth, "db", SimpleNamespace(session=FakeSession(user)))
+    monkeypatch.setattr(auth, "check_password_hash", lambda _stored, _provided: False)
+
+    with pytest.raises(ApiError) as exc_info:
+        auth.update_user(1, {"current_password": "wrong", "new_password": "abc12345"})
+
+    assert exc_info.value.code == "invalid_current_password"
+
+
+@pytest.mark.unit
+def test_delete_user_requires_password_and_deletes_resolved_user(monkeypatch):
+    user = SimpleNamespace(id=1, password="stored")
+    session = FakeSession(user)
+    monkeypatch.setattr(auth, "db", SimpleNamespace(session=session))
+    monkeypatch.setattr(auth, "check_password_hash", lambda stored, provided: stored == "stored" and provided == "abc12345")
+
+    auth.delete_user(1, "abc12345")
+
+    assert session.deleted is user
+    assert session.committed is True

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Conversation, ConversationAnalysis, ConversationsPage, MessagesPage, RefreshResponse, SummaryDash } from '../types/types'
+import type { AuthUser, Conversation, ConversationAnalysis, ConversationsPage, MessagesPage, ParticipantsResponse, RefreshResponse, SummaryDash, UpdateProfilePayload } from '../types/types'
 
 const ACCESS_KEY = 'access_token'
 const REFRESH_KEY = 'refresh_token'
@@ -75,8 +75,9 @@ export const conversationsApi = {
     return api.get('/api/conversations', { params: { page, per_page: perPage } }).then((r) => r.data)
   },
 
-  create(): Promise<Conversation> {
-    return api.post('/api/conversations').then((r) => r.data)
+  create(participantId?: number): Promise<Conversation> {
+    const payload = participantId === undefined ? {} : { participant_id: participantId }
+    return api.post('/api/conversations', payload).then((r) => r.data)
   },
 
   get(id: number): Promise<Conversation> {
@@ -101,6 +102,22 @@ export const conversationsApi = {
 
   delete(id: number): Promise<void> {
     return api.delete(`/api/conversations/${id}`).then(() => undefined)
+  },
+}
+
+// ---- Account endpoints ----
+
+export const authApi = {
+  participants(search = ''): Promise<ParticipantsResponse> {
+    return api.get('/api/auth/participants', { params: { q: search } }).then((r) => r.data)
+  },
+
+  updateProfile(payload: UpdateProfilePayload): Promise<AuthUser> {
+    return api.patch('/api/auth/me', payload).then((r) => r.data.user)
+  },
+
+  deleteAccount(password: string): Promise<void> {
+    return api.delete('/api/auth/me', { data: { password } }).then(() => undefined)
   },
 }
 

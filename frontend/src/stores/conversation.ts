@@ -228,11 +228,11 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  async function startConversation() {
+  async function startConversation(participantId?: number) {
     creatingConversation.value = true
     error.value = null
     try {
-      const conv = await conversationsApi.create()
+      const conv = await conversationsApi.create(participantId)
       const uiConv = buildUiConversation(conv)
       const existing = conversations.value.findIndex((conversation) => conversation.id === conv.id)
       if (existing === -1) conversations.value.unshift(uiConv)

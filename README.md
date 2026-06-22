@@ -2,7 +2,7 @@
 
 Sistema de Inteligência Artificial para estimar um **índice de compatibilidade conversacional** entre duas pessoas a partir de suas interações textuais. A solução analisa conversas e gera uma pontuação unificada que reflete a sintonia entre os participantes, combinando análise de estilo linguístico (LSM), convergência de sentimentos e sinais comportamentais.
 
-> **⚠️ Status do Projeto**: Este projeto está atualmente em **fase de documentação e planejamento**. O código ainda não foi implementado. Este repositório contém a documentação técnica completa, diagramas de arquitetura e especificações do sistema.
+> **Status do Projeto**: protótipo funcional com backend Flask/Socket.IO, frontend Vue 3, PostgreSQL e Docker Compose para execução local.
 
 ## 📋 Sobre o Projeto
 
@@ -19,29 +19,30 @@ Desenvolver um sistema de IA capaz de analisar conversas textuais entre duas pes
 - Combinação de **três dimensões complementares** — estilo, sentimento e comportamento — em um **score único**
 - **Explicabilidade**: sumários textuais destacando os principais fatores que influenciaram o resultado
 - Arquitetura **API-first**, facilitando integração com outros sistemas
-- Conformidade com **LGPD** e princípios de IA responsável
+- Termo de consentimento acadêmico, exclusão de conta e limites de privacidade documentados
 
-## 🎯 Funcionalidades Planejadas
+## 🎯 Funcionalidades Implementadas
 
 ### Motor de IA
 
 - **Similaridade de Estilo Linguístico (LSM)**: cálculo de alinhamento no uso de palavras-função entre participantes
-- **Análise de Sentimentos**: classificação de polaridade e intensidade em PT-BR, com avaliação de convergência emocional
+- **Análise de Sentimentos**: classificação de polaridade e intensidade com modelo multilíngue e avaliação de convergência emocional
 - **Sinais Comportamentais**: extração de métricas como tempo médio de resposta, equilíbrio de turnos de fala e comprimento médio das mensagens
 - **Agregação Heurística**: combinação das métricas em um score único de compatibilidade conversacional
 - **Explicabilidade**: geração de sumários explicáveis sobre os fatores que influenciaram o score
 
 ### Interface Web
 
-- **Chat**: interface para inserção e visualização de diálogos entre dois participantes
-- **Dashboard**: visualização de métricas agregadas, distribuições de scores, top-N matches e painéis de explicabilidade
+- **Chat**: mensagens em tempo real por Socket.IO, com participante aleatório ou selecionado
+- **Dashboard**: métricas agregadas, distribuições, top pares, tendências e gráficos das dimensões de análise
+- **Configurações**: atualização de nome, e-mail e senha, além de exclusão de conta confirmada por senha
 
-### API REST
+### API REST e WebSocket
 
-- Endpoints para envio de diálogos e recuperação de scores e métricas
-- Suporte a integração com sistemas externos (plataformas de atendimento, sistemas de gestão de equipes, etc.)
+- Endpoints autenticados para cadastro, conta, participantes, conversas, análises, dashboard e health check
+- Eventos Socket.IO para mensagens, digitação, leitura e atualização automática de análise
 
-## 🛠️ Stack Tecnológica Planejada
+## 🛠️ Stack Tecnológica
 
 ### Backend
 
@@ -52,20 +53,20 @@ Desenvolver um sistema de IA capaz de analisar conversas textuais entre duas pes
 
 ### Frontend
 
-- **React**: framework para construção da interface web
+- **Vue 3 / Composition API**: framework para construção da interface web
 - **JavaScript/TypeScript**: desenvolvimento do frontend
 - **Bibliotecas de visualização**: gráficos e dashboards (a definir)
 
 ### Banco de Dados
 
-- **PostgreSQL**: armazenamento de conversas (anonimizadas), scores, métricas e logs
+- **PostgreSQL**: armazenamento de conta, conversas, mensagens em texto integral, scores e métricas
 
 ### Ferramentas
 
 - **Git**: controle de versão
-- **Docker**: containerização (planejado)
+- **Docker Compose**: execução local de PostgreSQL, backend e frontend
 
-## 🏗️ Arquitetura Proposta
+## 🏗️ Arquitetura
 
 O sistema seguirá uma **arquitetura em camadas**:
 
@@ -84,7 +85,7 @@ O projeto inclui diagramas C4 Model em quatro níveis (disponíveis na documenta
 
 Consulte a documentação completa em `Documents/Compatibilidade Conversacional com IA.md`.
 
-## 📦 Requisitos Planejados
+## 📦 Requisitos
 
 Os seguintes requisitos serão necessários quando o projeto entrar em fase de implementação:
 
@@ -95,47 +96,42 @@ Os seguintes requisitos serão necessários quando o projeto entrar em fase de i
 
 ## 🚀 Instalação e Uso
 
-> **Nota**: O projeto está atualmente em **fase de documentação**. As instruções de instalação e uso serão adicionadas quando o código for implementado durante o Portfólio II.
-
-As instruções de instalação, configuração e uso serão documentadas conforme o desenvolvimento do projeto progredir.
+Com Docker instalado, execute `docker compose up --build`. O frontend ficará em `http://localhost:8080` e o backend em `http://localhost:5000`. A configuração é de desenvolvimento e usa HTTP.
 
 ## 📁 Estrutura do Projeto
 
-Atualmente, o repositório contém apenas a documentação do projeto:
+O repositório contém documentação, backend, frontend e configuração de contêineres:
 
 ```
 Compatibilidade-Conversacional-com-IA/
-├── Documents/              # Documentação completa do projeto
-│   ├── Compatibilidade Conversacional com IA.md
-│   └── images/            # Diagramas C4, casos de uso e fluxos
-├── LICENSE                # Licença MIT
-└── README.md              # Este arquivo
+├── backend/                # Flask, Socket.IO, motor de análise e migrações
+├── frontend/               # Vue 3, chat, dashboard e configurações
+├── Documents/              # Documentação e relatório de validação
+├── docker-compose.yml      # PostgreSQL, backend e frontend locais
+├── LICENSE                 # Licença MIT
+└── README.md               # Este arquivo
 ```
-
-> **Nota**: As pastas `backend/` e `frontend/` serão criadas durante a fase de implementação (Portfólio II).
 
 ## 🔒 Segurança e Conformidade
 
-O sistema será projetado e implementado seguindo as seguintes diretrizes de segurança e conformidade:
+O protótipo implementa controles básicos e documenta explicitamente os limites que ainda não cobre:
 
 ### LGPD (Lei Geral de Proteção de Dados)
 
-O sistema será projetado para conformidade com a LGPD, incluindo:
+O protótipo acadêmico inclui:
 
-- **Consentimento explícito** para coleta e tratamento de dados
-- **Minimização de dados**: coleta apenas do necessário
-- **Anonimização e pseudonimização** sempre que possível
-- **Mecanismos de exclusão** de dados mediante solicitação
-- **Transparência** sobre finalidade do tratamento
-- **Direitos dos titulares**: acesso, correção, exclusão, portabilidade
+- **Aceite de termo de consentimento acadêmico** no cadastro
+- **Atualização e exclusão da própria conta** em Configurações
+- **Registro da data de aceite**
+
+Mensagens são persistidas em texto integral. Anonimização, portabilidade, retenção automática e conformidade integral com LGPD não fazem parte da implementação atual.
 
 ### Segurança
 
-- Criptografia em trânsito (HTTPS/TLS)
-- Controles de acesso (autenticação e autorização)
+- Autenticação JWT e autorização de recursos
 - Validação rigorosa de entrada
 - Proteção contra injeção SQL
-- Logs estruturados para auditoria
+- Logging operacional de eventos técnicos
 
 ### Princípios de IA Responsável
 
@@ -150,7 +146,7 @@ O sistema será projetado para conformidade com a LGPD, incluindo:
 - Não avalia conteúdo temático profundo (veracidade, qualidade argumentativa)
 - A qualidade do score depende da quantidade e qualidade dos dados disponíveis
 - Versão inicial como **protótipo funcional**, não otimizado para alta escala
-- Abordagem inicial **heurística**, com possibilidade de evolução para modelo supervisionado
+- Abordagem **heurística** como escopo definitivo do projeto
 
 ## 📊 Métricas de Sucesso Planejadas
 
@@ -169,7 +165,6 @@ Este projeto está licenciado sob a **MIT License**. Consulte o arquivo `LICENSE
 
 **Gabriel de Oliveira**
 Curso: Engenharia de Software
-Data de Entrega: 02/12/2025
 
 ## 📚 Referências
 
@@ -190,4 +185,3 @@ Este documento contém toda a especificação técnica do projeto, incluindo:
 - Diagramas de casos de uso
 - Stack tecnológica detalhada
 - Considerações de segurança e conformidade
-- Próximos passos (Portfólio I e II)

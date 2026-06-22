@@ -2,11 +2,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
-import { BiHouse, BiChat, BiChevronLeft, BiChevronRight, BiBoxArrowLeft } from 'oh-vue-icons/icons/bi'
+import { BiHouse, BiChat, BiChevronLeft, BiChevronRight, BiBoxArrowLeft, BiGear } from 'oh-vue-icons/icons/bi'
 import { MdDashboard } from 'oh-vue-icons/icons/md'
 import { useAuthStore } from '../stores/auth'
 
-addIcons(BiHouse, BiChat, BiChevronLeft, BiChevronRight, BiBoxArrowLeft, MdDashboard)
+addIcons(BiHouse, BiChat, BiChevronLeft, BiChevronRight, BiBoxArrowLeft, BiGear, MdDashboard)
 
 const isCollapsed = ref(false)
 const router = useRouter()
@@ -65,6 +65,15 @@ function handleLogout() {
       >
         <OhVueIcon name="md-dashboard" class="sidebar__link-icon" aria-hidden="true" />
         <span class="sidebar__link-text">Dashboard</span>
+      </RouterLink>
+      <RouterLink
+        to="/settings"
+        class="sidebar__link"
+        active-class="router-link-active"
+        title="Configurações"
+      >
+        <OhVueIcon name="bi-gear" class="sidebar__link-icon" aria-hidden="true" />
+        <span class="sidebar__link-text">Configurações</span>
       </RouterLink>
     </nav>
 
