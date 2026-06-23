@@ -36,10 +36,8 @@ def start_ssh_tunnel(config) -> Optional[int]:
 
     ssh_host = config.get("SSH_HOST", "").strip('"')
     ssh_port = int(config.get("SSH_PORT", 22))
-    
     remote_bind_address = config.get("SSH_REMOTE_BIND_ADDRESS", "127.0.0.1").strip('"').strip()
     remote_bind_port = int(config.get("SSH_REMOTE_BIND_PORT", 5432))
-    
     local_bind_port = int(config.get("SSH_LOCAL_BIND_PORT", 0))
 
     kwargs = {

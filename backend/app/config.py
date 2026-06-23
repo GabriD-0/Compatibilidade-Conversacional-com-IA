@@ -19,8 +19,8 @@ def build_sqlalchemy_uri(user: str, password: str, host: str, port: int, databas
 class Config:
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "chave-secreta-do-jwt")
     JWT_COOKIE_CSRF_PROTECT = False
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(os.environ.get("JWT_ACCESS_MINUTES", "120")))
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.environ.get("JWT_REFRESH_DAYS", "15")))
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(120))
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(15))
     JWT_TOKEN_LOCATION = ["headers", "json"]
     JWT_REFRESH_JSON_KEY = "refresh_token"
 
