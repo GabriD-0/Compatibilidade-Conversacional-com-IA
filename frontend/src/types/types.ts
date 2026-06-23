@@ -147,7 +147,7 @@ export interface StatValueDash {
 export interface StatsDash {
   average_score: StatValueDash
   conversations: StatValueDash
-  active_pairs: StatValueDash
+  analyzed_pairs: StatValueDash
   analyses_today: StatValueDash
 }
 
@@ -178,8 +178,7 @@ export type TrendDash = 'up' | 'down' | 'flat'
 
 export interface TopPairDash {
   conversation_id: number
-  a: string
-  b: string
+  pair: string
   score: number
   trend: TrendDash
 }

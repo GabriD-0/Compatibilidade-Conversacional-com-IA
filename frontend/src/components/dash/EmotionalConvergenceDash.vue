@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Line } from 'vue-chartjs'
 import type { EmotionalConversationDash } from '../../types/types'
 import { dashboardGridColor, dashboardTickColor } from '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -130,6 +131,7 @@ const emotionalLineOptions = computed<ChartOptions<'line'>>(
         <div class="dashboard-card-title">
           <i class="pi pi-heart dashboard-card-title__icon text-accent" aria-hidden="true"></i>
           <span>Convergencia Emocional</span>
+          <InfoTooltipDash text="Acompanha a polaridade emocional de cada pessoa ao longo das mensagens, de -1 (negativa) a 1 (positiva). Linhas mais próximas indicam maior alinhamento emocional naquele momento." />
         </div>
         <select
           v-if="conversations.length > 1"

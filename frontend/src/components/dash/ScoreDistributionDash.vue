@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Bar } from 'vue-chartjs'
 import type { ScoreDistributionDash } from '../../types/types'
 import { dashboardGridColor, dashboardTickColor } from '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -64,6 +65,7 @@ const barOptions = computed<ChartOptions<'bar'>>(
       <div class="dashboard-card-title">
         <i class="pi pi-chart-bar dashboard-card-title__icon text-secondary" aria-hidden="true"></i>
         <span>Distribuição de Scores</span>
+        <InfoTooltipDash text="Agrupa os pares pela faixa de score de compatibilidade da analise mais recente. A altura de cada barra indica quantos pares estão naquela faixa." />
       </div>
     </template>
     <template #content>

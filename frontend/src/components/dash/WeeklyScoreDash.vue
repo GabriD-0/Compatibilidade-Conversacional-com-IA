@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Line } from 'vue-chartjs'
 import type { WeeklyScoreDash } from '../../types/types'
 import { dashboardGridColor, dashboardTickColor } from '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -117,6 +118,7 @@ const lineOptions = computed<ChartOptions<'line'>>(
       <div class="dashboard-card-title">
         <i class="pi pi-chart-line dashboard-card-title__icon text-primary" aria-hidden="true"></i>
         <span>Evolução do Score Semanal</span>
+        <InfoTooltipDash text="Compara os últimos 7 dias. A linha verde mostra a média dos scores das analises feitas no dia; a azul mostra as conversas com mensagens no dia. Cada linha usa sua própria escala vertical." />
       </div>
     </template>
     <template #content>

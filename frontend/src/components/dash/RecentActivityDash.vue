@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import Card from 'primevue/card'
 import type { RecentActivityDash } from '../../types/types'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -44,6 +45,7 @@ const items = computed(() =>
       <div class="dashboard-card-title">
         <i class="pi pi-bolt dashboard-card-title__icon text-secondary" aria-hidden="true"></i>
         <span>Atividade Recente</span>
+        <InfoTooltipDash text="Mostra as quatro conversas com atividade mais recente. A atividade pode ser uma nova analise, uma nova mensagem ou a criação da conversa. O numero, quando exibido, e o ultimo score calculado." />
       </div>
     </template>
     <template #content>

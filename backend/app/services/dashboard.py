@@ -85,6 +85,7 @@ def build_dashboard_payload(*, login_id: int | None = None, conversations: Itera
         "score_distribution": build_score_distribution(latest_analyses),
         "classification_distribution": buildclassification_distribution(latest_analyses),
         "top_pairs": build_top_pairs(
+            login_id=login_id,
             conversations=conversation_by_id,
             latest_by_conversation=latest_by_conversation,
             previous_by_conversation=previous_by_conversation,
@@ -146,7 +147,6 @@ def build_stats(*, conversations: list[Any], analyses: list[Any], latest_analyse
         1,
     )
 
-    active_pairs = [conversation for conversation in conversations if number(getattr(conversation, "message_count", 0)) > 0]
     analyses_today = len(
         [analysis for analysis in analyses if date_of(getattr(analysis, "computed_at", None), APP_TIMEZONE) == today]
     )
@@ -169,13 +169,13 @@ def build_stats(*, conversations: list[Any], analyses: list[Any], latest_analyse
                 ]
             ),
         },
-        "active_pairs": {
-            "value": len(active_pairs),
+        "analyzed_pairs": {
+            "value": len(latest_analyses),
             "delta": len(
                 [
-                    conversation
-                    for conversation in active_pairs
-                    if as_utc(getattr(conversation, "last_message_at", None)) >= recent_cutoff
+                    analysis
+                    for analysis in latest_analyses
+                    if as_utc(getattr(analysis, "computed_at", None)) >= recent_cutoff
                 ]
             ),
         },
@@ -274,7 +274,13 @@ def buildclassification_distribution(latest_analyses: list[Any]) -> list[dict]:
     return rows
 
 
-def build_top_pairs(*, conversations: dict[int, Any], latest_by_conversation: dict[int, Any], previous_by_conversation: dict[int, Any]) -> list[dict]:
+def build_top_pairs(
+    *,
+    login_id: int | None = None,
+    conversations: dict[int, Any],
+    latest_by_conversation: dict[int, Any],
+    previous_by_conversation: dict[int, Any],
+) -> list[dict]:
     ranked = sorted(
         latest_by_conversation.items(),
         key=lambda item: score(item[1]) or 0,
@@ -291,8 +297,7 @@ def build_top_pairs(*, conversations: dict[int, Any], latest_by_conversation: di
         rows.append(
             {
                 "conversation_id": conversation_id,
-                "a": participant_name(getattr(conversation, "participant_a", None)),
-                "b": participant_name(getattr(conversation, "participant_b", None)),
+                "pair": match_label(conversation=conversation, login_id=login_id),
                 "score": round(score(analysis) or 0),
                 "trend": trend(analysis, previous),
             }

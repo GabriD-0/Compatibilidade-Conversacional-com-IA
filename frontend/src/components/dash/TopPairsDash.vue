@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Card from 'primevue/card'
 import type { TopPairDash } from '../../types/types'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 withDefaults(
   defineProps<{
@@ -18,9 +19,6 @@ function scoreClass(score: number) {
   return 'dashboard-pair-score--low'
 }
 
-function matchName(pair: TopPairDash) {
-  return pair.b || pair.a
-}
 </script>
 
 <template>
@@ -29,14 +27,15 @@ function matchName(pair: TopPairDash) {
       <div class="dashboard-card-title">
         <i class="pi pi-users dashboard-card-title__icon text-primary" aria-hidden="true"></i>
         <span>Top Pares</span>
+        <InfoTooltipDash text="Lista os quatro pares com maior score de compatibilidade. As setas comparam o score atual com a analise anterior do mesmo par." />
       </div>
     </template>
     <template #content>
       <ul v-if="pairs.length" class="dashboard-top-pairs">
-        <li v-for="(pair, i) in pairs" :key="`${pair.a}-${pair.b}`" class="dashboard-top-pairs__item">
+        <li v-for="(pair, i) in pairs" :key="pair.conversation_id" class="dashboard-top-pairs__item">
           <div class="dashboard-top-pairs__left">
             <span class="dashboard-top-pairs__rank">#{{ i + 1 }}</span>
-            <span class="dashboard-top-pairs__names">{{ matchName(pair) }}</span>
+            <span class="dashboard-top-pairs__names">{{ pair.pair }}</span>
           </div>
           <div class="dashboard-top-pairs__right">
             <span class="dashboard-pair-score" :class="scoreClass(pair.score)">{{ pair.score }}</span>

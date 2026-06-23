@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Radar } from 'vue-chartjs'
 import type { ProfileMetricDash } from '../../types/types'
 import { dashboardGridColor, dashboardTickColor } from '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -71,6 +72,7 @@ const radarOptions = computed<ChartOptions<'radar'>>(
       <div class="dashboard-card-title">
         <i class="pi pi-bolt dashboard-card-title__icon text-secondary" aria-hidden="true"></i>
         <span>Perfil Médio</span>
+        <InfoTooltipDash text="Mostra a média, de 0 a 100, das dimensões avaliadas na analise mais recente de cada par. Valores maiores indicam maior presença da característica medida." />
       </div>
     </template>
     <template #content>

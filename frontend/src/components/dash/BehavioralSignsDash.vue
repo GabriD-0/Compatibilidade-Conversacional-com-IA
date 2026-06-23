@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import Card from 'primevue/card'
 import type { BehavioralSignDash } from '../../types/types'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -54,6 +55,7 @@ function balanceBarClass(balance: number) {
         <div class="dashboard-card-title">
           <i class="pi pi-clock dashboard-card-title__icon text-secondary" aria-hidden="true"></i>
           <span>Sinais Comportamentais</span>
+          <InfoTooltipDash text="Exibe os três pares analisados mais recentemente. Latência e o tempo médio de resposta; equilibrio mede a distribuição dos turnos; tamanho médio e a media de palavras por mensagem." />
         </div>
         <p class="dashboard-card-desc">Latencia, equilibrio de turnos e tamanho medio por match</p>
       </div>

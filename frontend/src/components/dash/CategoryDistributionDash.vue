@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
 import type { ClassificationDistributionDash } from '../../types/types'
 import '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -67,6 +68,7 @@ const doughnutOptions = computed<ChartOptions<'doughnut'>>(
       <div class="dashboard-card-title">
         <i class="pi pi-bolt dashboard-card-title__icon text-primary" aria-hidden="true"></i>
         <span>Categorias</span>
+        <InfoTooltipDash text="Distribui os pares conforme sua classificação de compatibilidade na analise mais recente: alta (80 ou mais), media (60 a 79) e baixa (abaixo de 60)." />
       </div>
     </template>
     <template #content>

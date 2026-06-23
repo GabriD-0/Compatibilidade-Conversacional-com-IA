@@ -19,7 +19,7 @@ const emptySummary: SummaryDash = {
   stats: {
     average_score: { value: null, delta: null },
     conversations: { value: 0, delta: 0 },
-    active_pairs: { value: 0, delta: 0 },
+    analyzed_pairs: { value: 0, delta: 0 },
     analyses_today: { value: 0, delta: 0 },
   },
   weekly_scores: [],

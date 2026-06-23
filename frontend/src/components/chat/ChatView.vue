@@ -175,9 +175,6 @@ function handleAnalyzeClick() {
     <footer class="chat-view__footer">
       <div class="chat-view__footer-body">
         <div class="chat-view__input-row">
-          <button class="chat-view__attach" aria-label="Anexar arquivo" type="button">
-            <i class="pi pi-paperclip"></i>
-          </button>
           <InputText
             v-model="input"
             class="chat-view__input"

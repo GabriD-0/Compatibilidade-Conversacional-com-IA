@@ -768,7 +768,27 @@ const isNewConversationConfirmDisabled = computed(
 .new-conv-dialog__mode span { display: grid; gap: 0.15rem; }
 .new-conv-dialog__mode small { color: rgba(195, 178, 228, 0.62); font-size: 0.72rem; }
 .new-conv-dialog__participants { display: grid; gap: 0.65rem; margin-top: 0.9rem; }
-.new-conv-dialog__participant-search { width: 100%; }
+
+/* Campo de busca dentro do modal */
+:deep(.new-conv-dialog__participant-search) {
+  width: 100%;
+  color: var(--token-text) !important;
+  caret-color: var(--color-primary);
+  background: var(--token-bg-surface) !important;
+  border: 1px solid var(--token-border) !important;
+  box-shadow: none !important;
+}
+
+:deep(.new-conv-dialog__participant-search::placeholder) {
+  color: var(--token-text-muted) !important;
+  opacity: 0.8;
+}
+
+:deep(.new-conv-dialog__participant-search:enabled:focus) {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent) !important;
+}
+
 .new-conv-dialog__participant-list { display: grid; max-height: 12rem; gap: 0.4rem; overflow-y: auto; }
 .new-conv-dialog__participant { padding: 0.55rem 0.65rem; }
 .new-conv-dialog__participant-avatar { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; background: rgba(90, 219, 148, 0.2); color: #5adb94; font-weight: 700; }

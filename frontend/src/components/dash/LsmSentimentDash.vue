@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Bubble } from 'vue-chartjs'
 import type { ScatterPointDash } from '../../types/types'
 import { dashboardGridColor, dashboardTickColor } from '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -110,6 +111,7 @@ const bubbleChartOptions = computed<ChartOptions<'bubble'>>(
         <div class="dashboard-card-title">
           <i class="pi pi-chart-line dashboard-card-title__icon text-primary" aria-hidden="true"></i>
           <span>LSM vs Sentimento</span>
+          <InfoTooltipDash text="Cada bolha representa um par: a posição horizontal e o LSM, a vertical e o sentimento. O tamanho e a cor da bolha representam o score de compatibilidade; são exibidos os 12 maiores scores." />
         </div>
         <p class="dashboard-card-desc">Correlação entre estilo linguístico e convergência emocional</p>
       </div>

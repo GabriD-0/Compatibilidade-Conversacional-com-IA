@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import Card from 'primevue/card'
 import type { StatsDash } from '../../types/types'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = defineProps<{
   stats: StatsDash
@@ -28,6 +29,7 @@ const items = computed(() => [
     change: formatDelta(props.stats.average_score.delta, '%'),
     up: props.stats.average_score.delta == null || props.stats.average_score.delta >= 0,
     tone: 'score',
+    description: 'Média dos scores da analise mais recente de cada par.',
   },
   {
     label: 'Conversas',
@@ -36,14 +38,16 @@ const items = computed(() => [
     change: formatDelta(props.stats.conversations.delta),
     up: props.stats.conversations.delta == null || props.stats.conversations.delta >= 0,
     tone: 'chat',
+    description: 'Total de conversas criadas. A variação indica quantas foram criadas nos últimos 7 dias.',
   },
   {
-    label: 'Pares Ativos',
-    value: formatNumber(props.stats.active_pairs.value),
+    label: 'Pares Analisados',
+    value: formatNumber(props.stats.analyzed_pairs.value),
     icon: 'pi pi-users',
-    change: formatDelta(props.stats.active_pairs.delta),
-    up: props.stats.active_pairs.delta == null || props.stats.active_pairs.delta >= 0,
+    change: formatDelta(props.stats.analyzed_pairs.delta),
+    up: props.stats.analyzed_pairs.delta == null || props.stats.analyzed_pairs.delta >= 0,
     tone: 'pairs',
+    description: 'Conversas que já possuem pelo menos uma analise de compatibilidade. A variação considera as analisadas nos últimos 7 dias.',
   },
   {
     label: 'Analises Hoje',
@@ -52,6 +56,7 @@ const items = computed(() => [
     change: formatDelta(props.stats.analyses_today.delta),
     up: props.stats.analyses_today.delta == null || props.stats.analyses_today.delta >= 0,
     tone: 'today',
+    description: 'Analises calculadas hoje. A variação compara o total de hoje com o de ontem.',
   },
 ])
 </script>
@@ -81,7 +86,14 @@ const items = computed(() => [
             </span>
           </div>
           <div class="dashboard-stat__main">
-            <div class="dashboard-stat__label">{{ stat.label }}</div>
+            <div class="dashboard-stat__label">
+              <span>{{ stat.label }}</span>
+              <InfoTooltipDash
+                :text="stat.description"
+                :label="`Entenda ${stat.label}`"
+                :position="stat.tone === 'score' ? 'start' : 'center'"
+              />
+            </div>
             <div class="dashboard-stat__value">{{ stat.value }}</div>
           </div>
           <div class="dashboard-stat__footer">
@@ -114,7 +126,7 @@ const items = computed(() => [
   --stat-color: var(--color-primary);
   --stat-color-soft: color-mix(in srgb, var(--stat-color) 12%, transparent);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   min-height: 10.25rem;
   background:
     linear-gradient(145deg, color-mix(in srgb, var(--stat-color) 8%, transparent), transparent 46%),
@@ -158,6 +170,11 @@ const items = computed(() => [
 .dashboard-card :deep(.p-card-content) {
   height: 100%;
   padding: 0;
+}
+
+.dashboard-card:hover,
+.dashboard-card:focus-within {
+  z-index: 20;
 }
 
 .dashboard-card:hover {
@@ -239,6 +256,9 @@ const items = computed(() => [
 
 .dashboard-stat__label {
   order: -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--token-text-muted);

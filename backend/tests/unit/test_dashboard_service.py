@@ -17,14 +17,16 @@ def conversation(
     *,
     a: str = "Ana",
     b: str = "Bruno",
+    participant_a_id: int | None = None,
+    participant_b_id: int | None = None,
     message_count: int = 0,
     created_at: datetime | None = None,
     last_message_at: datetime | None = None,
 ):
     return SimpleNamespace(
         id=id,
-        participant_a_id=id * 10 + 1,
-        participant_b_id=id * 10 + 2,
+        participant_a_id=participant_a_id if participant_a_id is not None else id * 10 + 1,
+        participant_b_id=participant_b_id if participant_b_id is not None else id * 10 + 2,
         participant_a=participant(a),
         participant_b=participant(b),
         message_count=message_count,
@@ -117,7 +119,7 @@ def test_dashboard_stats_and_score_distribution_use_latest_analyses():
 
     assert payload["stats"]["average_score"] == {"value": 77.5, "delta": 2.5}
     assert payload["stats"]["conversations"]["value"] == 3
-    assert payload["stats"]["active_pairs"]["value"] == 2
+    assert payload["stats"]["analyzed_pairs"]["value"] == 2
     assert payload["stats"]["analyses_today"]["value"] == 1
     assert payload["score_distribution"] == [
         {"range": "0-20", "count": 0},
@@ -131,6 +133,28 @@ def test_dashboard_stats_and_score_distribution_use_latest_analyses():
         {"key": "mid", "label": "Media (60-79)", "value": 1},
         {"key": "low", "label": "Baixa (<60)", "value": 0},
     ]
+
+
+@pytest.mark.unit
+def test_dashboard_analyzed_pairs_counts_conversations_with_analysis():
+    conversations = [
+        conversation(1, message_count=8, created_at=dt(1), last_message_at=dt(8)),
+        conversation(2, message_count=6, created_at=dt(2), last_message_at=dt(7)),
+        conversation(3, message_count=4, created_at=dt(3), last_message_at=dt(6)),
+    ]
+    analyses = [
+        analysis(1, 1, score=80, classification="high", computed_at=dt(8)),
+        analysis(2, 2, score=70, classification="mid", computed_at=dt(7)),
+    ]
+
+    payload = build_dashboard_payload(
+        login_id=11,
+        conversations=conversations,
+        analyses=analyses,
+        now=dt(8),
+    )
+
+    assert payload["stats"]["analyzed_pairs"] == {"value": 2, "delta": 2}
 
 
 @pytest.mark.unit
@@ -198,8 +222,8 @@ def test_dashboard_recent_activity_uses_match_name_for_logged_user():
 @pytest.mark.unit
 def test_dashboard_top_pairs_are_ranked_and_have_score_trends():
     conversations = [
-        conversation(1, a="Ana", b="Bruno"),
-        conversation(2, a="Caio", b="Dina"),
+        conversation(1, a="Ana", b="Bruno", participant_a_id=11, participant_b_id=12),
+        conversation(2, a="Ana", b="Dina", participant_a_id=11, participant_b_id=22),
     ]
     analyses = [
         analysis(1, 1, score=75, classification="mid", computed_at=dt(6)),
@@ -209,7 +233,7 @@ def test_dashboard_top_pairs_are_ranked_and_have_score_trends():
     ]
 
     payload = build_dashboard_payload(
-        login_id=1,
+        login_id=11,
         conversations=conversations,
         analyses=analyses,
         now=dt(8),
@@ -217,11 +241,11 @@ def test_dashboard_top_pairs_are_ranked_and_have_score_trends():
 
     assert payload["top_pairs"][0] == {
         "conversation_id": 1,
-        "a": "Ana",
-        "b": "Bruno",
+        "pair": "Bruno",
         "score": 92,
         "trend": "up",
     }
+    assert payload["top_pairs"][1]["pair"] == "Dina"
     assert payload["top_pairs"][1]["trend"] == "down"
 
 

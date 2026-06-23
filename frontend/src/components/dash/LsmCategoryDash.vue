@@ -5,6 +5,7 @@ import type { ChartOptions } from 'chart.js'
 import { Bar } from 'vue-chartjs'
 import type { LsmCategoryDash } from '../../types/types'
 import { dashboardGridColor, dashboardTickColor } from '../../services/chartSetup'
+import InfoTooltipDash from './InfoTooltipDash.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -69,6 +70,7 @@ const lsmBarOptions = computed<ChartOptions<'bar'>>(
         <div class="dashboard-card-title">
           <i class="pi pi-book dashboard-card-title__icon text-secondary" aria-hidden="true"></i>
           <span>LSM por Categoria</span>
+          <InfoTooltipDash text="Mostra a media de similaridade de estilo linguistico, de 0 a 100, em cada categoria de palavras funcionais. Quanto maior o valor, mais parecido e o uso daquela categoria entre os participantes." />
         </div>
         <p class="dashboard-card-desc">Media de similaridade linguistica por categoria em todos os matches</p>
       </div>
